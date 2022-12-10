@@ -9,35 +9,31 @@ import com.suryansh.repository.BrandRepository;
 import com.suryansh.repository.DescriptionRepository;
 import com.suryansh.repository.ProductRepository;
 import com.suryansh.repository.SubProductRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
+import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
     private final BrandRepository brandRepository;
     private final DescriptionRepository descriptionRepository;
     private final ProductRepository productRepository;
     private final SubProductRepository subProductRepository;
     private final WebClient.Builder webClientBuilder;
-
-    @Autowired
-    public ProductServiceImpl(BrandRepository brandRepository, DescriptionRepository descriptionRepository, ProductRepository productRepository, SubProductRepository subProductRepository, WebClient.Builder webClientBuilder) {
-        this.brandRepository = brandRepository;
-        this.descriptionRepository = descriptionRepository;
-        this.productRepository = productRepository;
-        this.subProductRepository = subProductRepository;
-        this.webClientBuilder = webClientBuilder;
-    }
+    private final ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory;
 
     @Override
     @Transactional
@@ -104,12 +100,15 @@ public class ProductServiceImpl implements ProductService {
         List<ProductImageDto> productImages = product.getProductImages().stream()
                 .map(this::ImageEntityToDto)
                 .toList();
-
         // Calling Inventory Microservice
         InventoryResponse productStock = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/inventory/get-product-byId/" + product.getId())
                 .retrieve()
                 .bodyToMono(InventoryResponse.class)
+                .transform(it->{
+                    ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create("PRODUCT-SERVICE");
+                    return rcb.run(it,throwable -> Mono.just(InventoryResponse.builder().build()));
+                })
                 .block();
         assert productStock != null;
         Boolean isInStock = productStock.getNoOfStock() > 0;

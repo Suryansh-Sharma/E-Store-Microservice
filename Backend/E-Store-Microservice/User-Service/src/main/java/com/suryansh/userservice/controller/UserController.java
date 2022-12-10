@@ -1,6 +1,7 @@
 package com.suryansh.userservice.controller;
 
 import com.suryansh.userservice.dto.AddressDto;
+import com.suryansh.userservice.dto.LikedProductDto;
 import com.suryansh.userservice.dto.UserDto;
 import com.suryansh.userservice.model.AddressModel;
 import com.suryansh.userservice.model.LikeModel;
@@ -107,6 +108,10 @@ public class UserController {
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
+    }
+    @GetMapping("/likedProducts-byUser/{userName}")
+    public List<LikedProductDto> getAllLikedProducts(@PathVariable String userName){
+        return userService.getAllLikedProductsByUser(userName);
     }
 
 }

@@ -22,18 +22,54 @@ spring:
           uri: lb://PRODUCT-SERVICE
           predicates:
             - Path=/api/products/** , /api/image/** , /api/brand/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                # noinspection SpringBootApplicationYaml
+                name: PRODUCT-SERVICE
+                # noinspection SpringBootApplicationYaml
+                fallbackuri: forward:/productServiceFallBack
         - id : INVENTORY-SERVICE
           uri: lb://INVENTORY-SERVICE
           predicates:
             - Path=/api/inventory/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                # noinspection SpringBootApplicationYaml
+                name: INVENTORY-SERVICE
+                # noinspection SpringBootApplicationYaml
+                fallbackuri: forward:/inventoryServiceFallBack
         - id: ORDER-SERVICE
           uri: lb://ORDER-SERVICE
           predicates:
             - Path=/api/order/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                # noinspection SpringBootApplicationYaml
+                name: ORDER-SERVICE
+                # noinspection SpringBootApplicationYaml
+                fallbackuri: forward:/orderServiceFallBack
         - id: USER-SERVICE
           uri: lb://USER-SERVICE
           predicates:
             - Path=/api/user/** , /api/cart/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                # noinspection SpringBootApplicationYaml
+                name: USER-SERVICE
+                # noinspection SpringBootApplicationYaml
+                fallbackuri: forward:/userServiceFallBack
+resilience4j:
+  ratelimiter:
+    configs:
+      default:
+        limitForPeriod: 5
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0
+
 server:
   port: 8080
   spring:

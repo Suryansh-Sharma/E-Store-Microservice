@@ -11,6 +11,7 @@ import com.suryansh.userservice.model.CartModel;
 import com.suryansh.userservice.repository.UserCartRepository;
 import com.suryansh.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CartServiceImpl implements CartService {
     private final UserCartRepository userCartRepository;
@@ -134,7 +136,7 @@ public class CartServiceImpl implements CartService {
         try {
             userCartRepository.deleteProductFromCart(cart.getId());
             userRepository.save(user);
-            System.out.println("Removed Product from Cart !!");
+            log.info("Removed Product from Cart !!");
         } catch (Exception e) {
             throw new UserServiceException("Unable to Delete Product From Cart " + model);
         }

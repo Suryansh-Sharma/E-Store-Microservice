@@ -39,7 +39,7 @@ public class ProductController {
         return CompletableFuture.completedFuture("Product saved successfully :Controller");
     }
 
-    @GetMapping("/fullView-by-name/{name}")
+    @GetMapping("fullView-by-name/{name}")
     public ResponseEntity<ProductDto> fullViewByName(@PathVariable String name) {
         try {
             return new ResponseEntity<>(productService.fullViewByName(name)

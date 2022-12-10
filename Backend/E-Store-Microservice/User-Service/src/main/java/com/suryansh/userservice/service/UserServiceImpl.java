@@ -1,6 +1,7 @@
 package com.suryansh.userservice.service;
 
 import com.suryansh.userservice.dto.AddressDto;
+import com.suryansh.userservice.dto.LikedProductDto;
 import com.suryansh.userservice.dto.UserDto;
 import com.suryansh.userservice.entity.LikedProduct;
 import com.suryansh.userservice.entity.User;
@@ -12,12 +13,14 @@ import com.suryansh.userservice.repository.LikedProductRepository;
 import com.suryansh.userservice.repository.UserAddressRepository;
 import com.suryansh.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
@@ -78,6 +81,7 @@ public class UserServiceImpl implements UserService {
             likedProductRepository.save(likedProduct);
             userRepository.save(user);
         } catch (Exception e) {
+            log.error("Product {0} not able to Liked for user {1}"+likeModel.getProductName()+user.getUserName());
             throw new UserServiceException("Unable Add Product in Liked Table");
         }
     }
@@ -94,6 +98,7 @@ public class UserServiceImpl implements UserService {
         try {
             likedProductRepository.delete(likedProduct);
         } catch (Exception e) {
+            log.error("Unable to UnLike product {0} for user {1} "+likeModel.getProductName()+user.getUserName());
             throw new UserServiceException("Unable to Delete Product From Liked Product");
         }
     }
@@ -166,7 +171,20 @@ public class UserServiceImpl implements UserService {
         return AddressEntityToDto(address);
     }
 
-
+    @Override
+    public List<LikedProductDto> getAllLikedProductsByUser(String userName) {
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(()->new UserServiceException("Unable to find User"));
+        List<LikedProduct>result = likedProductRepository.findByUserId(user.getId());
+        return result.stream()
+                .map((val-> LikedProductDto.builder()
+                        .id(val.getId())
+                        .userId(val.getUserId())
+                        .productName(val.getProductName())
+                        .productId(val.getProductId())
+                        .build()))
+                .toList();
+    }
     private AddressDto AddressEntityToDto(UserAddress userAddress) {
         return AddressDto.builder()
                 .id(userAddress.getId())
