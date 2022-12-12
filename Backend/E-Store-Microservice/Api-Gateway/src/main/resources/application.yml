@@ -79,3 +79,10 @@ server:
           locator:
             enabled: true
             lowerCaseServiceId: true
+okta:
+  oauth2:
+    issuer: https://dev-40949592.okta.com/oauth2/default
+    audience: api://default
+    client-id: 0oa7l4ohmkUG6enhN5d7
+    client-secret: vBnOQRNr04oU11GcJz2J8iTjd4b7ES47jyNjunaq
+    scopes: openid, profile, email, offline_access

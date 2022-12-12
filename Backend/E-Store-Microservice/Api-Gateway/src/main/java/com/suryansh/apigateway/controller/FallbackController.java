@@ -1,4 +1,4 @@
-package com.suryansh.apigateway;
+package com.suryansh.apigateway.controller;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;

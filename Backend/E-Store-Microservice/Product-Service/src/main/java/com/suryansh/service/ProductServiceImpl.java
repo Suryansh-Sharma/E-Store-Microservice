@@ -38,7 +38,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     @Async
-    public void save(ProductModel productModel) {
+    public void save(ProductModel productModel, String token) {
         Brand brand = brandRepository.findByName(productModel.getBrandName())
                 .orElseThrow(() -> new SpringProductException("Unable to find Brand : ProductServiceImpl.save"));
 
@@ -75,11 +75,12 @@ public class ProductServiceImpl implements ProductService {
             String response = webClientBuilder.build().post()
                     .uri("http://geekyprogrammer:8080/api/inventory/addToInventory/"
                             + productModel.getProductName() + "/" + p.getId() + productModel.getNoOfStock())
+                    .header("Authorization",token)
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
-            log.info(response);
             log.info("Product Saved to Product Microservice and Inventory Service");
+            log.info("Response of Inventory post product {} "+response);
         } catch (Exception e) {
             throw new SpringProductException("Unable to save Product : ProductServiceImpl.save Catch block");
         }
@@ -87,7 +88,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductDto fullViewByName(String name) {
+    public ProductDto fullViewByName(String name, String token) {
         Product product = productRepository.findByProductName(name)
                 .orElseThrow(() -> new SpringProductException("Unable to find Product :ProductService.findByName"));
         Brand brand = product.getBrand();
@@ -103,6 +104,7 @@ public class ProductServiceImpl implements ProductService {
         // Calling Inventory Microservice
         InventoryResponse productStock = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/inventory/get-product-byId/" + product.getId())
+                .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(InventoryResponse.class)
                 .transform(it->{
@@ -188,7 +190,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     @Async
-    public void saveSubProduct(SubProductModel val) {
+    public void saveSubProduct(SubProductModel val, String token) {
         try {
             SubProduct subProduct = SubProduct.builder()
                     .productId(val.getProductId())
@@ -213,6 +215,7 @@ public class ProductServiceImpl implements ProductService {
             webClientBuilder.build().post()
                     .uri("http://geekyprogrammer:8080/api/inventory/addToInventory/"
                             + val.getSubProductName() + "/" + val.getNoOfStock())
+                    .header("Authorization",token)
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();

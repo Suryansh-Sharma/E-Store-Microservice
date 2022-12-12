@@ -2,25 +2,23 @@ package com.suryansh.controller;
 
 import com.suryansh.dto.ProductDto;
 import com.suryansh.dto.ProductPagingDto;
-import com.suryansh.entity.Product;
-import com.suryansh.exception.SpringProductException;
 import com.suryansh.model.ProductModel;
 import com.suryansh.model.SubProductModel;
 import com.suryansh.service.ProductService;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/products/")
 @AllArgsConstructor
 @CrossOrigin("*")
 public class ProductController {
@@ -33,16 +31,19 @@ public class ProductController {
     }
 
     @PostMapping("/save")
+    @PreAuthorize("hasAuthority('Admin')")
     @Async
-    public CompletableFuture<String> saveProduct(@RequestBody ProductModel productModel) {
-        productService.save(productModel);
+    public CompletableFuture<String> saveProduct(@RequestBody ProductModel productModel,
+                                                 @RequestHeader(name = "Authorization") String token) {
+        productService.save(productModel,token);
         return CompletableFuture.completedFuture("Product saved successfully :Controller");
     }
 
     @GetMapping("fullView-by-name/{name}")
-    public ResponseEntity<ProductDto> fullViewByName(@PathVariable String name) {
+    public ResponseEntity<ProductDto> fullViewByName(@PathVariable String name,
+                                                     @RequestHeader(name = "Authorization") String token) {
         try {
-            return new ResponseEntity<>(productService.fullViewByName(name)
+            return new ResponseEntity<>(productService.fullViewByName(name,token)
                     , HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null
@@ -78,9 +79,11 @@ public class ProductController {
         }
     }
     @PostMapping("/save-subProduct")
+    @PreAuthorize("hasAuthority('Admin')")
     @Async
-    public void saveSubProduct(@RequestBody SubProductModel Model) {
-        productService.saveSubProduct(Model);
+    public void saveSubProduct(@RequestBody SubProductModel Model,
+                               @RequestHeader(name = "Authorization") String token) {
+        productService.saveSubProduct(Model,token);
     }
     @GetMapping("/by-nameLike/{productName}/{page}")
     public List<ProductDto> getAllNameLike(@PathVariable String productName, @PathVariable int page){
