@@ -31,7 +31,7 @@ public class ProductController {
     }
 
     @PostMapping("/save")
-    @PreAuthorize("hasAuthority('Admin')")
+//    @PreAuthorize("hasAuthority('Admin')")
     @Async
     public CompletableFuture<String> saveProduct(@RequestBody ProductModel productModel,
                                                  @RequestHeader(name = "Authorization") String token) {
@@ -79,7 +79,7 @@ public class ProductController {
         }
     }
     @PostMapping("/save-subProduct")
-    @PreAuthorize("hasAuthority('Admin')")
+//    @PreAuthorize("hasAuthority('Admin')")
     @Async
     public void saveSubProduct(@RequestBody SubProductModel Model,
                                @RequestHeader(name = "Authorization") String token) {

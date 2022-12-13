@@ -8,9 +8,9 @@ import com.suryansh.orderservice.model.OrderUpdateModel;
 import java.util.List;
 
 public interface OrderService {
-    void placeOrder(String userName, CartDto cartDto);
+    void placeOrder(String userName, CartDto cartDto, String token);
 
-    List<OrderDto> getAllOrderByUser(String userName);
+    List<OrderDto> getAllOrderByUser(String userName, String token);
 
     OrderDetails getOrderDetails(Long orderId);
 

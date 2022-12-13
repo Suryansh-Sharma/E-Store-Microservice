@@ -17,12 +17,14 @@ public class WebSecurityConfig {
         http
                 .authorizeRequests(authorizeRequest->
                             authorizeRequest
+                                    .antMatchers("/api/products/by-name/**")
+                                    .permitAll()
                                     .anyRequest()
                                     .authenticated()
                         ).oauth2ResourceServer(
                         OAuth2ResourceServerConfigurer::jwt
                 );
-
+        http.csrf().disable();
         return http.build();
     }
 }

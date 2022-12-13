@@ -19,6 +19,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -37,17 +38,19 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Async
     @Transactional
-    public void placeOrder(String userName, CartDto cart) {
-        System.out.println(cart);
+    public void placeOrder(String userName, CartDto cart, String token) {
         RestTemplate restTemplate = new RestTemplate();
+        // Calling User Microservice to get User By UserName.
         UserDto user = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/user/by-userName/" + userName)
+                .header("Authorization",token)
                 .retrieve()
                 .bodyToMono(UserDto.class)
                 .block();
         assert user != null;
         AddressDto addressDto = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/user/getUserAddressById/" + user.getId())
+                .header("Authorization",token)
                 .retrieve()
                 .bodyToMono(AddressDto.class)
                 .block();
@@ -90,27 +93,30 @@ public class OrderServiceImpl implements OrderService {
                         .build();
                 orderItemsRepository.save(orderItems);
             });
-
-            restTemplate.postForObject(
-                    "http://geekyprogrammer:8080/api/inventory/updateInventoryProducts",
-                    inventoryModels,
-                    ResponseEntity.class
-            );
+            // Calling Inventory Service for Updating Inventory.
+            webClientBuilder.build().post()
+                            .uri("http://geekyprogrammer:8080/api/inventory/updateInventoryProducts")
+                            .header("Authorization",token)
+                            .body(BodyInserters.fromValue(inventoryModels));
+            log.info("Inventory Updated Successfully");
+            // Calling Cart Service for Clearing Cart for User After Order Placed.
             String cartResponse = webClientBuilder.build().get()
                     .uri("http://geekyprogrammer:8080/api/cart/clearCartForUser/" + userName)
+                    .header("Authorization",token)
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();
-            System.out.println(cartResponse);
+            log.info(cartResponse);
             log.info("Order Placed Successfully");
         } catch (Exception e) {
             throw new SpringOrderException("Unable to Place Order !!");
         }
     }
     @Override
-    public List<OrderDto> getAllOrderByUser(String userName) {
+    public List<OrderDto> getAllOrderByUser(String userName, String token) {
         UserDto user = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/user/by-userName/" + userName)
+                .header("Authorization",token)
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
                 .bodyToMono(UserDto.class)

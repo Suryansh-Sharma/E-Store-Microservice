@@ -29,4 +29,5 @@ public class ProductDto {
     private Boolean productIsInStock;
     private BrandDto brand;
     private List<ProductImageDto>productImages;
+    private List<SubProductDto> subProducts;
 }

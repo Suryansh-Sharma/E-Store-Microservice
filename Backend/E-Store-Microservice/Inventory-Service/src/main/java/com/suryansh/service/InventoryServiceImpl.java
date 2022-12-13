@@ -6,6 +6,7 @@ import com.suryansh.exception.SpringInventoryException;
 import com.suryansh.model.InventoryModel;
 import com.suryansh.repository.InventoryRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class InventoryServiceImpl implements InventoryService {
 
@@ -84,6 +86,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Transactional
     @Async
     public void saveProduct(String productName, Long id, int noOfStock) {
+        log.info("productName: {0} , productId: {1}, noOfStock {2} "+productName,id,noOfStock);
         Inventory inventory = Inventory.builder()
                 .productId(id)
                 .productName(productName)

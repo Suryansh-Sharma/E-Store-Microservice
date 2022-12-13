@@ -2,6 +2,8 @@ package com.suryansh.userservice.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

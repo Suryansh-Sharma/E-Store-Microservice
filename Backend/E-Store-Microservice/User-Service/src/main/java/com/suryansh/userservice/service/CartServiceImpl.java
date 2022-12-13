@@ -12,6 +12,7 @@ import com.suryansh.userservice.repository.UserCartRepository;
 import com.suryansh.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,16 +31,20 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     @Async
-    public void addProductToCart(CartModel cartModel) {
+    public void addProductToCart(CartModel cartModel, String token) {
         // Calling Product Microservice for Getting Product.
         ProductDto productResponse = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/products/by-id/" + cartModel.getProductId())
+                .header("Authorization",token)
                 .retrieve()
                 .bodyToMono(ProductDto.class)
                 .block();
+        log.info("Found Product from Product Service");
+        log.info("Product is {0}"+productResponse);
         User user = userRepository.findByUserName(cartModel.getUserName())
                 .orElseThrow(() -> new UserServiceException("Unable to Find User for Add to Cart " +
                         cartModel.getUserName()));
+        log.info("Found User");
         assert productResponse != null;
         UserCart cart = UserCart.builder()
                 .userId(user.getId())
@@ -50,23 +55,24 @@ public class CartServiceImpl implements CartService {
                 .noOfProduct(cartModel.getNoOfProduct())
                 .build();
         user.setCartTotalPrice(user.getCartTotalPrice() + cart.getTotalPrice());
-        user.setCartTotalProducts(user.getCartTotalProducts() + cart.getNoOfProduct());
+        user.setCartTotalProducts(user.getCartTotalProducts() + cartModel.getNoOfProduct());
         try {
             userRepository.save(user);
             userCartRepository.save(cart);
+            log.info("Added Product Cart");
         } catch (Exception e) {
             throw new UserServiceException("Unable to Save Product to Cart " + productResponse.getProductName());
         }
     }
 
     @Override
-    public CartDto findAllByUserName(String userName) {
+    public CartDto findAllByUserName(String userName, String token) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserServiceException("Unable to Find User for Add to Cart " +
                         userName));
         if (user.getCartTotalProducts() == 0) return null;
         List<CartItems> res = user.getCartProducts().stream()
-                .map(this::CartEntityToDto)
+                .map((userCart)->CartEntityToDto(userCart,token))
                 .toList();
 
         return CartDto.builder()
@@ -79,7 +85,7 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     @Async
-    public void updateCartForUser(List<CartModel> cartModels, String userName) {
+    public void updateCartForUser(List<CartModel> cartModels, String userName, String token) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserServiceException("User is not present : updateCart " + userName));
         cartModels.forEach((model -> {
@@ -89,6 +95,7 @@ public class CartServiceImpl implements CartService {
                         .orElseThrow(() -> new UserServiceException("Unable to find cart product for " + model));
                 ProductDto productResponse = webClientBuilder.build().get()
                         .uri("http://geekyprogrammer:8080/api/products/by-id/" + model.getProductId())
+                        .header("Authorization",token)
                         .retrieve()
                         .bodyToMono(ProductDto.class)
                         .block();
@@ -142,10 +149,11 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    private CartItems CartEntityToDto(UserCart userCart) {
+    private CartItems CartEntityToDto(UserCart userCart,String token) {
         // Calling Inventory Repository.
         InventoryResponse productStock = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/inventory/get-product-byId/" + userCart.getProductId())
+                .header("Authorization",token)
                 .retrieve()
                 .bodyToMono(InventoryResponse.class)
                 .block();

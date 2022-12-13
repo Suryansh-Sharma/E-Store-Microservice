@@ -21,13 +21,15 @@ public class OrderController {
 
     @PostMapping("/placeOrder/{userName}")
     @Async
-    public void placeOrder(@RequestBody CartDto cartDto, @PathVariable String userName) {
-        orderService.placeOrder(userName, cartDto);
+    public void placeOrder(@RequestBody CartDto cartDto, @PathVariable String userName,
+                           @RequestHeader(name = "Authorization") String token) {
+        orderService.placeOrder(userName, cartDto,token);
     }
 
     @GetMapping("/getOrder-byUser/{userName}")
-    public List<OrderDto> getOrderByUser(@PathVariable String userName) {
-        return orderService.getAllOrderByUser(userName);
+    public List<OrderDto> getOrderByUser(@PathVariable String userName,
+                                         @RequestHeader(name = "Authorization") String token) {
+        return orderService.getAllOrderByUser(userName,token);
     }
 
     @GetMapping("/getOrder-byId/{orderId}")

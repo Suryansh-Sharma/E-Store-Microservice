@@ -9,7 +9,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
 
     @Bean
@@ -18,8 +17,9 @@ public class WebSecurityConfig {
                 .authorizeRequests(request->
                         request
                                 .anyRequest()
-                                .authenticated()
+                                .permitAll()
                 );
+        httpSecurity.csrf().disable();
         return httpSecurity.build();
     }
 }

@@ -13,17 +13,18 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/api/cart/")
 @RequiredArgsConstructor
-@CrossOrigin
+@CrossOrigin("*")
 public class CartController {
     private final CartService cartService;
 
     @PostMapping("/addProductToCart")
     @Async
-    public CompletableFuture<ResponseEntity<Void>> AddProductToCart(@RequestBody CartModel cartModel) {
+    public CompletableFuture<ResponseEntity<Void>> AddProductToCart(@RequestBody CartModel cartModel,
+                                                                    @RequestHeader(name = "Authorization") String token) {
         try {
-            cartService.addProductToCart(cartModel);
+            cartService.addProductToCart(cartModel,token);
             return CompletableFuture.completedFuture(new ResponseEntity<>(null, HttpStatus.OK));
         } catch (Exception e) {
             return CompletableFuture.completedFuture(new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
@@ -33,15 +34,17 @@ public class CartController {
     @GetMapping("/getCartByUser/{userName}")
     @ResponseStatus(HttpStatus.OK)
     @Async
-    public CompletableFuture<CartDto> getAllCartProductsByUser(@PathVariable String userName) {
-        return CompletableFuture.completedFuture(cartService.findAllByUserName(userName));
+    public CompletableFuture<CartDto> getAllCartProductsByUser(@PathVariable String userName,
+                                                               @RequestHeader(name = "Authorization") String token) {
+        return CompletableFuture.completedFuture(cartService.findAllByUserName(userName,token));
     }
 
     @PostMapping("/updateCartOfUser/{userName}")
     @Async
     public CompletableFuture<String> updateCart(@RequestBody List<CartModel> cartModels,
-                                                @PathVariable String userName) {
-        cartService.updateCartForUser(cartModels, userName);
+                                                @PathVariable String userName,
+                                                @RequestHeader(name = "Authorization") String token) {
+        cartService.updateCartForUser(cartModels, userName,token);
         return CompletableFuture.completedFuture("Cart is updated for user : - " + userName);
     }
 

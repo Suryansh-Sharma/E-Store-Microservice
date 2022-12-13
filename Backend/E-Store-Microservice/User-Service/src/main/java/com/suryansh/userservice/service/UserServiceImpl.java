@@ -166,7 +166,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public AddressDto getUserAddressById(Long id) {
-        UserAddress address = userAddressRepository.findById(id)
+        UserAddress address = userAddressRepository.findByUserId(id)
                 .orElseThrow(() -> new UserServiceException("Unable to Find Address By Id " + id));
         return AddressEntityToDto(address);
     }
