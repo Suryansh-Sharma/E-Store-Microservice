@@ -18,13 +18,8 @@ public class BrandController {
     private final BrandService brandService;
 
     @PostMapping
-    public ResponseEntity<String> createBrand(@RequestBody BrandModel brandModel) {
-        try {
-            brandService.save(brandModel);
-            return new ResponseEntity<>("Brand save successfully.", HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Unable to save.", HttpStatus.CONFLICT);
-        }
+    public void createBrand(@RequestBody BrandModel brandModel) {
+        brandService.save(brandModel);
     }
 
     @GetMapping

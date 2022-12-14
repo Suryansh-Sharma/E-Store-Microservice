@@ -105,14 +105,14 @@ GET: http://geekyprogrammer:8080/api/products/by-name/Samsung Galaxy S22 Ultra 5
 Response
      
     {
-        "id": 25,
+        "id": 1,
         "productName": "Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)",
         "ratings": 0,
         "noOfRatings": 0,
         "text": "No Cost EMI/Additional Exchange Offers",
-        "price": 131999.0,
+        "price": 131999,
         "discount": 17,
-        "newPrice": 109999.0,
+        "newPrice": 109999,
         "productImage": "www.Samsung.com",
         "productCategory": "Mobile",
         "description": null,
@@ -131,7 +131,7 @@ POST: http://localhost:8080/api/products/save-subProduct
 Body
         
     {
-        "productId": 25,
+        "productId": 1,
         "text":"with No Cost EMI/Additional Exchange Offers",
         "subProductName": "Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 1Tb Storage)",
         "brandName": "Samsung",
@@ -150,7 +150,7 @@ GET: http://geekyprogrammer:8080/api/products/fullView-by-name/Samsung Galaxy S2
 Response:
     
     {
-        "id": 25,
+        "id": 1,
         "productName": "Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)",
         "ratings": 0,
         "noOfRatings": 0,
@@ -178,14 +178,14 @@ Response:
         ],
         "subProducts": [
             {
-                "id": 4,
-                "productId": 25,
+                "id": 1,
+                "productId": 1,
                 "subProductName": "Samsung Galaxy S22 Ultra 5G (Black, 256GB Storage)",
                 "price": 131999.0
             },
             {
-                "id": 7,
-                "productId": 25,
+                "id": 2,
+                "productId": 2,
                 "subProductName": "Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 1Tb Storage)",
                 "price": 142999.0
             }
@@ -200,7 +200,7 @@ Body:
     
     {
         "userName":"SuryanshSharma@1942",
-        "productId":25,
+        "productId":1,
         "productName":"Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)"
     }
 
@@ -208,7 +208,7 @@ step10: Check is product like by user.
 
 /api/user/isProductLikedByUser/{userName}/{productId}
 
-GET: http://geekyprogrammer:8080/api/user/isProductLikedByUser/SuryanshSharma@1942/25
+GET: http://geekyprogrammer:8080/api/user/isProductLikedByUser/SuryanshSharma@1942/1
 
 step11: UnLike Product.
 
@@ -218,7 +218,7 @@ BODY:
     
     {
         "userName":"SuryanshSharma@1942",
-        "productId":25,
+        "productId":1,
         "productName":"Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)"
     }
 
@@ -231,7 +231,7 @@ POST : http://geekyprogrammer:8080/api/cart/addProductToCart
 BODY:
     
     {
-        "productId":25,
+        "productId":1,
         "userName":"SuryanshSharma@1942",
         "noOfProduct":1
     }
@@ -245,9 +245,9 @@ Response:
     {
         "cartProduct": [
             {
-                "id": 6,
+                "id": 1,
                 "isInStock": true,
-                "productId": 25,
+                "productId": 1,
                 "productName": "Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)",
                 "price": 131999.0,
                 "totalPrice": 131999.0,
@@ -269,8 +269,8 @@ BODY:
     
     [
         {
-            "id": 6,
-            "productId": 25,
+            "id": 1,
+            "productId": 1,
             "noOfProduct": 4
         }
     ]
@@ -286,9 +286,9 @@ BODY:
     {
         "cartProduct": [
             {
-                "id": 6,
+                "id": 1,
                 "isInStock": true,
-                "productId": 25,
+                "productId": 1,
                 "productName": "Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)",
                 "price": 131999.0,
                 "totalPrice": 527996.0,
@@ -307,38 +307,28 @@ Response:
         
     [
         {
-            "id": 5,
-            "userId": 2,
-            "orderDate": "moments ago",
-            "lastUpdate": "moments ago",
+            "id": 1,
+            "userId": 1,
+            "orderDate": "8 minutes ago",
+            "lastUpdate": "8 minutes ago",
             "status": "Submitted To Seller",
-            "totalItems": 4,
-            "price": 527996.0,
-            "isProductDelivered": false
-        },
-        {
-            "id": 4,
-            "userId": 2,
-            "orderDate": "2 hours ago",
-            "lastUpdate": "2 hours ago",
-            "status": "Submitted To Seller",
-            "totalItems": 4,
-            "price": 527996.0,
+            "totalItems": 2,
+            "price": 263998.0,
             "isProductDelivered": false
         }
     ]
 
 step17: Get Order Full details by id . 
 
-GET: http://geekyprogrammer:8080/api/order/getOrderDetails/5
+GET: http://geekyprogrammer:8080/api/order/getOrderDetails/1
 
-BODY:
+Response:
     
     {
-        "orderId": 5,
+        "orderId": 1,
         "status": "Submitted To Seller",
-        "totalItems": 4,
-        "price": 527996.0,
+        "totalItems": 2,
+        "price": 263998.0,
         "line1": "(Rajesh Sharma) House no 4 Chaudhary Shikarpur Compound near D.M Residence",
         "city": "Bulandshahr",
         "pinCode": 203001,
@@ -346,11 +336,11 @@ BODY:
         "isProductDelivered": false,
         "orderItems": [
             {
-                "itemId": 6,
-                "orderId": 5,
-                "productId": 25,
+                "itemId": 1,
+                "orderId": 1,
+                "productId": 1,
                 "productName": "Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)",
-                "quantity": 4,
+                "quantity": 2,
                 "price": 131999.0
             }
         ]
@@ -363,25 +353,15 @@ GET: http://geekyprogrammer:8080/api/order/getAllPendingOrder
 Response:
         
         [
-            {
-                "id": 4,
-                "userId": 2,
-                "orderDate": "2 hours ago",
-                "lastUpdate": "2 hours ago",
-                "status": "Submitted To Seller",
-                "totalItems": 4,
-                "price": 527996.0,
-                "isProductDelivered": false
-            },
-            {
-                "id": 5,
-                "userId": 2,
-                "orderDate": "5 minutes ago",
-                "lastUpdate": "5 minutes ago",
-                "status": "Submitted To Seller",
-                "totalItems": 4,
-                "price": 527996.0,
-                "isProductDelivered": false
+           {
+            "id": 1,
+            "userId": 1,
+            "orderDate": "10 minutes ago",
+            "lastUpdate": "10 minutes ago",
+            "status": "Submitted To Seller",
+            "totalItems": 2,
+            "price": 263998.0,
+            "isProductDelivered": false
             }
         ]
 
@@ -392,7 +372,7 @@ PUT : http://geekyprogrammer:8080/api/order/updateProduct
 Body:
         
     {
-        "orderId":4,
+        "orderId":1,
         "isProductDelivered":true,
         "status":"Order is Delivered on 13 December"
     }

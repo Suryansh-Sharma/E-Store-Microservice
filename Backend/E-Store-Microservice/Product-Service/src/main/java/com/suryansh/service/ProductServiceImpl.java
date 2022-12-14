@@ -78,7 +78,7 @@ public class ProductServiceImpl implements ProductService {
             Product p = productRepository.findByProductName(productModel.getProductName())
                     .orElseThrow();
             log.info("Product  Found");
-            // Calling Inventory Microservice.
+            // Calling Inventory Microservice for Adding noOfStock of product.
             webClientBuilder.build().post()
                     .uri("http://geekyprogrammer:8080/api/inventory/addToInventory/"
                             + productModel.getProductName() + "/" + p.getId() +"/"+ productModel.getNoOfStock())
@@ -110,7 +110,7 @@ public class ProductServiceImpl implements ProductService {
         List<SubProductDto> subProductDtoList= product.getSubProducts().stream()
                 .map(this::subProductEntityToDto)
                 .toList();
-        // Calling Inventory Microservice
+        // Calling Inventory Microservice to get update about stock.
         InventoryResponse productStock = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/inventory/get-product-byId/" + product.getId())
                 .header("Authorization", token)
@@ -235,7 +235,7 @@ public class ProductServiceImpl implements ProductService {
             log.info("Product saved Successfully");
             Product lastSavedProduct =productRepository.findTopByOrderByIdDesc();
             log.info("Last Saved Id : {0} "+lastSavedProduct.getId());
-            // Calling Inventory Microservice.
+            // Calling Inventory Microservice to add SubProduct noOfStock.
             webClientBuilder.build().post()
                     .uri("http://geekyprogrammer:8080/api/inventory/addToInventory/"
                             + val.getSubProductName() + "/" + lastSavedProduct.getId() +"/"+ val.getNoOfStock())

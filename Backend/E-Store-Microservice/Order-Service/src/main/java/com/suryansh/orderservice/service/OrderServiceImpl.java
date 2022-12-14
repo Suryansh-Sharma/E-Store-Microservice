@@ -14,11 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -39,7 +37,6 @@ public class OrderServiceImpl implements OrderService {
     @Async
     @Transactional
     public void placeOrder(String userName, CartDto cart, String token) {
-        RestTemplate restTemplate = new RestTemplate();
         // Calling User Microservice to get User By UserName.
         UserDto user = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/user/by-userName/" + userName)
@@ -48,6 +45,7 @@ public class OrderServiceImpl implements OrderService {
                 .bodyToMono(UserDto.class)
                 .block();
         assert user != null;
+        // Calling User service to Get Address of User .
         AddressDto addressDto = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/user/getUserAddressById/" + user.getId())
                 .header("Authorization",token)

@@ -12,7 +12,6 @@ import com.suryansh.userservice.repository.UserCartRepository;
 import com.suryansh.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +39,6 @@ public class CartServiceImpl implements CartService {
                 .bodyToMono(ProductDto.class)
                 .block();
         log.info("Found Product from Product Service");
-        log.info("Product is {0}"+productResponse);
         User user = userRepository.findByUserName(cartModel.getUserName())
                 .orElseThrow(() -> new UserServiceException("Unable to Find User for Add to Cart " +
                         cartModel.getUserName()));
