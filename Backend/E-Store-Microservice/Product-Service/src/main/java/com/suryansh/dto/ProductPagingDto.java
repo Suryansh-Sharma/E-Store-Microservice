@@ -12,5 +12,7 @@ import java.util.List;
 public class ProductPagingDto {
     private List<ProductDto> products;
     private int currentPage;
+    private int totalPages;
+    private Long totalData;
 
 }

@@ -1,7 +1,14 @@
 package com.suryansh.service;
 
+import com.suryansh.entity.Product;
+import com.suryansh.entity.ProductImages;
+import com.suryansh.exception.SpringProductException;
+import com.suryansh.repository.ProductImagesRepository;
+import com.suryansh.repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -10,12 +17,27 @@ import java.nio.file.Files;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ImageServiceImpl implements ImageService{
     private final String FOLDER_PATH="/home/suryansh/Desktop/E-Store_Project/Backend/E-Store-Microservice/ProductImages/";
+    private final ProductRepository productRepository;
+    private final ProductImagesRepository productImagesRepository;
     @Override
-    public String uploadImageToFileSystem(MultipartFile file) throws IOException {
+    @Transactional
+    public String uploadImageToFileSystem(MultipartFile file, String productName, String isPrimary) throws IOException {
         String filePath=FOLDER_PATH+file.getOriginalFilename();
         file.transferTo(new File(filePath));
+        Product product = productRepository.findByProductName(productName)
+                .orElseThrow(()->new SpringProductException("Unable to find Product for upload image"));
+        if (isPrimary.equals("Yes")){
+            product.setProductImage(file.getOriginalFilename());
+            productRepository.save(product);
+        }
+        ProductImages productImage = ProductImages.builder()
+                .productId(product.getId())
+                .imageName(file.getOriginalFilename())
+                .build();
+        productImagesRepository.save(productImage);
         return "file uploaded successfully : " + filePath;
     }
 

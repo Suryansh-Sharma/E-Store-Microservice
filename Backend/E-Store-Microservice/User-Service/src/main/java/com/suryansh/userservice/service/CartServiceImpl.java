@@ -48,6 +48,7 @@ public class CartServiceImpl implements CartService {
                 .userId(user.getId())
                 .productId(productResponse.getId())
                 .productName(productResponse.getProductName())
+                .productImage(productResponse.getProductImage())
                 .price(productResponse.getPrice())
                 .totalPrice(productResponse.getPrice() * cartModel.getNoOfProduct())
                 .noOfProduct(cartModel.getNoOfProduct())
@@ -105,6 +106,7 @@ public class CartServiceImpl implements CartService {
                 user.setCartTotalProducts(user.getCartTotalProducts() + model.getNoOfProduct());
                 cart.setPrice(productResponse.getPrice());
                 cart.setTotalPrice(productResponse.getPrice() * model.getNoOfProduct());
+                cart.setProductImage(productResponse.getProductImage());
                 cart.setNoOfProduct(model.getNoOfProduct());
                 try {
                     userCartRepository.save(cart);
@@ -162,6 +164,8 @@ public class CartServiceImpl implements CartService {
                 .isInStock(isInStock)
                 .productId(userCart.getProductId())
                 .productName(userCart.getProductName())
+                .productImage(userCart.getProductImage())
+                .imageUrl("http://geekyprogrammer:8080/api/image/download/"+userCart.getProductImage())
                 .price(userCart.getPrice())
                 .totalPrice(userCart.getPrice() * userCart.getNoOfProduct())
                 .noOfProduct(userCart.getNoOfProduct())

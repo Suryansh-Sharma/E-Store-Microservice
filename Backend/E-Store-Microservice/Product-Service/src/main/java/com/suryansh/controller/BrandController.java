@@ -26,14 +26,9 @@ public class BrandController {
     public ResponseEntity<List<BrandDto>> getAllBrands() {
         return new ResponseEntity<>(brandService.getAllBrands(), HttpStatus.OK);
     }
-
     @GetMapping("by-name/{name}")
-    public ResponseEntity<BrandDto> getBrandByName(@PathVariable String name) {
-        try {
-            return new ResponseEntity<>(brandService.findByName(name), HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+    public BrandDto getProductByBrandName(@PathVariable String name) {
+        return brandService.findByName(name);
     }
 
 }

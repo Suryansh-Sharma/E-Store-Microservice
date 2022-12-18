@@ -18,9 +18,12 @@ public class ImageController {
 
     private final ImageService imageService;
 
-    @PostMapping("/upload")
-    public String uploadImage(@RequestParam("image")MultipartFile file) throws IOException {
-        return imageService.uploadImageToFileSystem(file);
+    @PostMapping("/upload/{productName}")
+    public String uploadImage(@RequestParam("image")MultipartFile file,
+                              @RequestParam(value = "isPrimary",defaultValue = "No",required = false)String isPrimary,
+                              @PathVariable String productName)
+            throws IOException {
+        return imageService.uploadImageToFileSystem(file,productName,isPrimary);
     }
     @GetMapping("download/{fileName}")
     public ResponseEntity<byte[]> downloadImage(@PathVariable String fileName) throws IOException {

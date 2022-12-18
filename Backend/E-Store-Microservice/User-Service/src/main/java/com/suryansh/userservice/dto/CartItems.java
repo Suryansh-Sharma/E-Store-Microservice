@@ -12,6 +12,8 @@ public class CartItems {
     private Boolean isInStock = false;
     private Long productId;
     private String productName;
+    private String productImage;
+    private String imageUrl;
     private Float price;
     private Float totalPrice;
     private int noOfProduct;

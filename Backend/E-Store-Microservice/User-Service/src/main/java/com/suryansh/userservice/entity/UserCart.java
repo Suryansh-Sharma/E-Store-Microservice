@@ -17,6 +17,7 @@ public class UserCart {
     private Long userId;
     private Long productId;
     private String productName;
+    private String productImage;
     private Float price;
     private Float totalPrice;
     private int noOfProduct;

@@ -185,6 +185,24 @@ public class UserServiceImpl implements UserService {
                         .build()))
                 .toList();
     }
+
+    @Override
+    @Transactional
+    public void isUserPresent(String userName) {
+        userRepository.findByUserName(userName)
+                .ifPresent(e -> {
+                    throw new UserServiceException("User is Already Present");
+                });
+        User newUser = User.builder()
+                .userName(userName)
+                .cartTotalPrice((float) 0)
+                .cartTotalProducts(0)
+                .totalLikedProduct(0)
+                .build();
+        userRepository.save(newUser);
+        log.info("User {0} is Added To Database : "+userName);
+    }
+
     private AddressDto AddressEntityToDto(UserAddress userAddress) {
         return AddressDto.builder()
                 .id(userAddress.getId())

@@ -45,7 +45,6 @@ public class OrderServiceImpl implements OrderService {
                 .bodyToMono(UserDto.class)
                 .block();
         assert user != null;
-        // Calling User service to Get Address of User .
         AddressDto addressDto = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/user/getUserAddressById/" + user.getId())
                 .header("Authorization",token)
@@ -93,9 +92,9 @@ public class OrderServiceImpl implements OrderService {
             });
             // Calling Inventory Service for Updating Inventory.
             webClientBuilder.build().post()
-                            .uri("http://geekyprogrammer:8080/api/inventory/updateInventoryProducts")
-                            .header("Authorization",token)
-                            .body(BodyInserters.fromValue(inventoryModels));
+                    .uri("http://geekyprogrammer:8080/api/inventory/updateInventoryProducts")
+                    .header("Authorization",token)
+                    .body(BodyInserters.fromValue(inventoryModels));
             log.info("Inventory Updated Successfully");
             // Calling Cart Service for Clearing Cart for User After Order Placed.
             String cartResponse = webClientBuilder.build().get()
@@ -134,7 +133,6 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItemsDto> orderItems = order.getOrderItems().stream()
                 .map((item) -> OrderItemsDto.builder()
                         .itemId(item.getItemId())
-                        .orderId(item.getOrderId())
                         .productId(item.getProductId())
                         .productName(item.getProductName())
                         .quantity(item.getQuantity())

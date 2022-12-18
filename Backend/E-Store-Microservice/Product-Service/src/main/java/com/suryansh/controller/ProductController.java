@@ -1,5 +1,6 @@
 package com.suryansh.controller;
 
+import com.suryansh.dto.NavSearchDto;
 import com.suryansh.dto.ProductDto;
 import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.model.ProductModel;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,11 +61,11 @@ public class ProductController {
                     , HttpStatus.NOT_FOUND);
         }
     }
-    @GetMapping("by-category/{category}/{page}")
+    @GetMapping("by-category/{category}")
     public ProductPagingDto getProductsByCategory(@PathVariable String category,
-                                                                  @PathVariable int page) {
+                                                  @RequestParam(name = "pageNo",defaultValue = "0",required = false) int page) {
         Pageable pageable=
-                PageRequest.of(page,2);
+                PageRequest.of(page,1);
         return productService.getProductByCategory(category,pageable);
     }
     @GetMapping("by-id/{id}")
@@ -85,9 +85,14 @@ public class ProductController {
                                @RequestHeader(name = "Authorization") String token) {
         productService.saveSubProduct(Model,token);
     }
-    @GetMapping("/by-nameLike/{productName}/{page}")
-    public List<ProductDto> getAllNameLike(@PathVariable String productName, @PathVariable int page){
-        PageRequest pr = PageRequest.of(page,2);
-        return productService.findByProductNameLike(productName,pr);
+    @GetMapping("/by-nameLike/{productName}")
+    public ProductPagingDto getAllNameLike(@PathVariable String productName,
+                                           @RequestParam(value = "pageNo",required = false,defaultValue = "0")int page){
+        Pageable pageable = PageRequest.of(page,6);
+        return productService.findByProductNameLike(productName,pageable);
+    }
+    @GetMapping("/navSearch/{productName}")
+    public List<NavSearchDto> getProductNameAndId(@PathVariable String productName){
+        return productService.findProductNameAndId(productName);
     }
 }

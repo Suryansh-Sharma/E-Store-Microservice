@@ -25,9 +25,9 @@ public class Order {
     private Float price;
     private Boolean isProductDelivered = false;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "orderId", referencedColumnName = "id")
+    @JoinColumn(name = "orderId",referencedColumnName = "id")
     private List<OrderItems> orderItems;
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "orderId", referencedColumnName = "id")
+    @JoinColumn(name = "orderId",referencedColumnName = "id")
     private OrderAddress orderAddress;
 }

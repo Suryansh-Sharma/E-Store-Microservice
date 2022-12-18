@@ -113,5 +113,9 @@ public class UserController {
     public List<LikedProductDto> getAllLikedProducts(@PathVariable String userName){
         return userService.getAllLikedProductsByUser(userName);
     }
+    @GetMapping("isUserPresent/{userName}")
+    public void checkUserIsPresent(@PathVariable String userName){
+        userService.isUserPresent(userName);
+    }
 
 }

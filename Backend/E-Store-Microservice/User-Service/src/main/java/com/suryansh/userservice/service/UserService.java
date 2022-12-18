@@ -28,4 +28,6 @@ public interface UserService {
     AddressDto getUserAddressById(Long id);
 
     List<LikedProductDto> getAllLikedProductsByUser(String userName);
+
+    void isUserPresent(String userName);
 }

@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -133,6 +133,7 @@ public class ProductServiceImpl implements ProductService {
                 .discount(product.getDiscount())
                 .newPrice(product.getNewPrice())
                 .productImage(product.getProductImage())
+                .imageUrl("http://geekyprogrammer:8080/api/image/download/"+product.getProductImage())
                 .productCategory(product.getProductCategory())
                 .description(product.getDescription())
                 .brand(brandDto)
@@ -140,24 +141,6 @@ public class ProductServiceImpl implements ProductService {
                 .productImages(productImages)
                 .subProducts(subProductDtoList)
                 .build();
-    }
-
-    public SubProductDto subProductEntityToDto(SubProduct subProduct) {
-        return SubProductDto.builder()
-                .id(subProduct.getId())
-                .subProductName(subProduct.getSubProductName())
-                .productId(subProduct.getProductId())
-                .price(subProduct.getPrice())
-                .build();
-    }
-
-    private ProductImageDto ImageEntityToDto(ProductImages image) {
-        ProductImageDto res = new ProductImageDto();
-        res.setImageUrl(image.getImageName());
-        res.setImageName(image.getImageName());
-        res.setProductId(image.getProductId());
-        res.setId(image.getId());
-        return res;
     }
 
     @Override
@@ -176,6 +159,7 @@ public class ProductServiceImpl implements ProductService {
                 .discount(product.getDiscount())
                 .newPrice(product.getNewPrice())
                 .productImage(product.getProductImage())
+                .imageUrl("http://geekyprogrammer:8080/api/image/download/"+product.getProductImage())
                 .productCategory(product.getProductCategory())
                 .build();
     }
@@ -183,28 +167,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductPagingDto getProductByCategory(String category, Pageable pageable) {
-        List<ProductDto>result=productRepository.findAllByProductCategory(category,pageable)
+        Page<Product>page=productRepository.findAllByProductCategory(category,pageable);
+        List<ProductDto>result=page.getContent()
                 .stream()
-                .map((product -> ProductDto.builder()
-                        .id(product.getId())
-                        .productName(product.getProductName())
-                        .ratings(product.getRatings())
-                        .noOfRatings(product.getNoOfRatings())
-                        .text(product.getText())
-                        .price(product.getPrice())
-                        .discount(product.getDiscount())
-                        .newPrice(product.getNewPrice())
-                        .productImage(product.getProductImage())
-                        .productCategory(product.getProductCategory())
-                        .build()))
+                .map(this::productEntityToDto)
                 .toList();
-        if (result.size()==0)return null;
         return ProductPagingDto.builder()
                 .products(result)
-                .currentPage(pageable.getPageNumber())
+                .totalPages(page.getTotalPages())
+                .currentPage(pageable.getPageNumber()+1)
+                .totalData(page.getTotalElements())
                 .build();
 
     }
+
 
     @Override
     @Transactional
@@ -259,6 +235,7 @@ public class ProductServiceImpl implements ProductService {
         return ProductDto.builder()
                 .id(product.getId())
                 .productName(product.getProductName())
+                .imageUrl("http://geekyprogrammer:8080/api/image/download/"+product.getProductImage())
                 .ratings(product.getRatings())
                 .noOfRatings(product.getNoOfRatings())
                 .text(product.getText())
@@ -272,21 +249,54 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public List<ProductDto> findByProductNameLike(String productName, PageRequest pr) {
-        return productRepository.findByProductNameContains(productName)
-                .stream()
-                .map((product -> ProductDto.builder()
-                        .id(product.getId())
-                        .productName(product.getProductName())
-                        .ratings(product.getRatings())
-                        .noOfRatings(product.getNoOfRatings())
-                        .text(product.getText())
-                        .price(product.getPrice())
-                        .discount(product.getDiscount())
-                        .newPrice(product.getNewPrice())
-                        .productImage(product.getProductImage())
-                        .productCategory(product.getProductCategory())
-                        .build()))
+    public ProductPagingDto findByProductNameLike(String productName, Pageable pageable) {
+        Page<Product> page = productRepository.findByProductNameContains(productName,pageable);
+        List<ProductDto>productDtoList = page.getContent().stream()
+                .map(this::productEntityToDto)
                 .toList();
+        return ProductPagingDto.builder()
+                .products(productDtoList)
+                .currentPage(pageable.getPageNumber()+1)
+                .totalPages(page.getTotalPages())
+                .totalData(page.getTotalElements())
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public List<NavSearchDto> findProductNameAndId(String productName) {
+        return productRepository.findProductNameAndId(productName);
+    }
+
+    private ProductDto productEntityToDto(Product product) {
+        return ProductDto.builder()
+                .id(product.getId())
+                .productName(product.getProductName())
+                .imageUrl("http://geekyprogrammer:8080/api/image/download/"+product.getProductImage())
+                .ratings(product.getRatings())
+                .noOfRatings(product.getNoOfRatings())
+                .text(product.getText())
+                .price(product.getPrice())
+                .discount(product.getDiscount())
+                .newPrice(product.getNewPrice())
+                .productImage(product.getProductImage())
+                .productCategory(product.getProductCategory())
+                .build();
+    }
+    public SubProductDto subProductEntityToDto(SubProduct subProduct) {
+        return SubProductDto.builder()
+                .id(subProduct.getId())
+                .subProductName(subProduct.getSubProductName())
+                .productId(subProduct.getProductId())
+                .price(subProduct.getPrice())
+                .build();
+    }
+    private ProductImageDto ImageEntityToDto(ProductImages image) {
+        ProductImageDto res = new ProductImageDto();
+        res.setImageUrl(image.getImageName());
+        res.setImageName(image.getImageName());
+        res.setProductId(image.getProductId());
+        res.setId(image.getId());
+        return res;
     }
 }

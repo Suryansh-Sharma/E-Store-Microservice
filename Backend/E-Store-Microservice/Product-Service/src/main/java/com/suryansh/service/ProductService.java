@@ -1,10 +1,10 @@
 package com.suryansh.service;
 
+import com.suryansh.dto.NavSearchDto;
 import com.suryansh.dto.ProductDto;
 import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.model.ProductModel;
 import com.suryansh.model.SubProductModel;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -22,5 +22,7 @@ public interface ProductService {
 
     ProductDto getProductById(Long id);
 
-    List<ProductDto> findByProductNameLike(String productName, PageRequest pr);
+    ProductPagingDto findByProductNameLike(String productName, Pageable pr);
+
+    List<NavSearchDto> findProductNameAndId(String productName);
 }
