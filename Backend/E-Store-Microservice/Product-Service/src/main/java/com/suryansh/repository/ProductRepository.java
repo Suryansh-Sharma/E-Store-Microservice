@@ -1,6 +1,5 @@
 package com.suryansh.repository;
 
-import com.suryansh.dto.NavSearchDto;
 import com.suryansh.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +18,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Product findTopByOrderByIdDesc();
 
-    @Query(value = "SELECT * FROM public.product WHERE product_name ILIKE %:productName% ",nativeQuery = true)
-    List<NavSearchDto> findProductNameAndId(String productName);
+    @Query(value = "SELECT * FROM public.product WHERE product_name ILIKE %:productName% LIMIT 10 ",nativeQuery = true)
+    List<Product> findProductNameAndId(String productName);
 }

@@ -40,15 +40,16 @@ public class ProductController {
     }
 
     @GetMapping("fullView-by-name/{name}")
-    public ResponseEntity<ProductDto> fullViewByName(@PathVariable String name,
+    @Async
+    public CompletableFuture<ProductDto> fullViewByName(@PathVariable String name,
+                                                        @RequestHeader(name = "Authorization") String token) {
+        return CompletableFuture.completedFuture(productService.fullViewByName(name, token));
+    }
+    @GetMapping("/fullView-by-id/{id}")
+    @Async
+    public CompletableFuture<ProductDto> fullViewById(@PathVariable Long id,
                                                      @RequestHeader(name = "Authorization") String token) {
-        try {
-            return new ResponseEntity<>(productService.fullViewByName(name,token)
-                    , HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null
-                    , HttpStatus.NOT_FOUND);
-        }
+        return CompletableFuture.completedFuture(productService.fullViewById(id,token));
     }
 
     @GetMapping("by-name/{name}")

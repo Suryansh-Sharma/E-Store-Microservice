@@ -97,6 +97,17 @@ public class ProductServiceImpl implements ProductService {
     public ProductDto fullViewByName(String name, String token) {
         Product product = productRepository.findByProductName(name)
                 .orElseThrow(() -> new SpringProductException("Unable to find Product :ProductService.findByName"));
+        return getProductFullDetails(product,token);
+    }
+    @Override
+    @Transactional
+    public ProductDto fullViewById(Long id, String token) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new SpringProductException("Unable to find Product :ProductService.findByName"));
+        return getProductFullDetails(product,token);
+    }
+    @Transactional
+    public ProductDto getProductFullDetails(Product product, String token){
         Brand brand = product.getBrand();
         BrandDto brandDto = BrandDto.builder()
                 .id(brand.getBrandId())
@@ -210,7 +221,7 @@ public class ProductServiceImpl implements ProductService {
             productRepository.save(product);
             log.info("Product saved Successfully");
             Product lastSavedProduct =productRepository.findTopByOrderByIdDesc();
-            log.info("Last Saved Id : {0} "+lastSavedProduct.getId());
+            log.info("Last Saved Id : {} ",lastSavedProduct.getId());
             // Calling Inventory Microservice to add SubProduct noOfStock.
             webClientBuilder.build().post()
                     .uri("http://geekyprogrammer:8080/api/inventory/addToInventory/"
@@ -265,8 +276,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public List<NavSearchDto> findProductNameAndId(String productName) {
-        return productRepository.findProductNameAndId(productName);
+        return productRepository.findProductNameAndId(productName).stream()
+                .map((item)->NavSearchDto.builder()
+                        .id(item.getId())
+                        .productName(item.getProductName())
+                        .build())
+                .toList();
     }
+
+
 
     private ProductDto productEntityToDto(Product product) {
         return ProductDto.builder()

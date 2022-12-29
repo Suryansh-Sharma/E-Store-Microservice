@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -31,21 +32,19 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void save(String userName) {
-        userRepository.findByUserName(userName)
-                .ifPresent(e -> {
-                    throw new UserServiceException("User is Already Present");
-                });
-        User user = User.builder()
-                .userName(userName)
-                .cartTotalPrice((float) 0)
-                .cartTotalProducts(0)
-                .totalLikedProduct(0)
-                .build();
-        try {
-            userRepository.save(user);
-        } catch (Exception e) {
-            throw new UserServiceException("Unable to Save User to Data Base");
+        Optional<User> user = userRepository.findByUserName(userName);
+        if (user.isPresent()){
+            log.info("User {} is already present : ",userName);
+        }else{
+            User newUser = User.builder()
+                    .userName(userName)
+                    .cartTotalPrice((float) 0)
+                    .cartTotalProducts(0)
+                    .totalLikedProduct(0)
+                    .build();
+            userRepository.save(newUser);
         }
+
     }
 
     @Override
@@ -81,7 +80,7 @@ public class UserServiceImpl implements UserService {
             likedProductRepository.save(likedProduct);
             userRepository.save(user);
         } catch (Exception e) {
-            log.error("Product {0} not able to Liked for user {1}"+likeModel.getProductName()+user.getUserName());
+            log.error("Product {} not able to Liked for user {}",likeModel.getProductName(),user.getUserName());
             throw new UserServiceException("Unable Add Product in Liked Table");
         }
     }
@@ -98,7 +97,7 @@ public class UserServiceImpl implements UserService {
         try {
             likedProductRepository.delete(likedProduct);
         } catch (Exception e) {
-            log.error("Unable to UnLike product {0} for user {1} "+likeModel.getProductName()+user.getUserName());
+            log.error("Unable to UnLike product {} for user {} ",likeModel.getProductName(),user.getUserName());
             throw new UserServiceException("Unable to Delete Product From Liked Product");
         }
     }
@@ -189,18 +188,20 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void isUserPresent(String userName) {
-        userRepository.findByUserName(userName)
-                .ifPresent(e -> {
-                    throw new UserServiceException("User is Already Present");
-                });
-        User newUser = User.builder()
-                .userName(userName)
-                .cartTotalPrice((float) 0)
-                .cartTotalProducts(0)
-                .totalLikedProduct(0)
-                .build();
-        userRepository.save(newUser);
-        log.info("User {0} is Added To Database : "+userName);
+        Optional<User>user=userRepository.findByUserName(userName);
+        if (user.isPresent()){
+            log.info("User {} is Present in Database: ",userName);
+        }else{
+            User newUser = User.builder()
+                    .userName(userName)
+                    .cartTotalPrice((float) 0)
+                    .cartTotalProducts(0)
+                    .totalLikedProduct(0)
+                    .build();
+            userRepository.save(newUser);
+            log.info("User {} is Added To Database : ",userName);
+        }
+
     }
 
     private AddressDto AddressEntityToDto(UserAddress userAddress) {

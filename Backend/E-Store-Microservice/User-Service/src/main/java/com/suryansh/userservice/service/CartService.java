@@ -13,4 +13,6 @@ public interface CartService {
     void updateCartForUser(List<CartModel> cartModels, String userName, String token);
 
     void clearCartForUser(String userName);
+
+    void removeProductFromCart(String userName, CartModel cartModel);
 }

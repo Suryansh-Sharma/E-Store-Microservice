@@ -1,0 +1,32 @@
+server:
+  port: '0'
+spring:
+  datasource:
+    password: Suryansh@1904
+    url: jdbc:h2:mem:order
+    username: postgres
+    driverClassName: org.h2.driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: ORDER-SERVICE
+
+eureka:
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    instanceId: ${spring.application.name}
+    hostname: localhost
+okta:
+  oauth2:
+    issuer: https://dev-40949592.okta.com/oauth2/default
+    audience: api://default

@@ -49,9 +49,7 @@ use Browser: http://localhost:8080/authenticate/login .
 
     username: suryanshsharma1942@gmail.com
     password: suryansh@1904
-step2: Add User in Database.
-
-POST : http://geekyprogrammer:8080/api/user/addUser/SuryanshSharma@1942
+step2: Get Okta Jwt Token from login Response.
 
 step3: Add User Address.
 
@@ -60,7 +58,7 @@ POST: http://geekyprogrammer:8080/api/user/addUserAddress
 Body
     
     {
-        "userName":"SuryanshSharma@1942",
+        "userName":"suryanshsharma1942@gmail.com",
         "line1":"(Rajesh Sharma) House no 4 Chaudhary Shikarpur Compound near D.M Residence",
         "city":"Bulandshahr",
         "pinCode":203001,
@@ -199,7 +197,7 @@ POST: http://geekyprogrammer:8080/api/user/likeProduct
 Body:
     
     {
-        "userName":"SuryanshSharma@1942",
+        "userName":"suryanshsharma1942@gmail.com",
         "productId":1,
         "productName":"Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)"
     }
@@ -217,7 +215,7 @@ DELETE : http://geekyprogrammer:8080/api/user/unLikeProduct
 BODY:
     
     {
-        "userName":"SuryanshSharma@1942",
+        "userName":"suryanshsharma1942@gmail.com",
         "productId":1,
         "productName":"Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)"
     }
@@ -232,13 +230,13 @@ BODY:
     
     {
         "productId":1,
-        "userName":"SuryanshSharma@1942",
+        "userName":"suryanshsharma1942@gmail.com",
         "noOfProduct":1
     }
 
 step13: Get Cart Details by username
 
-GET: http://geekyprogrammer:8080/api/cart/getCartByUser/SuryanshSharma@1942
+GET: http://geekyprogrammer:8080/api/cart/getCartByUser/suryanshsharma1942@gmail.com
     
 Response:
         
@@ -263,7 +261,7 @@ step14: For Updating Cart .
 It Will take whole all Cart product as List input and id of product and cartItem.
 It Will update cart total product in user and cart database , totalPrice.
 
-POST: http://geekyprogrammer:8080/api/cart/updateCartOfUser/SuryanshSharma@1942
+POST: http://geekyprogrammer:8080/api/cart/updateCartOfUser/suryanshsharma1942@gmail.com
 
 BODY:
     
@@ -279,7 +277,7 @@ step15 : For Placing Order.
 
 // Send same Response of step13 in Body of Order Place Request.  
 
-POST: http://geekyprogrammer:8080/api/order/placeOrder/SuryanshSharma@1942
+POST: http://geekyprogrammer:8080/api/order/placeOrder/suryanshsharma1942@gmail.com
 
 BODY:
     
@@ -301,7 +299,7 @@ BODY:
 
 step16: Get Order by userName
 
-GET: http://geekyprogrammer:8080/api/order/getOrder-byUser/SuryanshSharma@1942
+GET: http://geekyprogrammer:8080/api/order/getOrder-byUser/suryanshsharma1942@gmail.com
 
 Response:
         

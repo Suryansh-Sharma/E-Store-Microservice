@@ -88,7 +88,7 @@ public class CartServiceImpl implements CartService {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserServiceException("User is not present : updateCart " + userName));
         cartModels.forEach((model -> {
-            if (model.getNoOfProduct() == 0) RemoveProductFromCart(userName, model);
+            if (model.getNoOfProduct() == 0) removeProductFromCart(userName, model);
             else {
                 UserCart cart = userCartRepository.findByIdAndUserId(model.getId(), user.getId())
                         .orElseThrow(() -> new UserServiceException("Unable to find cart product for " + model));
@@ -102,8 +102,6 @@ public class CartServiceImpl implements CartService {
                 assert productResponse != null;
                 user.setCartTotalPrice(user.getCartTotalPrice() + productResponse.getPrice() *
                         model.getNoOfProduct());
-                user.setCartTotalProducts(user.getCartTotalProducts() - cart.getNoOfProduct());
-                user.setCartTotalProducts(user.getCartTotalProducts() + model.getNoOfProduct());
                 cart.setPrice(productResponse.getPrice());
                 cart.setTotalPrice(productResponse.getPrice() * model.getNoOfProduct());
                 cart.setProductImage(productResponse.getProductImage());
@@ -131,8 +129,9 @@ public class CartServiceImpl implements CartService {
             userCartRepository.deleteProductFromCart(val.getId());
         }
     }
+    @Override
     @Transactional
-    public void RemoveProductFromCart(String userName, CartModel model) {
+    public void removeProductFromCart(String userName, CartModel model) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserServiceException("User is not present : updateCart " + userName));
         UserCart cart = userCartRepository.findByIdAndUserId(model.getId(), user.getId())
@@ -162,6 +161,7 @@ public class CartServiceImpl implements CartService {
         return CartItems.builder()
                 .id(userCart.getId())
                 .isInStock(isInStock)
+                .noOfStock(productStock.getNoOfStock())
                 .productId(userCart.getProductId())
                 .productName(userCart.getProductName())
                 .productImage(userCart.getProductImage())

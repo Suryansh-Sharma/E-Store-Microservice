@@ -14,6 +14,8 @@ public interface ProductService {
 
     ProductDto fullViewByName(String name, String token);
 
+    ProductDto fullViewById(Long id, String token);
+
     ProductDto getProductByName(String name);
 
     ProductPagingDto getProductByCategory(String category, Pageable pageable);

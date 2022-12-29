@@ -20,6 +20,10 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
+    @GetMapping("/test/userService")
+    public String testUserService(){
+        return "userService is up you may continue";
+    }
     @PostMapping("addUser/{userName}")
     public ResponseEntity<String> saveUser(@PathVariable String userName) {
         try {
@@ -41,43 +45,28 @@ public class UserController {
     }
 
     @PostMapping("/likeProduct")
-    public ResponseEntity<Void> likeProduct(@RequestBody LikeModel likeModel) {
-        try {
-            userService.likeProduct(likeModel);
-            return new ResponseEntity<>(null, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+    public void likeProduct(@RequestBody LikeModel likeModel) {
+        userService.likeProduct(likeModel);
     }
 
     @DeleteMapping("/unLikeProduct")
-    public ResponseEntity<Void> unLikeProduct(@RequestBody LikeModel likeModel) {
-        try {
-            userService.unLikeProduct(likeModel);
-            return new ResponseEntity<>(null, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+    public void unLikeProduct(@RequestBody LikeModel likeModel) {
+        userService.unLikeProduct(likeModel);
     }
 
     @GetMapping("/isProductLikedByUser/{userName}/{productId}")
-    public ResponseEntity<Boolean> checkProductIsLiked(@PathVariable String userName, @PathVariable Long productId) {
+    public Boolean checkProductIsLiked(@PathVariable String userName, @PathVariable Long productId) {
         try {
             userService.checkProductIsLikedOrNot(userName, productId);
-            return new ResponseEntity<>(true, HttpStatus.OK);
+            return true;
         } catch (Exception e) {
-            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+            return false;
         }
     }
 
     @PostMapping("/addUserAddress")
-    public ResponseEntity<Void> addAddress(@RequestBody AddressModel addressModel) {
-        try {
-            userService.addUserAddress(addressModel);
-            return new ResponseEntity<>(null, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+    public void addAddress(@RequestBody AddressModel addressModel) {
+        userService.addUserAddress(addressModel);
     }
 
     @PutMapping("/updateUserAddress")
@@ -91,23 +80,13 @@ public class UserController {
     }
 
     @GetMapping("/getUserAllAddress/{userName}")
-    public ResponseEntity<List<AddressDto>> getAllAddress(@PathVariable String userName) {
-        try {
-            return new ResponseEntity<>(userService.getUserAddress(userName)
-                    , HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+    public List<AddressDto> getAllAddress(@PathVariable String userName) {
+        return userService.getUserAddress(userName);
     }
 
     @GetMapping("/getUserAddressById/{id}")
-    public ResponseEntity<AddressDto> getUserAddressById(@PathVariable Long id) {
-        try {
-            return new ResponseEntity<>(userService.getUserAddressById(id)
-                    , HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+    public AddressDto getUserAddressById(@PathVariable Long id) {
+        return userService.getUserAddressById(id);
     }
     @GetMapping("/likedProducts-byUser/{userName}")
     public List<LikedProductDto> getAllLikedProducts(@PathVariable String userName){

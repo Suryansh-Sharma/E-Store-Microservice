@@ -47,7 +47,10 @@ public class CartController {
         cartService.updateCartForUser(cartModels, userName,token);
         return CompletableFuture.completedFuture("Cart is updated for user : - " + userName);
     }
-
+    @DeleteMapping("/deleteProductFromCart/{userName}")
+    public void removeProductFromCart(@PathVariable String userName,@RequestBody CartModel cartModel){
+        cartService.removeProductFromCart(userName,cartModel);
+    }
     @GetMapping("clearCartForUser/{userName}")
     @Async
     public CompletableFuture<String> clearCartForUser(@PathVariable String userName) {

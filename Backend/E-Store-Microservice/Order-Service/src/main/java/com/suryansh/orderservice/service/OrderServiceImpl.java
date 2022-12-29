@@ -10,9 +10,12 @@ import com.suryansh.orderservice.model.OrderUpdateModel;
 import com.suryansh.orderservice.repository.OrderAddressRepository;
 import com.suryansh.orderservice.repository.OrderItemsRepository;
 import com.suryansh.orderservice.repository.OrderRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ocpsoft.prettytime.PrettyTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -25,13 +28,21 @@ import java.time.Instant;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 @Slf4j
 public class OrderServiceImpl implements OrderService {
-    private final OrderItemsRepository orderItemsRepository;
-    private final OrderAddressRepository orderAddressRepository;
-    private final WebClient.Builder webClientBuilder;
-    private final OrderRepository orderRepository;
+    @Autowired
+    private OrderItemsRepository orderItemsRepository;
+    @Autowired
+
+    private OrderAddressRepository orderAddressRepository;
+    @Autowired
+
+    private WebClient.Builder webClientBuilder;
+    @Autowired
+
+    private OrderRepository orderRepository;
 
     @Override
     @Async
@@ -106,7 +117,7 @@ public class OrderServiceImpl implements OrderService {
             log.info(cartResponse);
             log.info("Order Placed Successfully");
         } catch (Exception e) {
-            throw new SpringOrderException("Unable to Place Order !!");
+            throw new SpringOrderException("Unable to Place Order !!",HttpStatus.CONFLICT);
         }
     }
     @Override
@@ -128,7 +139,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDetails getOrderDetails(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new SpringOrderException("Unable to Find Order of Id : " + orderId));
+                .orElseThrow(() -> new SpringOrderException("Unable to Find Order of Id : " + orderId
+                        ,HttpStatus.NOT_FOUND));
         OrderAddress orderAddress = orderAddressRepository.findByOrderId(orderId);
         List<OrderItemsDto> orderItems = order.getOrderItems().stream()
                 .map((item) -> OrderItemsDto.builder()
@@ -156,7 +168,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDto getOrderByOrderId(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new SpringOrderException("Unable to Find Order By Id : " + orderId));
+                .orElseThrow(() -> new SpringOrderException("Unable to Find Order By Id : " + orderId,
+                        HttpStatus.NOT_FOUND));
         return OrderEntityToDto(order);
     }
 
@@ -171,7 +184,8 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void updateOrder(OrderUpdateModel model) {
         Order order = orderRepository.findById(model.getOrderId())
-                .orElseThrow(() -> new SpringOrderException("Unable to Find Order By Id : " + model.getOrderId()));
+                .orElseThrow(() -> new SpringOrderException("Unable to Find Order By Id : " + model.getOrderId(),
+                        HttpStatus.NOT_FOUND));
         order.setIsProductDelivered(model.getIsProductDelivered());
         order.setLastUpdate(Instant.now());
         order.setStatus(model.getStatus());

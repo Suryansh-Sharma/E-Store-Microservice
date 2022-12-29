@@ -86,7 +86,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Transactional
     @Async
     public void saveProduct(String productName, Long id, int noOfStock) {
-        log.info("productName: {0} , productId: {1}, noOfStock {2} "+productName,id,noOfStock);
+        log.info("productName: {} , productId: {}, noOfStock {} ",productName,id,noOfStock);
         Inventory inventory = Inventory.builder()
                 .productId(id)
                 .productName(productName)
