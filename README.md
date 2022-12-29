@@ -1,2 +1,2 @@
-# E-Store-Microservice-Frontend
+# E-Store-Microservice Project.
 
