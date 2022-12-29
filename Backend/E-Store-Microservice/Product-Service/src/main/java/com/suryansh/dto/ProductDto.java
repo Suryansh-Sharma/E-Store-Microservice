@@ -1,7 +1,6 @@
 package com.suryansh.dto;
 
 import com.suryansh.entity.Description;
-import com.suryansh.entity.SubProduct;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

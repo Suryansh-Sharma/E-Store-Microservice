@@ -1,8 +1,8 @@
 package com.suryansh.userservice.entity;
 
-import javax.persistence.*;
 import lombok.*;
 
+import javax.persistence.*;
 import java.util.List;
 
 @Entity

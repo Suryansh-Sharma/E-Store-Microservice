@@ -1,7 +1,8 @@
 package com.suryansh.orderservice.entity;
 
-import javax.persistence.*;
 import lombok.*;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "OrderItemTbl")

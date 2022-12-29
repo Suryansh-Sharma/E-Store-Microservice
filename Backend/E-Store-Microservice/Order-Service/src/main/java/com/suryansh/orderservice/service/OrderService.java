@@ -1,6 +1,5 @@
 package com.suryansh.orderservice.service;
 
-import com.suryansh.orderservice.dto.CartDto;
 import com.suryansh.orderservice.dto.OrderDetails;
 import com.suryansh.orderservice.dto.OrderDto;
 import com.suryansh.orderservice.model.OrderUpdateModel;

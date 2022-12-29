@@ -1,9 +1,8 @@
 package com.suryansh.entity;
 
-import javax.persistence.*;
-
 import lombok.*;
 
+import javax.persistence.*;
 import java.time.Instant;
 
 @Entity

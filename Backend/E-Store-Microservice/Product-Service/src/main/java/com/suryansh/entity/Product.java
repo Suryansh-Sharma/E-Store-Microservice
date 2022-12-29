@@ -1,10 +1,9 @@
 package com.suryansh.entity;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-
 import lombok.*;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Entity

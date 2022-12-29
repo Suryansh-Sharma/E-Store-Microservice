@@ -1,6 +1,8 @@
 package com.suryansh.dto;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 @Builder
 @Getter
