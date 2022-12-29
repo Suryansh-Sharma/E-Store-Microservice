@@ -156,34 +156,41 @@ Response:
         "price": 131999.0,
         "discount": 17,
         "newPrice": 109999.0,
-        "productImage": "www.Samsung.com",
+        "productImage": "s22Burgundy1.jpg",
+        "imageUrl": "http://geekyprogrammer:8080/api/image/download/s22Burgundy1.jpg",
         "productCategory": "Mobile",
-        "description": null,
+        "description": {
+            "id": 1,
+            "data": "The first Galaxy S with embedded S Pen. Write comfortably like pen on paper, turn quick notes into legible text and use Air Actions to control your phone remotely.",
+            "releaseDate": "2022-12-14T05:11:28.979150Z",
+            "dimensions": "9. millimeters x 78. millimeters x 163. millimeters;  228g",
+            "specialFeatures": "2388-by-1668-pixel resolution at 264 pixels per inch (ppi) "
+        },
         "productIsInStock": true,
         "brand": {
-            "id": 2,
+            "id": 1,
             "name": "Samsung",
-            "noOfProducts": 7,
+            "noOfProducts": 2,
             "products": null
         },
         "productImages": [
             {
                 "id": 1,
-                "productId": 25,
-                "imageName": "PersonalPortfolio.png",
-                "imageUrl": "http://localhost:8080/api/image/download/PersonalPortfolio.png"
+                "productId": 1,
+                "imageName": "s22Burgundy1.jpg",
+                "imageUrl": "http://localhost:8080/api/image/download/s22Burgundy1.jpg"
+            },
+            {
+                "id": 2,
+                "productId": 1,
+                "imageName": "s22Burgundy2.jpg",
+                "imageUrl": "http://localhost:8080/api/image/download/s22Burgundy2.jpg"
             }
         ],
         "subProducts": [
             {
                 "id": 1,
                 "productId": 1,
-                "subProductName": "Samsung Galaxy S22 Ultra 5G (Black, 256GB Storage)",
-                "price": 131999.0
-            },
-            {
-                "id": 2,
-                "productId": 2,
                 "subProductName": "Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 1Tb Storage)",
                 "price": 142999.0
             }
@@ -273,29 +280,9 @@ BODY:
         }
     ]
 
-step15 : For Placing Order. 
-
-// Send same Response of step13 in Body of Order Place Request.  
+step15 : For Placing Order.
 
 POST: http://geekyprogrammer:8080/api/order/placeOrder/suryanshsharma1942@gmail.com
-
-BODY:
-    
-    {
-        "cartProduct": [
-            {
-                "id": 1,
-                "isInStock": true,
-                "productId": 1,
-                "productName": "Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)",
-                "price": 131999.0,
-                "totalPrice": 527996.0,
-                "noOfProduct": 4
-            }
-        ],
-        "totalProducts": 4,
-        "totalPrice": 527996.0
-    }
 
 step16: Get Order by userName
 
