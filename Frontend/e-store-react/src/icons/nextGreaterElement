@@ -1,0 +1,30 @@
+    public int[] nextGreaterElements(int[] nums) {
+        int indx=0;
+        int []memo=new int [nums.length+1];
+        for(int i=0;i<nums.length;i++){
+            memo[i] = nums[i];
+        }
+
+        for(int i=0;i<nums.length;i++){
+            indx=i+1;
+            int val=-1;
+            while(indx != i){
+
+                if(indx == nums.length){
+                    indx=0;
+                }
+                else if(memo[indx] > nums[i] ){
+                    val = memo[indx];
+                    indx++;
+                    break;
+                }
+                    else{
+                    indx++;
+                }
+
+            }
+            nums[i] = val;
+        }
+
+        return nums;
+    }

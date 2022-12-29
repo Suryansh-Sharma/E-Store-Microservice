@@ -1,0 +1,142 @@
+.all-product {
+    margin-top: 10px;
+}
+
+.all-product-header {
+    background-color: lightblue;
+    width: 100%;
+    position: relative;
+    height: 300px;
+    margin-bottom: 150px;
+}
+
+.a-p-h-heading {
+    position: relative;
+    top: 120px;
+    font-style: italic;
+    font-family: cursive;
+    font-weight: 500;
+    font-size: 74px;
+    text-align: center;
+    -webkit-box-shadow: 0px 14px 32px 0px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0px 14px 32px 0px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 14px 32px 0px rgba(0, 0, 0, 0.15);
+}
+
+/*First Section*/
+.all-product-start {
+    margin-bottom: 120px;
+}
+
+.a-p-s-title {
+    text-align: center;
+}
+
+.a-p-s-text {
+    width: 100%;
+    text-align: center;
+    color: gray;
+    
+}
+/*Middle Section*/
+.all-product-middle{
+    /* background-color: aquamarine; */
+    position: relative;
+    /*left: 100px;*/
+    /*left: auto;*/
+    /*right: auto;*/
+    display: grid;
+    row-gap: 32px;
+    column-gap: 12px;
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+
+}
+.a-p-m-c-header{
+    padding: 20px;
+    color: red;
+}
+.a-p-m-card{
+    cursor: pointer;
+    position: relative;
+    width: 320px;
+    height: 430px;
+    border-radius: 10px;
+    background-color: lightcyan;
+}
+.a-p-m-c-img{
+    /*border: 2px solid red;*/
+    height: 200px;
+    width: 100%;
+}
+.cardExtraOptions{
+    opacity: 0;
+}
+.a-p-m-card:hover .cardExtraOptions{
+    opacity: 1;
+}
+.a-p-m-card:hover{
+    /* opacity: 0.8; */
+    transition: 1s;
+    background-color: violet;
+}
+.a-p-m-c-img:hover{
+    opacity: 0.6;
+}
+.card-icon{
+    width: 20px;
+}
+.a-p-c-icon{
+    position: relative;
+    width: 50px;
+    height: 1px;
+}
+.star{
+    clear: both;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.card-dis{
+    color: grey;
+    text-decoration-line: line-through;
+}
+/* Pagination Section */
+.all-product-pagination{
+    position: relative;
+    left: 460px;
+    top: -180px;
+}
+/*Media Query*/
+@media screen and (max-width: 480px) {
+    .a-p-h-heading {
+        font-size: 20px;
+    }
+
+    .all-product-header {
+        width: 500px;
+        left: -107px;
+    }
+
+    .all-product-middle{
+        position: relative;
+        width: 230px;
+    }
+    .a-p-m-card{
+        width: 290px;
+        height: 500px;
+        grid-column-start: 1;
+        grid-column-end:6 ;
+    }
+    .a-p-m-c-header{
+        display: block;
+        position: relative;
+        width: 280px;
+    }
+
+    .all-product-pagination{
+        left: auto;
+        right: auto;
+        top: 50px;
+    }
+}

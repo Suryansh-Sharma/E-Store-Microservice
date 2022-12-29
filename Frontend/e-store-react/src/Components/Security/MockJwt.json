@@ -1,0 +1,16 @@
+{
+    "user": {
+        "userName": "Suryansh",
+        "userFirstName": "Suryansh",
+        "userLastName": "Sharma",
+        "userPassword": "$2a$10$tkXRaO6lOceVpwyhOun90eDa/T8LwuOkAxLgsY/lrF/X0xzl0EiPC",
+        "userEmail": "suryanshsharma1942@gmail.com",
+        "role": [
+            {
+                "roleName": "User",
+                "roleDescription": "Default role for newly created record"
+            }
+        ]
+    },
+    "jwtToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJTdXJ5YW5zaCIsImV4cCI6MTY2MTM3MTg1NSwiaWF0IjoxNjYxMzU2ODU1fQ.rN8uGi0u3LGPNwXukg1IVKN8trjQLY7V697UQFwSYNlea0gVaYFvAK4Pq56phl-gxeDatdJtE6hbok0EoKTe0A"
+}

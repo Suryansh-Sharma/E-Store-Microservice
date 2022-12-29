@@ -1,0 +1,18 @@
+.container-slider{
+    position: relative;
+    margin-top: 12vh;
+    margin-bottom: 342px;
+    padding: 12px;
+    transition: 0.4s;
+    cursor: pointer;
+}
+
+.container-slider-title{
+    text-align: center;
+    font-style: italic;
+    font-family: cursive;
+    font-size: 40px;
+    background: -webkit-linear-gradient(rgb(248, 207, 0), rgb(53, 4, 159));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

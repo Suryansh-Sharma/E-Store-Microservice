@@ -1,0 +1,28 @@
+{
+  "cartProduct": [
+    {
+      "id": 2,
+      "isInStock": true,
+      "productId": 1,
+      "productName": "Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)",
+      "productImage": "s22Burgundy1.jpg",
+      "imageUrl": "http://geekyprogrammer:8080/api/image/download/s22Burgundy1.jpg",
+      "price": 131999.0,
+      "totalPrice": 131999.0,
+      "noOfProduct": 1
+    },
+    {
+      "id": 3,
+      "isInStock": true,
+      "productId": 2,
+      "productName": "Samsung Galaxy Note Ultra",
+      "productImage": "s22Burgundy1.jpg",
+      "imageUrl": "http://geekyprogrammer:8080/api/image/download/s22Burgundy1.jpg",
+      "price": 120000.0,
+      "totalPrice": 120000.0,
+      "noOfProduct": 1
+    }
+  ],
+  "totalProducts": 2,
+  "totalPrice": 131999.0
+}

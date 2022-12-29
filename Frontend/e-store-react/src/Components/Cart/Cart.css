@@ -1,0 +1,144 @@
+.cart{
+    position: page;
+    margin-bottom: 120px;
+}
+
+.cart-title{
+    top: 180px;
+    text-align: center;
+    left: 0;
+    right:0;
+}
+.cart-top-option{
+    margin: 50px;
+}
+.c-t-o-text{
+    color: darkblue;
+    cursor: pointer;
+    font-size: 23px;
+    text-decoration: underline;
+}
+.c-t-o-button{
+    position: relative;
+    left: 900px;
+    width: 200px;
+    height: 50px;
+    top: -10px;
+}
+.cart-items{
+    top: 200px;
+    margin-bottom: 12px;
+}
+.cartImgBox{
+    position: relative;
+    top: 50px;
+    width: 300px;
+    margin: 0;
+}
+.cartItemImg{
+    min-width: 300px;
+    max-width: 300px;
+}
+.cartItem{
+    margin: 10px;
+    padding: 10px;
+    border: 3px solid black;
+    border-radius: 5px;
+    background: #b4bdf2;
+}
+.cartItemTitleBox{
+    top: -50px;
+    left: 300px;
+    padding: 10px;
+    border: 2px solid black;
+    border-radius: 5px;
+
+}
+.cartItemTitle{
+    position: relative;
+    font-size: 17px;
+    font-weight: bolder;
+    width: 100px;
+    padding: 20px;
+    word-break: break-all;
+}
+.cartItemQuantityBox{
+    top: -100px;
+    left: 900px;
+}
+.cartItemQuantityNo{
+    position: relative;
+    border: 2px solid black;
+    padding: 20px;
+}
+.cartItemPlus{
+    margin: 10px;
+    border: 3px solid black;
+    border-radius: 10px;
+}
+.cartItemPlus:hover{
+    cursor: pointer;
+    opacity: 0.6;
+}
+.cartItemMinus{
+    margin: 10px;
+    border: 3px solid black;
+    border-radius: 10px;
+}
+.cartItemMinus:hover{
+    cursor: pointer;
+    opacity: 0.6;
+}
+.cartItemPriceBox{
+    top: -150px;
+    left: 1100px;
+}
+.cartItemPrice{
+    font-size: 24px;
+    font-weight: bolder;
+}
+.CartPageDivider{
+    margin-top: 20px;
+}
+.cart-bottom{
+    padding: 10px;
+    margin: 20px 20px 250px;
+}
+.cartTotalPrice{
+    position: relative;
+    left: 10px;
+    font-size: 24px;
+    font-weight: bolder;
+}
+.cartTotalProduct{
+    position: relative;
+    left: -250px;
+    top: 42px;
+    font-size: 24px;
+}
+.cartCheckout{
+    position: relative;
+    left: -454px;
+    top: 100px;
+    font-size: 24px;
+    background: #b4bdf2;
+    padding: 10px;
+    width: 200px;
+    height: 60px;
+    border: 3px solid black;
+    border-radius: 5px;
+}
+.cartCheckout:hover{
+    opacity: 0.8;
+}
+/* Media Query */
+@media screen and (max-width:480px) {
+    .c-t-o-button{
+        position: absolute;
+        left: 0;
+        top: 80px;
+        width: 200px;
+        height: 50px;
+    }
+    
+}
