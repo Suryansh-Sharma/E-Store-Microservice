@@ -1,15 +1,14 @@
 package com.suryansh.orderservice.dto;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Setter
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class CartDto {
     List<CartItems> cartProduct;

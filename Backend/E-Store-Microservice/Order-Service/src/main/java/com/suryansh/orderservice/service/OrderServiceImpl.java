@@ -10,9 +10,7 @@ import com.suryansh.orderservice.model.OrderUpdateModel;
 import com.suryansh.orderservice.repository.OrderAddressRepository;
 import com.suryansh.orderservice.repository.OrderItemsRepository;
 import com.suryansh.orderservice.repository.OrderRepository;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,53 +27,68 @@ import java.util.List;
 
 @Service
 @NoArgsConstructor
-@AllArgsConstructor
 @Slf4j
 public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderItemsRepository orderItemsRepository;
     @Autowired
-
     private OrderAddressRepository orderAddressRepository;
     @Autowired
-
     private WebClient.Builder webClientBuilder;
     @Autowired
-
     private OrderRepository orderRepository;
 
     @Override
     @Async
     @Transactional
-    public void placeOrder(String userName, CartDto cart, String token) {
+    public void placeOrder(String userName, String token) {
+        CartDto cart = webClientBuilder.build().get()
+                .uri("http://geekyprogrammer:8080/api/cart/getCartByUser/" + userName)
+                .header("Authorization", token)
+                .retrieve()
+                .bodyToMono(CartDto.class)
+                .block();
+        if (cart == null) {
+            log.info("Cart is empty for user {} ", userName);
+            return;
+        }
         // Calling User Microservice to get User By UserName.
         UserDto user = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/user/by-userName/" + userName)
-                .header("Authorization",token)
+                .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(UserDto.class)
                 .block();
-        assert user != null;
+        if (user == null) {
+            log.info("Unable to place order because user {} is null ", userName);
+            return;
+        }
         AddressDto addressDto = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/user/getUserAddressById/" + user.getId())
-                .header("Authorization",token)
+                .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(AddressDto.class)
                 .block();
+        if (addressDto == null) {
+            log.info("Unable to place order because address not found for user {} ", userName);
+            return;
+        }
+        Order order = Order.builder()
+                .userId(user.getId())
+                .orderDate(Instant.now())
+                .lastUpdate(Instant.now())
+                .status("Submitted To Seller")
+                .totalItems(cart.getTotalProducts())
+                .price(cart.getTotalPrice())
+                .isProductDelivered(false)
+                .orderItems(null)
+                .orderAddress(null)
+                .build();
         try {
 
-            Order order = Order.builder()
-                    .userId(user.getId())
-                    .orderDate(Instant.now())
-                    .lastUpdate(Instant.now())
-                    .status("Submitted To Seller")
-                    .totalItems(cart.getTotalProducts())
-                    .price(cart.getTotalPrice())
-                    .isProductDelivered(false)
-                    .build();
-            orderRepository.save(order);//
+            orderRepository.save(order);
+            log.info("save order to repository");
             Order o2 = orderRepository.findTopByOrderByIdDesc();
-            assert addressDto != null;
             OrderAddress orderAddress = OrderAddress.builder()
                     .orderId(o2.getId())
                     .userId(user.getId())
@@ -84,13 +97,13 @@ public class OrderServiceImpl implements OrderService {
                     .pinCode(addressDto.getPinCode())
                     .otherDetails(addressDto.getOtherDetails())
                     .build();
-
             List<InventoryModel> inventoryModels = cart.getCartProduct()
                     .stream()
                     .map(this::CartProductsToInventoryModel)
                     .toList();
 
             orderAddressRepository.save(orderAddress);
+            log.info("Save Address for Order ");
             cart.getCartProduct().forEach((item) -> {
                 OrderItems orderItems = OrderItems.builder()
                         .orderId(o2.getId())
@@ -101,6 +114,7 @@ public class OrderServiceImpl implements OrderService {
                         .build();
                 orderItemsRepository.save(orderItems);
             });
+            log.info("Save item of order");
             // Calling Inventory Service for Updating Inventory.
             webClientBuilder.build().post()
                     .uri("http://geekyprogrammer:8080/api/inventory/updateInventoryProducts")

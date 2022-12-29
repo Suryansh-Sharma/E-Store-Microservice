@@ -6,6 +6,8 @@ import com.suryansh.orderservice.dto.OrderDto;
 import com.suryansh.orderservice.model.OrderUpdateModel;
 import com.suryansh.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,10 +22,14 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/placeOrder/{userName}")
-    @Async
-    public void placeOrder(@RequestBody CartDto cartDto, @PathVariable String userName,
-                           @RequestHeader(name = "Authorization") String token) {
-        orderService.placeOrder(userName, cartDto,token);
+    public ResponseEntity<String> placeOrder(@PathVariable String userName,
+                                     @RequestHeader(name = "Authorization") String token) {
+        try{
+            orderService.placeOrder(userName,token);
+            return new ResponseEntity<>("Order placed successfully !!", HttpStatus.OK);
+        }catch (Exception e){
+            return new ResponseEntity<>("Sorry order not placed !!", HttpStatus.CONFLICT);
+        }
     }
 
     @GetMapping("/getOrder-byUser/{userName}")
@@ -47,8 +53,10 @@ public class OrderController {
         return orderService.getAllPendingOrder();
     }
 
-    @PutMapping("/updateProduct")
+    @PutMapping("/updateOrder")
     public void updateOrder(@RequestBody OrderUpdateModel orderUpdateModel) {
         orderService.updateOrder(orderUpdateModel);
     }
+
+
 }

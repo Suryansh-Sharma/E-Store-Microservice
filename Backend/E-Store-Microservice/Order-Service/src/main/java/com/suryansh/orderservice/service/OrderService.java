@@ -8,7 +8,7 @@ import com.suryansh.orderservice.model.OrderUpdateModel;
 import java.util.List;
 
 public interface OrderService {
-    void placeOrder(String userName, CartDto cartDto, String token);
+    void placeOrder(String userName,String token);
 
     List<OrderDto> getAllOrderByUser(String userName, String token);
 
@@ -19,4 +19,5 @@ public interface OrderService {
     List<OrderDto> getAllPendingOrder();
 
     void updateOrder(OrderUpdateModel orderUpdateModel);
+
 }

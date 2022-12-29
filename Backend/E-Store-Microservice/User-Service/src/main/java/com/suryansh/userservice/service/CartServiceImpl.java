@@ -70,12 +70,11 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new UserServiceException("Unable to Find User for Add to Cart " +
                         userName));
         if (user.getCartTotalProducts() == 0) return null;
-        List<CartItems> res = user.getCartProducts().stream()
+        List<CartItems>cartItems=user.getCartProducts().stream()
                 .map((userCart)->CartEntityToDto(userCart,token))
                 .toList();
-
         return CartDto.builder()
-                .cartProduct(res)
+                .cartProduct(cartItems)
                 .totalPrice(user.getCartTotalPrice())
                 .totalProducts(user.getCartTotalProducts())
                 .build();

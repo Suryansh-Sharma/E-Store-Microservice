@@ -1,12 +1,13 @@
 package com.suryansh.orderservice.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class CartItems {
     private Long id;
     private Boolean isInStock;
