@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @NoArgsConstructor
@@ -41,7 +42,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Async
     @Transactional
-    public void placeOrder(String userName, String token) {
+    public CompletableFuture<String> placeOrder(String userName, String token) {
         CartDto cart = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/cart/getCartByUser/" + userName)
                 .header("Authorization", token)
@@ -50,7 +51,8 @@ public class OrderServiceImpl implements OrderService {
                 .block();
         if (cart == null) {
             log.info("Cart is empty for user {} ", userName);
-            return;
+            return CompletableFuture.failedFuture(new
+                    SpringOrderException("User Cart is Empty.",HttpStatus.NOT_FOUND));
         }
         // Calling User Microservice to get User By UserName.
         UserDto user = webClientBuilder.build().get()
@@ -61,7 +63,8 @@ public class OrderServiceImpl implements OrderService {
                 .block();
         if (user == null) {
             log.info("Unable to place order because user {} is null ", userName);
-            return;
+            return CompletableFuture.failedFuture(new
+                    SpringOrderException("User is not Available.",HttpStatus.NOT_FOUND));
         }
         AddressDto addressDto = webClientBuilder.build().get()
                 .uri("http://geekyprogrammer:8080/api/user/getUserAddressById/" + user.getId())
@@ -71,7 +74,8 @@ public class OrderServiceImpl implements OrderService {
                 .block();
         if (addressDto == null) {
             log.info("Unable to place order because address not found for user {} ", userName);
-            return;
+            return CompletableFuture.failedFuture(new
+                    SpringOrderException("User Address is not Available.",HttpStatus.NOT_FOUND));
         }
         Order order = Order.builder()
                 .userId(user.getId())
@@ -130,6 +134,7 @@ public class OrderServiceImpl implements OrderService {
                     .block();
             log.info(cartResponse);
             log.info("Order Placed Successfully");
+            return CompletableFuture.completedFuture("Order Placed Successfully !!");
         } catch (Exception e) {
             throw new SpringOrderException("Unable to Place Order !!",HttpStatus.CONFLICT);
         }

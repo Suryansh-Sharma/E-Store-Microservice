@@ -6,9 +6,10 @@ import com.suryansh.orderservice.dto.OrderDto;
 import com.suryansh.orderservice.model.OrderUpdateModel;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface OrderService {
-    void placeOrder(String userName,String token);
+    CompletableFuture<String> placeOrder(String userName, String token);
 
     List<OrderDto> getAllOrderByUser(String userName, String token);
 
