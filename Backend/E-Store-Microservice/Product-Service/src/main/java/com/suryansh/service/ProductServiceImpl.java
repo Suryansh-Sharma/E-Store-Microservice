@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -60,6 +61,7 @@ public class ProductServiceImpl implements ProductService {
                 .productName(productModel.getProductName())
                 .ratings(0)
                 .noOfRatings(0)
+                .noOfRatedUser(0)
                 .text(productModel.getText())
                 .price(productModel.getPrice())
                 .discount(productModel.getDiscount())
@@ -210,6 +212,7 @@ public class ProductServiceImpl implements ProductService {
                     .productName(val.getSubProductName())
                     .ratings(0)
                     .noOfRatings(0)
+                    .noOfRatedUser(0)
                     .text(val.getText())
                     .price(val.getPrice())
                     .discount(val.getDiscount())
@@ -284,6 +287,22 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
     }
 
+    @Override
+    @Async
+    public CompletableFuture<String> addRatingForProduct(Long id, int rating) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(()->new SpringProductException("Unable to find product for Rating"));
+        int newRating = ((product.getRatings()+rating)/product.getNoOfRatedUser()+1);
+        product.setNoOfRatings(newRating);
+        product.setNoOfRatedUser(product.getNoOfRatedUser()+1);
+        try {
+            productRepository.save(product);
+            return CompletableFuture.completedFuture("Review Added Successfully");
+        }catch (Exception e){
+            return CompletableFuture.failedFuture(new
+                    SpringProductException("Unable to add review for Product"));
+        }
+    }
 
 
     private ProductDto productEntityToDto(Product product) {

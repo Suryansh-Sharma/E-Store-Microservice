@@ -8,6 +8,7 @@ import com.suryansh.model.SubProductModel;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface ProductService {
     void save(ProductModel productModel, String token);
@@ -27,4 +28,6 @@ public interface ProductService {
     ProductPagingDto findByProductNameLike(String productName, Pageable pr);
 
     List<NavSearchDto> findProductNameAndId(String productName);
+
+    CompletableFuture<String> addRatingForProduct(Long id, int rating);
 }

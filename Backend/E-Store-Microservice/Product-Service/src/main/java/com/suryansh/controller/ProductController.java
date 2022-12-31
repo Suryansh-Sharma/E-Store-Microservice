@@ -96,4 +96,9 @@ public class ProductController {
     public List<NavSearchDto> getProductNameAndId(@PathVariable String productName){
         return productService.findProductNameAndId(productName);
     }
+    @PostMapping("/addRatingForProduct/{id}/{rating}")
+    @Async
+    public CompletableFuture<String> addRatingForProduct(@PathVariable Long id,@PathVariable int rating){
+        return productService.addRatingForProduct(id,rating);
+    }
 }

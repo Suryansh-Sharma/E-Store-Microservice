@@ -13,6 +13,7 @@
         <module>Inventory-Service</module>
         <module>User-Service</module>
         <module>Order-Service</module>
+        <module>ReviewAndQuestion-Service</module>
         <module>Service-Registory</module>
         <module>Api-Gateway</module>
     </modules>

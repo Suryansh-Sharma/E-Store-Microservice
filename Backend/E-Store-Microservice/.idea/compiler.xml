@@ -9,10 +9,11 @@
         <outputRelativeToContentRoot value="true" />
         <module name="Inventory-Service" />
         <module name="Order-Service" />
+        <module name="Service-Registory" />
+        <module name="ReviewAndQuestion-Service" />
         <module name="Api-Gateway" />
         <module name="Product-Service" />
         <module name="User-Service" />
-        <module name="Service-Registory" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -30,6 +31,7 @@
       <module name="Order-Service" options="-parameters" />
       <module name="Product-Service" options="-parameters" />
       <module name="Product-Service (1)" options="-parameters" />
+      <module name="ReviewAndQuestion-Service" options="-parameters" />
       <module name="Service-Registory" options="-parameters" />
       <module name="User-Service" options="-parameters" />
     </option>
