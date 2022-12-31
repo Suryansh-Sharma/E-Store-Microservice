@@ -13,9 +13,11 @@
     e. Order-Service: This service is used for placing order , get order updates, get order details including address. 
     
     f. User-Service: This service stores user details including orders,liked product,user cart,user Address.
+    
+    g. ReviewAndQuestion-Service:  This service handle rating and Question Answers.
 <h3> Technologies used in this project </h3>
     
-    a. Database: Postgresql,SpringDataJpa,Filesystem for images.
+    a. Database: Postgresql,MongoDb,SpringDataJpa,Filesystem for images.
    
     b. Discovery Server: Netflix Eureka.
     
@@ -43,15 +45,15 @@
     Eureka server port: http://localhost:8761/
     Api Gateway: http://geekyprogrammer:8080
 <h3> Steps </h3>
-step1: Getting Jwt Token from Okta
+step 1 : Getting Jwt Token from Okta
 
 use Browser: http://localhost:8080/authenticate/login .
 
     username: suryanshsharma1942@gmail.com
     password: suryansh@1904
-step2: Get Okta Jwt Token from login Response.
+step 2 : Get Okta Jwt Token from login Response.
 
-step3: Add User Address.
+step 3 : Add User Address.
 
 POST: http://geekyprogrammer:8080/api/user/addUserAddress
     
@@ -75,7 +77,7 @@ Body
         "name":"Samsung"
     }
 
-step5: Add Product to product service. It Will also store data about stock in Inventory Service.
+step 5 : Add Product to product service. It Will also store data about stock in Inventory Service.
 
 POST: http://geekyprogrammer:8080/api/products/save
 
@@ -96,7 +98,7 @@ Body
         "noOfStock":12
     }
 
-step6: Get product by name . 
+step 6 : Get product by name . 
 
 GET: http://geekyprogrammer:8080/api/products/by-name/Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)
 
@@ -120,7 +122,7 @@ Response
         "subProducts": null
     }
 
-step7: Add SubProduct for Product.
+step 7 : Add SubProduct for Product.
 
 // Note:  Get SubProduct Parent id from Step7 .
 
@@ -141,7 +143,31 @@ Body
         "productCategory":"Mobile"
     }
 
-step8: Get Product Full details (Brand,isInStock,Images,SubProduct)
+Step 8 : Add Question for Product.
+
+POST: http://geekyprogrammer:8080/api/QuestionAndAnswer/addNewQuestion
+
+BODY:
+
+    {
+        "text":"How much battery life you get on daily use ?",
+        "username":"suryanshsharma1942@gmail.com",
+        "productId":1
+    }
+
+Step 9 : Add Answer for Question of product.
+
+POST: http://geekyprogrammer:8080/api/QuestionAndAnswer/addAnswer
+
+BODY:
+
+    {
+        "questionId":"63b065eacabae504eaec6797",
+        "text":"Actually this year samsung added S-Pen so thick of phone is increased 👍.",
+        "username":"suryanshsharma1942@gmail.com"
+    }
+
+step 10 : Get Product Full details (Brand,isInStock,Images,SubProduct)
 
 GET: http://geekyprogrammer:8080/api/products/fullView-by-name/Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)
 
@@ -197,7 +223,105 @@ Response:
         ]
     }
 
-step9 : Like a product. 
+Step 11 : Get Questions of product by id .
+
+GET: http://geekyprogrammer:8080/api/QuestionAndAnswer/getByProductId/1?pageNo=0
+
+Response:
+    
+    {
+        "questions": [
+        {
+            "id": "63b065eacabae504eaec6797",
+            "productId": 1,
+            "text": "What is thickness of this product",
+            "username": "suryanshsharma1942@gmail.com",
+            "date": "13 minutes ago",
+            "noOfAnswers": 2
+        },
+        {
+            "id": "63b06869cabae504eaec679a",
+            "productId": 1,
+            "text": "How much battery life you get on daily use ?",
+            "username": "suryanshsharma1942@gmail.com",
+            "date": "2 minutes ago",
+            "noOfAnswers": 0
+        }
+        ],
+        "totalPage": 1,
+        "currentPage": 0
+    }
+
+Step 12 : Get Answer for question by questionId.
+
+GET: http://geekyprogrammer:8080/api/QuestionAndAnswer/getAnswerByQuestionId/63b065eacabae504eaec6797
+
+Response:
+    
+    [
+        {
+            "id": "63b066ffcabae504eaec6798",
+            "questionId": "63b065eacabae504eaec6797",
+            "text": "The thickness of s22 Ultra is 8.9 mm .",
+            "username": "suryanshsharma1942@gmail.com",
+            "date": "7 minutes ago"
+        },
+        {
+            "id": "63b067e6cabae504eaec6799",
+            "questionId": "63b065eacabae504eaec6797",
+            "text": "Actually this year samsung added S-Pen so thick of phone is increased 👍.",
+            "username": "suryanshsharma1942@gmail.com",
+            "date": "4 minutes ago"
+        }
+    ]
+
+Step 13 : Add Review for product.
+
+POST: http://geekyprogrammer:8080/api/review/addReview
+
+BODY:
+
+    {
+        "productId":1,
+        "noOfStars":4,
+        "text":"Battery Is Improved ",
+        "userName":"suryanshsharma1942@gmail.com"
+    }
+
+Step : Get Product Review's by productId.
+
+GET 14 : http://geekyprogrammer:8080/api/review/getReviewsByProductId/1
+
+RESPONSE:
+    
+    {
+        "reviews": [
+            {
+                "id": "63afee9cac9c997a9befd57b",
+                "productId": 1,
+                "noOfStars": 5,
+                "text": "Fully Satisfied with new camera and display.Battery is also improved.",
+                "dateOfReview": "moments ago",
+                "userName": "suryanshsharma1942@gmail.com"
+            },
+            {
+                "id": "63afeeacac9c997a9befd57c",
+                "productId": 1,
+                "noOfStars": 4,
+                "text": "Battery Is Improved ",
+                "dateOfReview": "moments ago",
+                "userName": "suryanshsharma1942@gmail.com"
+            }
+        ],
+        "currentPage": 0,
+        "totalPage": 1
+    }
+    
+    
+    
+    
+    
+Step 15 : Like a product. 
 
 POST: http://geekyprogrammer:8080/api/user/likeProduct
 
@@ -209,13 +333,13 @@ Body:
         "productName":"Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)"
     }
 
-step10: Check is product like by user.
+Step 16 : Check is product like by user.
 
 /api/user/isProductLikedByUser/{userName}/{productId}
 
 GET: http://geekyprogrammer:8080/api/user/isProductLikedByUser/SuryanshSharma@1942/1
 
-step11: UnLike Product.
+Step 17 : UnLike Product.
 
 DELETE : http://geekyprogrammer:8080/api/user/unLikeProduct
 
@@ -227,7 +351,7 @@ BODY:
         "productName":"Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)"
     }
 
-step12: Add product to Cart
+Step 18 : Add product to Cart
 
 This will add only one product to Cart . After this you can update product quantity.
 
@@ -241,7 +365,7 @@ BODY:
         "noOfProduct":1
     }
 
-step13: Get Cart Details by username
+Step 19 : Get Cart Details by username
 
 GET: http://geekyprogrammer:8080/api/cart/getCartByUser/suryanshsharma1942@gmail.com
     
@@ -263,7 +387,7 @@ Response:
         "totalPrice": 131999.0
     }    
 
-step14: For Updating Cart .
+Step 20 : For Updating Cart .
 
 It Will take whole all Cart product as List input and id of product and cartItem.
 It Will update cart total product in user and cart database , totalPrice.
@@ -271,20 +395,27 @@ It Will update cart total product in user and cart database , totalPrice.
 POST: http://geekyprogrammer:8080/api/cart/updateCartOfUser/suryanshsharma1942@gmail.com
 
 BODY:
-    
+
     [
         {
-            "id": 1,
+            "id": 3,
+            "isInStock": true,
+            "noOfStock": 12,
             "productId": 1,
-            "noOfProduct": 4
+            "productName": "Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)",
+            "productImage": "s22Burgundy1.jpg",
+            "imageUrl": "http://geekyprogrammer:8080/api/image/download/s22Burgundy1.jpg",
+            "price": 131999.0,
+            "totalPrice": 131999.0,
+            "noOfProduct": 1
         }
     ]
 
-step15 : For Placing Order.
+Step 21 : For Placing Order.
 
 POST: http://geekyprogrammer:8080/api/order/placeOrder/suryanshsharma1942@gmail.com
 
-step16: Get Order by userName
+Step 22 : Get Order by userName
 
 GET: http://geekyprogrammer:8080/api/order/getOrder-byUser/suryanshsharma1942@gmail.com
 
@@ -303,7 +434,7 @@ Response:
         }
     ]
 
-step17: Get Order Full details by id . 
+Step 23 : Get Order Full details by id . 
 
 GET: http://geekyprogrammer:8080/api/order/getOrderDetails/1
 
@@ -331,26 +462,26 @@ Response:
         ]
     }
 
-step19 : Get All Pending Order.
+Step 24 : Get All Pending Order.
 
 GET: http://geekyprogrammer:8080/api/order/getAllPendingOrder
 
 Response:
         
-        [
-           {
-            "id": 1,
-            "userId": 1,
-            "orderDate": "10 minutes ago",
-            "lastUpdate": "10 minutes ago",
-            "status": "Submitted To Seller",
-            "totalItems": 2,
-            "price": 263998.0,
-            "isProductDelivered": false
-            }
-        ]
+    [
+       {
+        "id": 1,
+        "userId": 1,
+        "orderDate": "10 minutes ago",
+        "lastUpdate": "10 minutes ago",
+        "status": "Submitted To Seller",
+        "totalItems": 2,
+        "price": 263998.0,
+        "isProductDelivered": false
+        }
+    ]
 
-step20 : Update Order details.
+Step 25 : Update Order details.
 
 PUT : http://geekyprogrammer:8080/api/order/updateProduct
 
