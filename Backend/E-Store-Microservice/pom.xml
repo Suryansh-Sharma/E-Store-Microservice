@@ -9,13 +9,13 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
+        <module>Service-Registory</module>
+        <module>Api-Gateway</module>
         <module>Product-Service</module>
         <module>Inventory-Service</module>
         <module>User-Service</module>
         <module>Order-Service</module>
         <module>ReviewAndQuestion-Service</module>
-        <module>Service-Registory</module>
-        <module>Api-Gateway</module>
     </modules>
 
     <properties>
