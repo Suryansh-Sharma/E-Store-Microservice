@@ -37,7 +37,7 @@ public class ReviewServiceImpl implements ReviewService{
         try {
             // Calling Product Service for updating rating inside product.
             String productResponse = webClientBuilder.build().post()
-                    .uri("http://geekyprogrammer:8080/api/products/addRatingForProduct/"
+                    .uri("http://localhost:8080/api/products/addRatingForProduct/"
                             + reviewModel.getProductId() + "/" + reviewModel.getNoOfStars())
                     .header("Authorization",token)
                     .retrieve()

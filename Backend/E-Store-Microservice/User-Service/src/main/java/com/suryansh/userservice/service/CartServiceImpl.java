@@ -33,7 +33,7 @@ public class CartServiceImpl implements CartService {
     public void addProductToCart(CartModel cartModel, String token) {
         // Calling Product Microservice for Getting Product.
         ProductDto productResponse = webClientBuilder.build().get()
-                .uri("http://geekyprogrammer:8080/api/products/by-id/" + cartModel.getProductId())
+                .uri("http://localhost:8080/api/products/by-id/" + cartModel.getProductId())
                 .header("Authorization",token)
                 .retrieve()
                 .bodyToMono(ProductDto.class)
@@ -92,7 +92,7 @@ public class CartServiceImpl implements CartService {
                 UserCart cart = userCartRepository.findByIdAndUserId(model.getId(), user.getId())
                         .orElseThrow(() -> new UserServiceException("Unable to find cart product for " + model));
                 ProductDto productResponse = webClientBuilder.build().get()
-                        .uri("http://geekyprogrammer:8080/api/products/by-id/" + model.getProductId())
+                        .uri("http://localhost:8080/api/products/by-id/" + model.getProductId())
                         .header("Authorization",token)
                         .retrieve()
                         .bodyToMono(ProductDto.class)
@@ -150,7 +150,7 @@ public class CartServiceImpl implements CartService {
     private CartItems CartEntityToDto(UserCart userCart,String token) {
         // Calling Inventory Repository.
         InventoryResponse productStock = webClientBuilder.build().get()
-                .uri("http://geekyprogrammer:8080/api/inventory/get-product-byId/" + userCart.getProductId())
+                .uri("http://localhost:8080/api/inventory/get-product-byId/" + userCart.getProductId())
                 .header("Authorization",token)
                 .retrieve()
                 .bodyToMono(InventoryResponse.class)
@@ -164,7 +164,7 @@ public class CartServiceImpl implements CartService {
                 .productId(userCart.getProductId())
                 .productName(userCart.getProductName())
                 .productImage(userCart.getProductImage())
-                .imageUrl("http://geekyprogrammer:8080/api/image/download/"+userCart.getProductImage())
+                .imageUrl("http://localhost:8080/api/image/download/"+userCart.getProductImage())
                 .price(userCart.getPrice())
                 .totalPrice(userCart.getPrice() * userCart.getNoOfProduct())
                 .noOfProduct(userCart.getNoOfProduct())

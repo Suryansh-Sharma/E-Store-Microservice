@@ -44,7 +44,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public CompletableFuture<String> placeOrder(String userName, String token) {
         CartDto cart = webClientBuilder.build().get()
-                .uri("http://geekyprogrammer:8080/api/cart/getCartByUser/" + userName)
+                .uri("http://localhost:8080/api/cart/getCartByUser/" + userName)
                 .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(CartDto.class)
@@ -56,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
         }
         // Calling User Microservice to get User By UserName.
         UserDto user = webClientBuilder.build().get()
-                .uri("http://geekyprogrammer:8080/api/user/by-userName/" + userName)
+                .uri("http://localhost:8080/api/user/by-userName/" + userName)
                 .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(UserDto.class)
@@ -67,7 +67,7 @@ public class OrderServiceImpl implements OrderService {
                     SpringOrderException("User is not Available.",HttpStatus.NOT_FOUND));
         }
         AddressDto addressDto = webClientBuilder.build().get()
-                .uri("http://geekyprogrammer:8080/api/user/getUserAddressById/" + user.getId())
+                .uri("http://localhost:8080/api/user/getUserAddressById/" + user.getId())
                 .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(AddressDto.class)
@@ -121,13 +121,13 @@ public class OrderServiceImpl implements OrderService {
             log.info("Save item of order");
             // Calling Inventory Service for Updating Inventory.
             webClientBuilder.build().post()
-                    .uri("http://geekyprogrammer:8080/api/inventory/updateInventoryProducts")
+                    .uri("http://localhost:8080/api/inventory/updateInventoryProducts")
                     .header("Authorization",token)
                     .body(BodyInserters.fromValue(inventoryModels));
             log.info("Inventory Updated Successfully");
             // Calling Cart Service for Clearing Cart for User After Order Placed.
             String cartResponse = webClientBuilder.build().get()
-                    .uri("http://geekyprogrammer:8080/api/cart/clearCartForUser/" + userName)
+                    .uri("http://localhost:8080/api/cart/clearCartForUser/" + userName)
                     .header("Authorization",token)
                     .retrieve()
                     .bodyToMono(String.class)
@@ -142,7 +142,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderDto> getAllOrderByUser(String userName, String token) {
         UserDto user = webClientBuilder.build().get()
-                .uri("http://geekyprogrammer:8080/api/user/by-userName/" + userName)
+                .uri("http://localhost:8080/api/user/by-userName/" + userName)
                 .header("Authorization",token)
                 .retrieve()
                 .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())

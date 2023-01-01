@@ -15,7 +15,7 @@ public class AuthServiceImpl implements AuthService{
     @Async
     public void saveUserInDataBase(String email, String accessToken) {
         webClientBuilder.build().get()
-                .uri("http://geekyprogrammer:8080/api/user/isUserPresent/"+email)
+                .uri("http://localhost:8080/api/user/isUserPresent/"+email)
                 .header("Authorization","Bearer "+accessToken)
                 .retrieve()
                 .bodyToMono(Boolean.class)

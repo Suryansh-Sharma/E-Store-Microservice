@@ -82,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
             log.info("Product  Found");
             // Calling Inventory Microservice for Adding noOfStock of product.
             webClientBuilder.build().post()
-                    .uri("http://geekyprogrammer:8080/api/inventory/addToInventory/"
+                    .uri("http://localhost:8080/api/inventory/addToInventory/"
                             + productModel.getProductName() + "/" + p.getId() +"/"+ productModel.getNoOfStock())
                     .header("Authorization",token)
                     .retrieve()
@@ -125,7 +125,7 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
         // Calling Inventory Microservice to get update about stock.
         InventoryResponse productStock = webClientBuilder.build().get()
-                .uri("http://geekyprogrammer:8080/api/inventory/get-product-byId/" + product.getId())
+                .uri("http://localhost:8080/api/inventory/get-product-byId/" + product.getId())
                 .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(InventoryResponse.class)
@@ -146,7 +146,7 @@ public class ProductServiceImpl implements ProductService {
                 .discount(product.getDiscount())
                 .newPrice(product.getNewPrice())
                 .productImage(product.getProductImage())
-                .imageUrl("http://geekyprogrammer:8080/api/image/download/"+product.getProductImage())
+                .imageUrl("http://localhost:8080/api/image/download/"+product.getProductImage())
                 .productCategory(product.getProductCategory())
                 .description(product.getDescription())
                 .brand(brandDto)
@@ -172,7 +172,7 @@ public class ProductServiceImpl implements ProductService {
                 .discount(product.getDiscount())
                 .newPrice(product.getNewPrice())
                 .productImage(product.getProductImage())
-                .imageUrl("http://geekyprogrammer:8080/api/image/download/"+product.getProductImage())
+                .imageUrl("http://localhost:8080/api/image/download/"+product.getProductImage())
                 .productCategory(product.getProductCategory())
                 .build();
     }
@@ -227,7 +227,7 @@ public class ProductServiceImpl implements ProductService {
             log.info("Last Saved Id : {} ",lastSavedProduct.getId());
             // Calling Inventory Microservice to add SubProduct noOfStock.
             webClientBuilder.build().post()
-                    .uri("http://geekyprogrammer:8080/api/inventory/addToInventory/"
+                    .uri("http://localhost:8080/api/inventory/addToInventory/"
                             + val.getSubProductName() + "/" + lastSavedProduct.getId() +"/"+ val.getNoOfStock())
                     .header("Authorization",token)
                     .retrieve()
@@ -249,7 +249,7 @@ public class ProductServiceImpl implements ProductService {
         return ProductDto.builder()
                 .id(product.getId())
                 .productName(product.getProductName())
-                .imageUrl("http://geekyprogrammer:8080/api/image/download/"+product.getProductImage())
+                .imageUrl("http://localhost:8080/api/image/download/"+product.getProductImage())
                 .ratings(product.getRatings())
                 .noOfRatings(product.getNoOfRatings())
                 .text(product.getText())
@@ -309,7 +309,7 @@ public class ProductServiceImpl implements ProductService {
         return ProductDto.builder()
                 .id(product.getId())
                 .productName(product.getProductName())
-                .imageUrl("http://geekyprogrammer:8080/api/image/download/"+product.getProductImage())
+                .imageUrl("http://localhost:8080/api/image/download/"+product.getProductImage())
                 .ratings(product.getRatings())
                 .noOfRatings(product.getNoOfRatings())
                 .text(product.getText())
