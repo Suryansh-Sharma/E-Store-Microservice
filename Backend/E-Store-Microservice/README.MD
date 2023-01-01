@@ -43,7 +43,7 @@
 <h3>Project Port Configuration </h3>
     
     Eureka server port: http://localhost:8761/
-    Api Gateway: http://geekyprogrammer:8080
+    Api Gateway: http://localhost:8080
 <h3> Steps </h3>
 step 1 : Getting Jwt Token from Okta
 
@@ -55,7 +55,7 @@ step 2 : Get Okta Jwt Token from login Response.
 
 step 3 : Add User Address.
 
-POST: http://geekyprogrammer:8080/api/user/addUserAddress
+POST: http://localhost:8080/api/user/addUserAddress
     
 Body
     
@@ -69,7 +69,7 @@ Body
 
 step4: Add New Brand.
 
-POST: http://geekyprogrammer:8080/api/brand
+POST: http://localhost:8080/api/brand
 
 Body
     
@@ -79,7 +79,7 @@ Body
 
 step 5 : Add Product to product service. It Will also store data about stock in Inventory Service.
 
-POST: http://geekyprogrammer:8080/api/products/save
+POST: http://localhost:8080/api/products/save
 
 Body
 
@@ -100,7 +100,7 @@ Body
 
 step 6 : Get product by name . 
 
-GET: http://geekyprogrammer:8080/api/products/by-name/Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)
+GET: http://localhost:8080/api/products/by-name/Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)
 
 Response
      
@@ -145,7 +145,7 @@ Body
 
 Step 8 : Add Question for Product.
 
-POST: http://geekyprogrammer:8080/api/QuestionAndAnswer/addNewQuestion
+POST: http://localhost:8080/api/QuestionAndAnswer/addNewQuestion
 
 BODY:
 
@@ -157,7 +157,7 @@ BODY:
 
 Step 9 : Add Answer for Question of product.
 
-POST: http://geekyprogrammer:8080/api/QuestionAndAnswer/addAnswer
+POST: http://localhost:8080/api/QuestionAndAnswer/addAnswer
 
 BODY:
 
@@ -169,7 +169,7 @@ BODY:
 
 step 10 : Get Product Full details (Brand,isInStock,Images,SubProduct)
 
-GET: http://geekyprogrammer:8080/api/products/fullView-by-name/Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)
+GET: http://localhost:8080/api/products/fullView-by-name/Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)
 
 Response:
     
@@ -225,7 +225,7 @@ Response:
 
 Step 11 : Get Questions of product by id .
 
-GET: http://geekyprogrammer:8080/api/QuestionAndAnswer/getByProductId/1?pageNo=0
+GET: http://localhost:8080/api/QuestionAndAnswer/getByProductId/1?pageNo=0
 
 Response:
     
@@ -254,7 +254,7 @@ Response:
 
 Step 12 : Get Answer for question by questionId.
 
-GET: http://geekyprogrammer:8080/api/QuestionAndAnswer/getAnswerByQuestionId/63b065eacabae504eaec6797
+GET: http://localhost:8080/api/QuestionAndAnswer/getAnswerByQuestionId/63b065eacabae504eaec6797
 
 Response:
     
@@ -277,7 +277,7 @@ Response:
 
 Step 13 : Add Review for product.
 
-POST: http://geekyprogrammer:8080/api/review/addReview
+POST: http://localhost:8080/api/review/addReview
 
 BODY:
 
@@ -290,7 +290,7 @@ BODY:
 
 Step : Get Product Review's by productId.
 
-GET 14 : http://geekyprogrammer:8080/api/review/getReviewsByProductId/1
+GET 14 : http://localhost:8080/api/review/getReviewsByProductId/1
 
 RESPONSE:
     
@@ -323,7 +323,7 @@ RESPONSE:
     
 Step 15 : Like a product. 
 
-POST: http://geekyprogrammer:8080/api/user/likeProduct
+POST: http://localhost:8080/api/user/likeProduct
 
 Body:
     
@@ -337,11 +337,11 @@ Step 16 : Check is product like by user.
 
 /api/user/isProductLikedByUser/{userName}/{productId}
 
-GET: http://geekyprogrammer:8080/api/user/isProductLikedByUser/SuryanshSharma@1942/1
+GET: http://localhost:8080/api/user/isProductLikedByUser/SuryanshSharma@1942/1
 
 Step 17 : UnLike Product.
 
-DELETE : http://geekyprogrammer:8080/api/user/unLikeProduct
+DELETE : http://localhost:8080/api/user/unLikeProduct
 
 BODY:
     
@@ -355,7 +355,7 @@ Step 18 : Add product to Cart
 
 This will add only one product to Cart . After this you can update product quantity.
 
-POST : http://geekyprogrammer:8080/api/cart/addProductToCart
+POST : http://localhost:8080/api/cart/addProductToCart
 
 BODY:
     
@@ -367,7 +367,7 @@ BODY:
 
 Step 19 : Get Cart Details by username
 
-GET: http://geekyprogrammer:8080/api/cart/getCartByUser/suryanshsharma1942@gmail.com
+GET: http://localhost:8080/api/cart/getCartByUser/suryanshsharma1942@gmail.com
     
 Response:
         
@@ -392,7 +392,7 @@ Step 20 : For Updating Cart .
 It Will take whole all Cart product as List input and id of product and cartItem.
 It Will update cart total product in user and cart database , totalPrice.
 
-POST: http://geekyprogrammer:8080/api/cart/updateCartOfUser/suryanshsharma1942@gmail.com
+POST: http://localhost:8080/api/cart/updateCartOfUser/suryanshsharma1942@gmail.com
 
 BODY:
 
@@ -413,11 +413,11 @@ BODY:
 
 Step 21 : For Placing Order.
 
-POST: http://geekyprogrammer:8080/api/order/placeOrder/suryanshsharma1942@gmail.com
+POST: http://localhost:8080/api/order/placeOrder/suryanshsharma1942@gmail.com
 
 Step 22 : Get Order by userName
 
-GET: http://geekyprogrammer:8080/api/order/getOrder-byUser/suryanshsharma1942@gmail.com
+GET: http://localhost:8080/api/order/getOrder-byUser/suryanshsharma1942@gmail.com
 
 Response:
         
@@ -436,7 +436,7 @@ Response:
 
 Step 23 : Get Order Full details by id . 
 
-GET: http://geekyprogrammer:8080/api/order/getOrderDetails/1
+GET: http://localhost:8080/api/order/getOrderDetails/1
 
 Response:
     
@@ -464,7 +464,7 @@ Response:
 
 Step 24 : Get All Pending Order.
 
-GET: http://geekyprogrammer:8080/api/order/getAllPendingOrder
+GET: http://localhost:8080/api/order/getAllPendingOrder
 
 Response:
         
@@ -483,7 +483,7 @@ Response:
 
 Step 25 : Update Order details.
 
-PUT : http://geekyprogrammer:8080/api/order/updateProduct
+PUT : http://localhost:8080/api/order/updateProduct
 
 Body:
         
