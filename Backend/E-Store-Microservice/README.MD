@@ -44,6 +44,9 @@
     
     Eureka server port: http://localhost:8761/
     Api Gateway: http://localhost:8080
+    
+<h3> Postman Documentation <h3>
+      https://documenter.getpostman.com/view/19485910/2s8Z6zzBjs
 <h3> Steps </h3>
 step 1 : Getting Jwt Token from Okta
 
