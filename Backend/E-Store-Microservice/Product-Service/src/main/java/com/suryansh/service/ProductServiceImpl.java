@@ -61,7 +61,7 @@ public class ProductServiceImpl implements ProductService {
                 .productName(productModel.getProductName())
                 .ratings(0)
                 .noOfRatings(0)
-                .noOfRatedUser(0)
+                .totalRating(0)
                 .text(productModel.getText())
                 .price(productModel.getPrice())
                 .discount(productModel.getDiscount())
@@ -212,7 +212,6 @@ public class ProductServiceImpl implements ProductService {
                     .productName(val.getSubProductName())
                     .ratings(0)
                     .noOfRatings(0)
-                    .noOfRatedUser(0)
                     .text(val.getText())
                     .price(val.getPrice())
                     .discount(val.getDiscount())
@@ -292,9 +291,17 @@ public class ProductServiceImpl implements ProductService {
     public CompletableFuture<String> addRatingForProduct(Long id, int rating) {
         Product product = productRepository.findById(id)
                 .orElseThrow(()->new SpringProductException("Unable to find product for Rating"));
-        int newRating = ((product.getRatings()+rating)/product.getNoOfRatedUser()+1);
-        product.setNoOfRatings(newRating);
-        product.setNoOfRatedUser(product.getNoOfRatedUser()+1);
+        if(product.getNoOfRatings()==0){
+                product.setRatings(rating);
+                product.setNoOfRatings(product.getNoOfRatings()+1);
+                product.setTotalRating(rating);
+                log.info("new Rating");
+        }else{
+                int newRating = (product.getTotalRating()+rating) / (product.getNoOfRatings()+1);
+                product.setRatings(newRating);
+                product.setTotalRating(product.getTotalRating()+rating);
+                product.setNoOfRatings(product.getNoOfRatings()+1);
+        }
         try {
             productRepository.save(product);
             return CompletableFuture.completedFuture("Review Added Successfully");

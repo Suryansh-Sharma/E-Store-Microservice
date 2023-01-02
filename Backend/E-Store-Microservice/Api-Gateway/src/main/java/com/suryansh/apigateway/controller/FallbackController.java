@@ -24,4 +24,6 @@ public class FallbackController {
     public String userServiceFallBack(){
         return "User Service is Down !! , Please try After Sometime";
     }
+    @GetMapping("/reviewServiceFallBack")
+    public String reviewServiceDown(){return"Review And Question Service is Down !! , Please try After Sometime";}
 }

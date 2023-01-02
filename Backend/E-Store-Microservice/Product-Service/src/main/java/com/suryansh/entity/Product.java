@@ -20,7 +20,7 @@ public class Product {
     private String productName;
     private int ratings;
     private int noOfRatings;
-    private int noOfRatedUser;
+    private int totalRating;
     private String text;
     private Float price;
     private int discount;

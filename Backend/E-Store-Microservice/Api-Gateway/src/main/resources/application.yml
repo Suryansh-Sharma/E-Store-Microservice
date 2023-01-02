@@ -65,6 +65,17 @@ spring:
                 name: USER-SERVICE
                 # noinspection SpringBootApplicationYaml
                 fallbackuri: forward:/userServiceFallBack
+        - id: REVIEW-SERVICE
+          uri: lb://REVIEW-SERVICE
+          predicates:
+            - Path=/api/review/** , /api/QuestionAndAnswer/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                # noinspection SpringBootApplicationYaml
+                name: REVIEW-SERVICE
+                # noinspection SpringBootApplicationYaml
+                fallbackuri: forward:/reviewServiceFallBack
 resilience4j:
   ratelimiter:
     configs:
