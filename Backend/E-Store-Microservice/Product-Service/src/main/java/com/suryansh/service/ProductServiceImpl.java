@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -45,10 +44,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new SpringProductException("Unable to find Brand : ProductServiceImpl.save"));
         log.info("Brand Find");
         Description description = Description.builder()
-                .data(productModel.getData())
-                .releaseDate(Instant.now())
-                .dimensions(productModel.getDimensions())
-                .specialFeatures(productModel.getSpecialFeatures())
+                .data(productModel.getDescription())
                 .build();
         descriptionRepository.save(description);
         log.info("Description Saved");
@@ -208,16 +204,26 @@ public class ProductServiceImpl implements ProductService {
             Brand brand = brandRepository.findByName(val.getBrandName())
                     .orElseThrow(() -> new
                             SpringProductException("Unable to find Brand : ProductServiceImpl.saveSubProduct"));
+            Description description = Description.builder()
+                    .data(val.getDescription())
+                    .build();
+            descriptionRepository.save(description);
+            log.info("Description Saved");
+
+            Description productDescription = descriptionRepository.findTopByOrderByIdDesc()
+                    .orElseThrow(() -> new SpringProductException("Unable to get description"));
             Product product = Product.builder()
                     .productName(val.getSubProductName())
                     .ratings(0)
                     .noOfRatings(0)
+                    .totalRating(0)
                     .text(val.getText())
                     .price(val.getPrice())
                     .discount(val.getDiscount())
                     .newPrice(val.getNewPrice())
                     .productImage(val.getProductImage())
                     .productCategory(val.getProductCategory())
+                    .description(productDescription)
                     .brand(brand)
                     .build();
             productRepository.save(product);

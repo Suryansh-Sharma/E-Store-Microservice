@@ -17,8 +17,4 @@ public class Description {
     private Long id;
     @Lob
     private String data;
-
-    private Instant releaseDate;
-    private String dimensions;
-    private String specialFeatures;
 }

@@ -18,4 +18,5 @@ public class SubProductModel {
     private int discount;
     private Float newPrice;
     private String productImage;
+    private String description;
 }

@@ -24,10 +24,7 @@ public class ProductModel {
     private String productImage;
     private String productCategory;
     // For Description.
-    private String data;
-    private Instant releaseDate;
-    private String dimensions;
-    private String specialFeatures;
+    private String description;
     // For Brand.
     private String brandName;
 }
