@@ -127,7 +127,7 @@ Response
 
 step 7 : Add SubProduct for Product.
 
-// Note:  Get SubProduct Parent id from Step7 .
+// Note:  Get SubProduct Parent id from Step 6 .
 
 POST: http://localhost:8080/api/products/save-subProduct
 
