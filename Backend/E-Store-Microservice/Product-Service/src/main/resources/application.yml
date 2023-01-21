@@ -19,7 +19,6 @@ spring:
     allow-bean-definition-overriding: true
   application:
     name: PRODUCT-SERVICE
-eureka:
   client:
     registerWithEureka: true
     fetchRegistry: true
@@ -37,9 +36,6 @@ resilience4j.circuitbreaker:
       slidingWindowSize: 10
       waitDurationInOpenState: 50s
       permittedNumberOfCallsInHalfOpenState: 3
-okta:
-  oauth2:
-    issuer: https://dev-40949592.okta.com/oauth2/default
-    audience: api://default
+
 
 

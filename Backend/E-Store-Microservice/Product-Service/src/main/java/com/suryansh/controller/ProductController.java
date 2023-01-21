@@ -1,21 +1,31 @@
 package com.suryansh.controller;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.suryansh.dto.NavSearchDto;
 import com.suryansh.dto.ProductDto;
 import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.model.ProductModel;
 import com.suryansh.model.SubProductModel;
 import com.suryansh.service.ProductService;
-import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import lombok.AllArgsConstructor;
 
 @RestController
 @RequestMapping("/api/products/")
@@ -25,7 +35,7 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @GetMapping
+    @GetMapping("/testProductController")
     public String testProductController() {
         return "<h1>Product Controller Working Properly. !!<h1>";
     }
@@ -41,15 +51,13 @@ public class ProductController {
 
     @GetMapping("fullView-by-name/{name}")
     @Async
-    public CompletableFuture<ProductDto> fullViewByName(@PathVariable String name,
-                                                        @RequestHeader(name = "Authorization") String token) {
-        return CompletableFuture.completedFuture(productService.fullViewByName(name, token));
+    public CompletableFuture<ProductDto> fullViewByName(@PathVariable String name) {
+        return CompletableFuture.completedFuture(productService.fullViewByName(name));
     }
     @GetMapping("/fullView-by-id/{id}")
     @Async
-    public CompletableFuture<ProductDto> fullViewById(@PathVariable Long id,
-                                                     @RequestHeader(name = "Authorization") String token) {
-        return CompletableFuture.completedFuture(productService.fullViewById(id,token));
+    public CompletableFuture<ProductDto> fullViewById(@PathVariable Long id) {
+        return CompletableFuture.completedFuture(productService.fullViewById(id));
     }
 
     @GetMapping("by-name/{name}")
@@ -66,7 +74,7 @@ public class ProductController {
     public ProductPagingDto getProductsByCategory(@PathVariable String category,
                                                   @RequestParam(name = "pageNo",defaultValue = "0",required = false) int page) {
         Pageable pageable=
-                PageRequest.of(page,1);
+                PageRequest.of(page,6);
         return productService.getProductByCategory(category,pageable);
     }
     @GetMapping("by-id/{id}")

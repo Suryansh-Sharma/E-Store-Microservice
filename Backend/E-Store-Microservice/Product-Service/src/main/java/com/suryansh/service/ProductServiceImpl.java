@@ -92,20 +92,20 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
-    public ProductDto fullViewByName(String name, String token) {
+    public ProductDto fullViewByName(String name) {
         Product product = productRepository.findByProductName(name)
                 .orElseThrow(() -> new SpringProductException("Unable to find Product :ProductService.findByName"));
-        return getProductFullDetails(product,token);
+        return getProductFullDetails(product);
     }
     @Override
     @Transactional
-    public ProductDto fullViewById(Long id, String token) {
+    public ProductDto fullViewById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new SpringProductException("Unable to find Product :ProductService.findByName"));
-        return getProductFullDetails(product,token);
+        return getProductFullDetails(product);
     }
     @Transactional
-    public ProductDto getProductFullDetails(Product product, String token){
+    public ProductDto getProductFullDetails(Product product){
         Brand brand = product.getBrand();
         BrandDto brandDto = BrandDto.builder()
                 .id(brand.getBrandId())
@@ -122,7 +122,6 @@ public class ProductServiceImpl implements ProductService {
         // Calling Inventory Microservice to get update about stock.
         InventoryResponse productStock = webClientBuilder.build().get()
                 .uri("http://localhost:8080/api/inventory/get-product-byId/" + product.getId())
-                .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(InventoryResponse.class)
                 .transform(it->{

@@ -13,9 +13,9 @@ import java.util.concurrent.CompletableFuture;
 public interface ProductService {
     void save(ProductModel productModel, String token);
 
-    ProductDto fullViewByName(String name, String token);
+    ProductDto fullViewByName(String name);
 
-    ProductDto fullViewById(Long id, String token);
+    ProductDto fullViewById(Long id);
 
     ProductDto getProductByName(String name);
 

@@ -4,13 +4,13 @@ import ps5 from "../../icons/sony_ps5.png";
 import plus from "../../icons/plus.png"
 import minus from "../../icons/Minus.png"
 
-var data = require("./CartFakeApi.json");
+const data = require("./CartFakeApi.json");
 
 function Cart() {
     const [cart, setCart] = useState(data);
     useEffect(() => {
         console.log(cart);
-    }, []);
+    }, [cart]);
     const [defaults, setDefaults] = useState({
         buttonText: "CHECK OUT",
         isCartModified: false,
@@ -23,7 +23,6 @@ function Cart() {
                 cart.totalPrice = cart.totalPrice + item.price
                 item.noOfProduct = item.noOfProduct + 1;
                 item.totalPrice = item.price + item.totalPrice;
-                return;
             }
         });
         setDefaults({buttonText: "UPDATE CART", isCartModified: true})

@@ -29,3 +29,11 @@ okta:
   oauth2:
     issuer: https://dev-40949592.okta.com/oauth2/default
     audience: api://default
+
+resilience4j:
+  ratelimiter:
+    configs:
+      default:
+        limitForPeriod: 5
+        limitRefreshPeriod: 1s
+        timeoutDuration: 0

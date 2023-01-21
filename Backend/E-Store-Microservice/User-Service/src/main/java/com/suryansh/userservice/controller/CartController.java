@@ -51,7 +51,7 @@ public class CartController {
     public void removeProductFromCart(@PathVariable String userName,@RequestBody CartModel cartModel){
         cartService.removeProductFromCart(userName,cartModel);
     }
-    @GetMapping("clearCartForUser/{userName}")
+    @GetMapping("/clearCartForUser/{userName}")
     @Async
     public CompletableFuture<String> clearCartForUser(@PathVariable String userName) {
         cartService.clearCartForUser(userName);

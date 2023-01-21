@@ -36,7 +36,7 @@ public class ReviewServiceImpl implements ReviewService{
                 .build();
         try {
             // Calling Product Service for updating rating inside product.
-            String productResponse = webClientBuilder.build().post()
+            webClientBuilder.build().post()
                     .uri("http://localhost:8080/api/products/addRatingForProduct/"
                             + reviewModel.getProductId() + "/" + reviewModel.getNoOfStars())
                     .header("Authorization",token)
@@ -44,7 +44,6 @@ public class ReviewServiceImpl implements ReviewService{
                     .bodyToMono(String.class)
                     .block();
             reviewRepository.save(review);
-            log.info(productResponse);
             log.info("Added review for user :  {} of productId : {}",reviewModel.getUserName(),reviewModel.getProductId());
         }catch (Exception e){
             throw new SpringReviewException("Unable to save review ");

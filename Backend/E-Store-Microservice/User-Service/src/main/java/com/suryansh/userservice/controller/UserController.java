@@ -24,7 +24,7 @@ public class UserController {
     public String testUserService(){
         return "userService is up you may continue";
     }
-    @PostMapping("addUser/{userName}")
+    @PostMapping("/addUser/{userName}")
     public ResponseEntity<String> saveUser(@PathVariable String userName) {
         try {
             userService.save(userName);

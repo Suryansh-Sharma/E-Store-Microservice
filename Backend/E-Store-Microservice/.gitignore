@@ -1,0 +1,5 @@
+Inventory-Service/src/main/resources/Auth0.env
+Order-Service/src/main/resources/Auth0.env
+Product-Service/src/main/resources/Auth0.env
+ReviewAndQuestion-Service/src/main/resources/Auth0.env
+User-Service/src/main/resources/Auth0.env
