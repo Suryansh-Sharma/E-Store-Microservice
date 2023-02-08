@@ -9,4 +9,6 @@ public class AnswerModel {
     private String questionId;
     private String text;
     private String username;
+    private String nickname;
+
 }

@@ -16,6 +16,7 @@ public class Question {
     private Long productId;
     private String text;
     private String username;
+    private String nickname;
     private Instant date;
     private int noOfAnswers;
 

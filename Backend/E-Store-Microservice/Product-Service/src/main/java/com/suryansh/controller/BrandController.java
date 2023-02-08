@@ -1,17 +1,16 @@
 package com.suryansh.controller;
 
-import com.suryansh.dto.BrandDto;
+import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.model.BrandModel;
 import com.suryansh.service.BrandService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("api/brand")
+@RequestMapping("/api/brand")
+@CrossOrigin("*")
 @AllArgsConstructor
 public class BrandController {
 
@@ -22,13 +21,12 @@ public class BrandController {
         brandService.save(brandModel);
     }
 
-    @GetMapping
-    public ResponseEntity<List<BrandDto>> getAllBrands() {
-        return new ResponseEntity<>(brandService.getAllBrands(), HttpStatus.OK);
-    }
     @GetMapping("by-name/{name}")
-    public BrandDto getProductByBrandName(@PathVariable String name) {
-        return brandService.findByName(name);
+    public ProductPagingDto getProductByBrandName(@PathVariable String name,
+                                                  @RequestParam(name = "pageNo",defaultValue = "0",required = false) int page
+    ) {
+        Pageable pageable = PageRequest.of(page,6);
+        return brandService.findByName(name,pageable);
     }
 
 }

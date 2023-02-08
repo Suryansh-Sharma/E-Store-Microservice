@@ -20,5 +20,6 @@ public class Review {
     private String text;
     private Instant dateOfReview;
     private String userName;
+    private String nickname;
 
 }

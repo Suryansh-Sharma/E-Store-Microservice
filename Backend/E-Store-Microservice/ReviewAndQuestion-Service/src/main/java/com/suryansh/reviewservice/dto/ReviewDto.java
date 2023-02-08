@@ -14,4 +14,6 @@ public class ReviewDto{
     private String text;
     private String dateOfReview;
     private String userName;
+    private String nickname;
+
 }

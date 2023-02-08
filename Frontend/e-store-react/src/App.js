@@ -1,28 +1,36 @@
 import './App.css';
 
 
-import { BrowserRouter as Router, Routes, Route, Switch} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
-import 'slick-carousel/slick/slick.css';
+import { ToastContainer } from 'react-toastify';
 import 'slick-carousel/slick/slick-theme.css';
-import NavigationBar from "./Components/NavigationBar/NavigationBar";
-import Footer from "./Components/Footer/Footer";
-import SearchBar from "./Components/SearchBar/SearchBar";
-import Login from './Components/Security/Login';
-import LoginContext from './context/loginContext';
-import PrivateRouter from './Components/Security/PrivateRouter';
-import PrivateLogin from './Components/Security/PrivateLogin';
-import SignUp from './Components/Security/SignUp';
-import PageNotFound from './Components/Exception/PageNotFound';
-import Profile from './Components/Security/Profile';
-import LandingPage from './Components/LandingPage/LandingPage'
-import PrivateProfileRoute from './Components/Security/PrivateProfileRoute';
-import { ToastContainer} from 'react-toastify';
+import 'slick-carousel/slick/slick.css';
 import AllProduct from "./Components/Allproduct/AllProduct";
-import Product from './Components/Product/Product';
 import Cart from './Components/Cart/Cart';
+import PageNotFound from './Components/Exception/PageNotFound';
+import LandingPage from './Components/LandingPage/LandingPage';
+import NavigationBar from "./Components/NavigationBar/NavigationBar";
+import Product from './Components/Product/Product';
+import SearchBar from "./Components/SearchBar/SearchBar";
+import OrderDetails from './Components/User/OrderDetails';
+import UserProfile from './Components/User/UserProfile';
+import LoginContext from './context/loginContext';
+import { useAuth0 } from '@auth0/auth0-react';
+import { useEffect } from 'react';
+import axios from 'axios';
+import CheckOut from './Components/CheckOut/CheckOut';
 function App() {
-  
+  const {isAuthenticated,user} =useAuth0();
+  useEffect(()=>{
+    document.title="E Store";
+    if(isAuthenticated){
+      // axios.get("http://localhost:8080/api/user/isUserPresent/"+user.email)
+      // .then(response=>{
+      //   console.log(response);
+      // })
+    }
+  },[isAuthenticated])
   return (
     <div className="App">
         <LoginContext.Provider value={{name:"Login/SignUp",
@@ -34,37 +42,18 @@ function App() {
         <ToastContainer/>
         <Router>
         <NavigationBar  />
-        <SearchBar/>
             <Routes>
               
                 <Route path={"/"} element={<LandingPage/>}/>
+                <Route path={"/search"} element={<SearchBar/>}/>
                 <Route path={"error404"} element={<PageNotFound/>}/>
-                <Route path={"allProduct"} element={<AllProduct/>}/>
-                <Route path={"cart"} element={<Cart/>}/>
-                <Route path={"product"} element={<Product/>}/>  
+                <Route path={"/allProduct/:type/:api"} element={<AllProduct/>}/>
+                <Route path={"/cart"} element={<Cart/>}/>
+                <Route path={"product/:productId"} element={<Product/>}/>  
                 <Route path={"search"} element={<SearchBar/>} />
-                <Route path="profile/:userName" element={
-                  <PrivateProfileRoute>
-                  <Profile/>
-                </PrivateProfileRoute>
-                }/>
-                <Route path="login" element={
-                  <PrivateLogin>
-                  <Login/>
-                </PrivateLogin>
-                }/>
-                <Route path="signUp" element={
-                  <PrivateLogin>
-                    <SignUp/>
-                  </PrivateLogin>
-                } />
-                {/* <Route path={"/uploadShow"} element={
-                <PrivateRouter>
-                  <Upload/>
-                </PrivateRouter>
-                
-                }/> */}
-
+                <Route path={"/profile"} element={<UserProfile/>}/>
+                <Route path={"/orderDetails/:id"} element={<OrderDetails/>}/>
+                <Route path={"/checkOut"} element={<CheckOut/>}/>
             </Routes>
         </Router>
         </LoginContext.Provider>

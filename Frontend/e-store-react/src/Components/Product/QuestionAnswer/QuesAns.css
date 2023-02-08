@@ -1,0 +1,72 @@
+.Comments{
+    width: 100%;
+    padding: 10px;
+    border: 3px solid;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+.AddComment{
+    margin: 30px;
+    height: 50px;
+    width: 60%;
+}
+.AddCommentButton{
+    margin-left: 95px;
+    height: 50px;
+    color: white;
+    background-color: darkblue;
+    border-radius: 10px;
+}
+.AddCommentButton:hover{
+    opacity: 0.7;
+}
+
+.singleComment{
+    margin: 20px;
+    padding: 10px;
+    border: 3px solid orange;
+    border-radius: 7px;
+}
+
+.commentUsername{
+    margin-right: 50px;
+}
+.commentDate{
+    font-size: 13px;
+    color: gray;
+    font-style: italic;
+}
+.comment-text{
+    word-break: break-word;
+}
+.Reply{
+    margin-right: 12px;
+}
+.commentOptions{
+    cursor: pointer;
+    color: blue;
+    font-size: 14px;
+}
+
+.repliedCommentSection{
+    padding: 10px;
+    border: 2px solid blueviolet;
+    border-radius: 10px;
+    position: relative;
+    margin: 30px;
+}
+.commentReplied{
+    font-size: 13px;
+    color: blue;
+    font-style: italic;
+}
+.commentOptionsBtn{
+    cursor: pointer;
+    color: blue;
+    font-size: 14px;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    border: none;
+    overflow: hidden;
+    outline: none;
+}

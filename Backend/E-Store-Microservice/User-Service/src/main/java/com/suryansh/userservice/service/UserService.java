@@ -1,12 +1,13 @@
 package com.suryansh.userservice.service;
 
 import com.suryansh.userservice.dto.AddressDto;
-import com.suryansh.userservice.dto.LikedProductDto;
+import com.suryansh.userservice.dto.LikedProductPaging;
 import com.suryansh.userservice.dto.UserDto;
 import com.suryansh.userservice.model.AddressModel;
 import com.suryansh.userservice.model.LikeModel;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public interface UserService {
     void save(String userName);
@@ -23,11 +24,9 @@ public interface UserService {
 
     void updateUserAddress(AddressModel addressModel);
 
-    List<AddressDto> getUserAddress(String userName);
+    AddressDto getUserAddress(String userName);
 
-    AddressDto getUserAddressById(Long id);
-
-    List<LikedProductDto> getAllLikedProductsByUser(String userName);
+    CompletableFuture<LikedProductPaging> getAllLikedProductsByUser(String userName, Pageable pageNo);
 
     void isUserPresent(String userName);
 }

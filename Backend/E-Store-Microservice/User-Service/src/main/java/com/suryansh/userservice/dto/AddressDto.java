@@ -9,9 +9,9 @@ import lombok.*;
 @Setter
 public class AddressDto {
     private Long id;
-    private Long userId;
+    private String username;
     private String line1;
     private String city;
-    private int pinCode;
+    private Integer pinCode;
     private String otherDetails;
 }

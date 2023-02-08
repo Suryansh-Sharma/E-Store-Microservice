@@ -2,6 +2,7 @@
   "cartProduct": [
     {
       "id": 2,
+      "noOfStock":10,
       "isInStock": true,
       "productId": 1,
       "productName": "Samsung Galaxy S22 Ultra 5G (Burgundy, 12GB, 256GB Storage)",

@@ -13,6 +13,7 @@ public class SubProductDto {
     private Long id;
     private Long productId;
     private String subProductName;
+    private String imageUrl;
     private Float price;
 }
 

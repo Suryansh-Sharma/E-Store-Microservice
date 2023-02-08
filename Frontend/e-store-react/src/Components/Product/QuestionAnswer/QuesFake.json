@@ -1,0 +1,22 @@
+{
+    "questions": [
+        {
+            "id": "63b065eacabae504eaec6797",
+            "productId": 1,
+            "text": "What is thickness of this product",
+            "username": "suryanshsharma1942@gmail.com",
+            "date": "11 minutes ago",
+            "noOfAnswers": 2
+        },
+        {
+            "id": "63b06869cabae504eaec679a",
+            "productId": 1,
+            "text": "How much battery life you get on daily use ?",
+            "username": "suryanshsharma1942@gmail.com",
+            "date": "moments ago",
+            "noOfAnswers": 0
+        }
+    ],
+    "totalPage": 1,
+    "currentPage": 0
+}

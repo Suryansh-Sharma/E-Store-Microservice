@@ -1,16 +1,16 @@
 package com.suryansh.service;
 
 import com.suryansh.dto.InventoryResponse;
-import com.suryansh.model.InventoryModel;
+import com.suryansh.model.OrderItemsModel;
 
 import java.util.List;
 
 public interface InventoryService {
-    void saveProducts(List<InventoryModel> model);
+    void saveProducts(List<OrderItemsModel> model);
 
-    List<InventoryResponse> checkAllProducts(List<InventoryModel> models);
+    List<InventoryResponse> checkAllProducts(List<OrderItemsModel> models);
 
-    void updateProduct(InventoryModel model);
+    void updateProduct(OrderItemsModel model);
 
     List<InventoryResponse> findAll();
 
@@ -20,5 +20,5 @@ public interface InventoryService {
 
     InventoryResponse getProductById(Long productId);
 
-    void updateInventory(List<InventoryModel> model);
+    String updateInventory(List<OrderItemsModel> model);
 }

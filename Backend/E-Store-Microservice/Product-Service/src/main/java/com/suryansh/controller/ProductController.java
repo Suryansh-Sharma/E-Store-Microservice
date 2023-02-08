@@ -1,31 +1,22 @@
 package com.suryansh.controller;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.suryansh.dto.NavSearchDto;
 import com.suryansh.dto.ProductDto;
 import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.model.ProductModel;
 import com.suryansh.model.SubProductModel;
 import com.suryansh.service.ProductService;
-
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/products/")
@@ -43,7 +34,7 @@ public class ProductController {
     @PostMapping("/save")
 //    @PreAuthorize("hasAuthority('Admin')")
     @Async
-    public CompletableFuture<String> saveProduct(@RequestBody ProductModel productModel,
+    public CompletableFuture<String> saveProduct(@RequestBody @Valid ProductModel productModel,
                                                  @RequestHeader(name = "Authorization") String token) {
         productService.save(productModel,token);
         return CompletableFuture.completedFuture("Product saved successfully :Controller");
@@ -90,7 +81,7 @@ public class ProductController {
     @PostMapping("/save-subProduct")
 //    @PreAuthorize("hasAuthority('Admin')")
     @Async
-    public void saveSubProduct(@RequestBody SubProductModel Model,
+    public void saveSubProduct(@RequestBody @Valid SubProductModel Model,
                                @RequestHeader(name = "Authorization") String token) {
         productService.saveSubProduct(Model,token);
     }

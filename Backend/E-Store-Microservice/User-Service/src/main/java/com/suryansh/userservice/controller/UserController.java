@@ -1,22 +1,26 @@
 package com.suryansh.userservice.controller;
 
 import com.suryansh.userservice.dto.AddressDto;
-import com.suryansh.userservice.dto.LikedProductDto;
+import com.suryansh.userservice.dto.LikedProductPaging;
 import com.suryansh.userservice.dto.UserDto;
 import com.suryansh.userservice.model.AddressModel;
 import com.suryansh.userservice.model.LikeModel;
 import com.suryansh.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import javax.validation.Valid;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
     private final UserService userService;
 
@@ -34,10 +38,10 @@ public class UserController {
         }
     }
 
-    @GetMapping("/by-userName/{userName}")
-    public ResponseEntity<UserDto> getUser(@PathVariable String userName) {
+    @GetMapping("/by-username/{username}")
+    public ResponseEntity<UserDto> getUser(@PathVariable String username) {
         try {
-            return new ResponseEntity<>(userService.findUserByName(userName)
+            return new ResponseEntity<>(userService.findUserByName(username)
                     , HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
@@ -49,7 +53,7 @@ public class UserController {
         userService.likeProduct(likeModel);
     }
 
-    @DeleteMapping("/unLikeProduct")
+    @PostMapping("/unLikeProduct")
     public void unLikeProduct(@RequestBody LikeModel likeModel) {
         userService.unLikeProduct(likeModel);
     }
@@ -65,7 +69,7 @@ public class UserController {
     }
 
     @PostMapping("/addUserAddress")
-    public void addAddress(@RequestBody AddressModel addressModel) {
+    public void addAddress(@RequestBody @Valid AddressModel addressModel) {
         userService.addUserAddress(addressModel);
     }
 
@@ -79,18 +83,18 @@ public class UserController {
         }
     }
 
-    @GetMapping("/getUserAllAddress/{userName}")
-    public List<AddressDto> getAllAddress(@PathVariable String userName) {
+    @GetMapping("/getUserAddress/{userName}")
+    public AddressDto getAllAddress(@PathVariable String userName) {
         return userService.getUserAddress(userName);
     }
-
-    @GetMapping("/getUserAddressById/{id}")
-    public AddressDto getUserAddressById(@PathVariable Long id) {
-        return userService.getUserAddressById(id);
-    }
     @GetMapping("/likedProducts-byUser/{userName}")
-    public List<LikedProductDto> getAllLikedProducts(@PathVariable String userName){
-        return userService.getAllLikedProductsByUser(userName);
+    @Async
+    public CompletableFuture<LikedProductPaging> getAllLikedProducts
+            (@PathVariable String userName,
+             @RequestParam(name = "pageNo",defaultValue = "0",required = false)
+                int pageNo){
+        Pageable pageable = PageRequest.of(pageNo,6);
+        return userService.getAllLikedProductsByUser(userName,pageable);
     }
     @GetMapping("isUserPresent/{userName}")
     public void checkUserIsPresent(@PathVariable String userName){

@@ -1,0 +1,24 @@
+{
+    "reviews": [
+        {
+            "id": "63afee9cac9c997a9befd57b",
+            "productId": 1,
+            "noOfStars": 5,
+            "text": "Fully Satisfied with new camera and display.Battery is also improved.",
+            "dateOfReview": "moments ago",
+            "userName": "suryanshsharma1942@gmail.com",
+            "name":"Suryansh Sharma"
+        },
+        {
+            "id": "63afeeacac9c997a9befd57c",
+            "productId": 1,
+            "noOfStars": 4,
+            "text": "Battery Is Improved ",
+            "dateOfReview": "moments ago",
+            "userName": "suryanshsharma1942@gmail.com",
+            "name":"Suryansh Sharma"
+        }
+    ],
+    "currentPage": 0,
+    "totalPage": 1
+}

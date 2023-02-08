@@ -9,7 +9,7 @@ import lombok.Setter;
 @Builder
 public class CartItems {
     private Long id;
-    private Boolean isInStock = false;
+    private Boolean isInStock ;
     private int noOfStock;
     private Long productId;
     private String productName;

@@ -17,6 +17,7 @@ public class ProductDto {
     private int discount;
     private Float newPrice;
     private String productImage;
+    private String imageUrl;
     private String productCategory;
     private Boolean productIsInStock;
 }

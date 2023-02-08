@@ -4,17 +4,14 @@ import com.suryansh.orderservice.dto.*;
 import com.suryansh.orderservice.entity.Order;
 import com.suryansh.orderservice.entity.OrderAddress;
 import com.suryansh.orderservice.entity.OrderItems;
-import com.suryansh.orderservice.exception.exception.SpringOrderException;
+import com.suryansh.orderservice.exception.MicroserviceException;
+import com.suryansh.orderservice.exception.SpringOrderException;
 import com.suryansh.orderservice.model.InventoryModel;
 import com.suryansh.orderservice.model.OrderUpdateModel;
-import com.suryansh.orderservice.repository.OrderAddressRepository;
-import com.suryansh.orderservice.repository.OrderItemsRepository;
 import com.suryansh.orderservice.repository.OrderRepository;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ocpsoft.prettytime.PrettyTime;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -28,128 +25,132 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-@NoArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
-    @Autowired
-    private OrderItemsRepository orderItemsRepository;
-    @Autowired
-    private OrderAddressRepository orderAddressRepository;
-    @Autowired
-    private WebClient.Builder webClientBuilder;
-    @Autowired
-    private OrderRepository orderRepository;
+    private final WebClient.Builder webClientBuilder;
+    private final OrderRepository orderRepository;
 
     @Override
     @Async
     @Transactional
     public CompletableFuture<String> placeOrder(String userName, String token) {
+
         CartDto cart = webClientBuilder.build().get()
-                .uri("http://localhost:8080/api/cart/getCartByUser/" + userName)
+                .uri("http://USER-SERVICE/api/cart/getCartByUser/" + userName)
                 .header("Authorization", token)
                 .retrieve()
+                .onStatus(HttpStatus::isError,clientResponse -> Mono.error(new
+                        MicroserviceException("Unable to find Cart for username:- "+userName+" for Place Order")))
                 .bodyToMono(CartDto.class)
                 .block();
         if (cart == null) {
-            log.info("Cart is empty for user {} ", userName);
             return CompletableFuture.failedFuture(new
-                    SpringOrderException("User Cart is Empty.",HttpStatus.NOT_FOUND));
+                    SpringOrderException("User Cart is Empty. :placeOrder"));
         }
+
+        List<OrderItems>orderItemsModel = cart.getCartProduct().stream()
+                .map(this::cartItemsToOrderItemsEntity)
+                .toList();
+
         // Calling User Microservice to get User By UserName.
         UserDto user = webClientBuilder.build().get()
-                .uri("http://localhost:8080/api/user/by-userName/" + userName)
+                .uri("http://USER-SERVICE/api/user/by-username/" + userName)
                 .header("Authorization", token)
                 .retrieve()
+                .onStatus(HttpStatus::isError,clientResponse -> Mono.error(new
+                        MicroserviceException("Unable to find User of  username:- "+userName+" for Place Order")))
                 .bodyToMono(UserDto.class)
                 .block();
+
         if (user == null) {
-            log.info("Unable to place order because user {} is null ", userName);
             return CompletableFuture.failedFuture(new
-                    SpringOrderException("User is not Available.",HttpStatus.NOT_FOUND));
+                    SpringOrderException("User is not Available. :placeOrder"));
         }
+
         AddressDto addressDto = webClientBuilder.build().get()
-                .uri("http://localhost:8080/api/user/getUserAddressById/" + user.getId())
+                .uri("http://USER-SERVICE/api/user/getUserAddress/" + user.getUserName())
                 .header("Authorization", token)
                 .retrieve()
+                .onStatus(HttpStatus::isError,clientResponse -> Mono.error(
+                        new MicroserviceException("Unable to find Address of user of id:- "+user.getId()+
+                                " For Place Order")))
                 .bodyToMono(AddressDto.class)
                 .block();
         if (addressDto == null) {
-            log.info("Unable to place order because address not found for user {} ", userName);
             return CompletableFuture.failedFuture(new
-                    SpringOrderException("User Address is not Available.",HttpStatus.NOT_FOUND));
+                    SpringOrderException("User Address is not Available. :placeOrder"));
         }
+        OrderAddress orderAddress = OrderAddress.builder()
+                .userId(user.getId())
+                .line1(addressDto.getLine1())
+                .city(addressDto.getCity())
+                .pinCode(addressDto.getPinCode())
+                .otherDetails(addressDto.getOtherDetails())
+                .build();
+
         Order order = Order.builder()
                 .userId(user.getId())
                 .orderDate(Instant.now())
                 .lastUpdate(Instant.now())
-                .status("Submitted To Seller")
+                .status("Order Placed Successfully")
                 .totalItems(cart.getTotalProducts())
                 .price(cart.getTotalPrice())
                 .isProductDelivered(false)
-                .orderItems(null)
-                .orderAddress(null)
+                .orderItems(orderItemsModel)
+                .orderAddress(orderAddress)
                 .build();
         try {
 
             orderRepository.save(order);
-            log.info("save order to repository");
-            Order o2 = orderRepository.findTopByOrderByIdDesc();
-            OrderAddress orderAddress = OrderAddress.builder()
-                    .orderId(o2.getId())
-                    .userId(user.getId())
-                    .line1(addressDto.getLine1())
-                    .city(addressDto.getCity())
-                    .pinCode(addressDto.getPinCode())
-                    .otherDetails(addressDto.getOtherDetails())
-                    .build();
             List<InventoryModel> inventoryModels = cart.getCartProduct()
                     .stream()
                     .map(this::CartProductsToInventoryModel)
                     .toList();
 
-            orderAddressRepository.save(orderAddress);
-            log.info("Save Address for Order ");
-            cart.getCartProduct().forEach((item) -> {
-                OrderItems orderItems = OrderItems.builder()
-                        .orderId(o2.getId())
-                        .productId(item.getProductId())
-                        .productName(item.getProductName())
-                        .quantity(item.getNoOfProduct())
-                        .price(item.getPrice())
-                        .build();
-                orderItemsRepository.save(orderItems);
-            });
-            log.info("Save item of order");
             // Calling Inventory Service for Updating Inventory.
-            webClientBuilder.build().post()
-                    .uri("http://localhost:8080/api/inventory/updateInventoryProducts")
+            String inventoryResponse = webClientBuilder.build().post()
+                    .uri("http://INVENTORY-SERVICE/api/inventory/updateInventoryProducts")
                     .header("Authorization",token)
-                    .body(BodyInserters.fromValue(inventoryModels));
-            log.info("Inventory Updated Successfully");
-            // Calling Cart Service for Clearing Cart for User After Order Placed.
-            String cartResponse = webClientBuilder.build().get()
-                    .uri("http://localhost:8080/api/cart/clearCartForUser/" + userName)
-                    .header("Authorization",token)
+                    .body(BodyInserters.fromValue(inventoryModels))
                     .retrieve()
+                    .onStatus(HttpStatus::isError,clientResponse -> Mono.error(
+                            new MicroserviceException("Unable to communicate Inventory Microservice.")
+                    ))
                     .bodyToMono(String.class)
                     .block();
+            // Calling Cart Service for Clearing Cart for User After Order Placed.
+            String cartResponse = webClientBuilder.build().get()
+                    .uri("http://USER-SERVICE/api/cart/clearCartForUser/" + userName)
+                    .header("Authorization",token)
+                    .retrieve()
+                    .onStatus(HttpStatus::isError,clientResponse -> Mono.error(new
+                            MicroserviceException("Unable to clear cart  for username:-"+userName+" for Place Order")))
+                    .bodyToMono(String.class)
+                    .block();
+
             log.info(cartResponse);
+            log.info("Inventory Response:- "+inventoryResponse);
             log.info("Order Placed Successfully");
             return CompletableFuture.completedFuture("Order Placed Successfully !!");
         } catch (Exception e) {
-            throw new SpringOrderException("Unable to Place Order !!",HttpStatus.CONFLICT);
+            throw new SpringOrderException("Unable to Place Order !! :placeOrder");
         }
     }
+
+
+
     @Override
     public List<OrderDto> getAllOrderByUser(String userName, String token) {
         UserDto user = webClientBuilder.build().get()
-                .uri("http://localhost:8080/api/user/by-userName/" + userName)
+                .uri("http://USER-SERVICE/api/user/by-username/" + userName)
                 .header("Authorization",token)
                 .retrieve()
-                .onStatus(HttpStatus.NOT_FOUND::equals, clientResponse -> Mono.empty())
+                .onStatus(HttpStatus::isError,clientResponse -> Mono.error(new
+                        MicroserviceException("Unable to communicate userService for getAllOrder")))
                 .bodyToMono(UserDto.class)
                 .block();
-        if (user == null) return null;
+        if (user == null) throw new SpringOrderException("User is not found of name: - "+userName);
         List<Order> orders = orderRepository.findByUserIdOrderByIdDesc(user.getId());
         return orders.stream()
                 .map(this::OrderEntityToDto)
@@ -159,9 +160,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDetails getOrderDetails(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new SpringOrderException("Unable to Find Order of Id : " + orderId
-                        ,HttpStatus.NOT_FOUND));
-        OrderAddress orderAddress = orderAddressRepository.findByOrderId(orderId);
+                .orElseThrow(() -> new SpringOrderException("Unable to Find Order of Id : " + orderId +
+                        " getOrderDetails"));
+        OrderAddress orderAddress = order.getOrderAddress();
         List<OrderItemsDto> orderItems = order.getOrderItems().stream()
                 .map((item) -> OrderItemsDto.builder()
                         .itemId(item.getItemId())
@@ -188,8 +189,8 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDto getOrderByOrderId(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new SpringOrderException("Unable to Find Order By Id : " + orderId,
-                        HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new SpringOrderException("Unable to Find Order By Id : " + orderId+
+                        " :getOrderByOrderId "));
         return OrderEntityToDto(order);
     }
 
@@ -204,14 +205,27 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void updateOrder(OrderUpdateModel model) {
         Order order = orderRepository.findById(model.getOrderId())
-                .orElseThrow(() -> new SpringOrderException("Unable to Find Order By Id : " + model.getOrderId(),
-                        HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new SpringOrderException("Unable to Find Order By Id : " + model.getOrderId()+
+                        " :updateOrder"));
         order.setIsProductDelivered(model.getIsProductDelivered());
         order.setLastUpdate(Instant.now());
         order.setStatus(model.getStatus());
         orderRepository.save(order);
     }
 
+    /* List Mapping Functions. */
+
+    private OrderItems cartItemsToOrderItemsEntity(CartItems cartItems) {
+        if (!cartItems.getIsInStock())throw new SpringOrderException("Sorry Product:- "+cartItems.getProductName()+" " +
+                " is out of stock. Please Try after sometime.");
+        else
+            return OrderItems.builder()
+                    .productId(cartItems.getProductId())
+                    .productName(cartItems.getProductName())
+                    .quantity(cartItems.getNoOfProduct())
+                    .price(cartItems.getPrice())
+                    .build();
+    }
     private OrderDto OrderEntityToDto(Order order) {
         PrettyTime p = new PrettyTime();
         return OrderDto.builder()

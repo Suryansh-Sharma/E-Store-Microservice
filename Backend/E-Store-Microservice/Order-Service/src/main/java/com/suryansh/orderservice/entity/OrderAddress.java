@@ -15,7 +15,6 @@ public class OrderAddress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long orderId;
     private Long userId;
     private String line1;
     private String city;

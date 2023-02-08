@@ -6,57 +6,48 @@ import {useNavigate} from "react-router-dom";
 
 function SearchBar(props) {
     const [value, setValue] = useState("");
-    const [data, setData] = useState([
-        {full_name:"Apple IPhone 14 Pro Max "},
-        {full_name:"Apple Watch Ultra"},
-        {full_name:"Amazon Fire TV Stick"},
-    ]);
+    const [data, setData] = useState([]);
     let navigate = useNavigate();
-    useEffect(() => {
-        // axios.get(`http://localhost:8080/shows/allShowsName`)
-        //     .then(response => {
-        //         setData(response.data);
-        //     })
-        //     .catch(err => {
-        //         console.log(err);
-        //     })
-    }, []);
-
-    const onChange = (event) => {
+    useEffect(()=>{
+    document.title="Seach Product";
+    },[]);
+    const onChangeInput = (event) => {
         setValue(event.target.value);
+        if(event.target.value.length===0)setData([]);
+        else if(event.target.value.length>2){
+            axios.get(`http://localhost:8080/api/products/navSearch/${event.target.value}`)
+            .then(response=>{
+                setData(response.data);
+            })
+        }
     };
 
-    const onSearch = (searchTerm) => {
-        navigate("/product/" + searchTerm);
+    const onSearch = (productId) => {
+        setValue("");
+        navigate("/product/" + productId);
+        setData([]);
     };
 
     return (
         <div className="Search">
             <div className="search-container">
                 <div className="search-inner">
-                    <input type="text" value={value} onChange={onChange} placeholder={"Search Products Here ."}/>
-                    <button className="button" onClick={() => onSearch(value)}> Search</button>
+                    <input type="text" value={value} onChange={onChangeInput} placeholder={"Type 3 word for search"}/>
+                    <button className="button" onClick={() => {
+                        navigate("/allProduct/nameLike/"+value);
+                        setValue("");
+                        setData([]);
+                    }}> Search</button>
                 </div>
                 <div className="dropdown">
                     {data
-                        .filter((item) => {
-                            const searchTerm = value.toLowerCase();
-                            const fullName = item.full_name.toLowerCase();
-
-                            return (
-                                searchTerm &&
-                                fullName.includes(searchTerm) &&
-                                fullName !== searchTerm
-                            );
-                        })
-                        .slice(0, 10)
                         .map((item) => (
                             <div
-                                onClick={() => onSearch(item.full_name)}
+                                onClick={() => onSearch(item.id)}
                                 className="dropdown-row"
-                                key={item.full_name}
+                                key={item.id}
                             >
-                                {item.full_name}
+                                {item.productName}
                             </div>
                         ))}
                 </div>

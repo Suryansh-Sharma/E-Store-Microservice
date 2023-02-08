@@ -10,5 +10,6 @@ import lombok.Setter;
 public class QuestionModel {
     private String text;
     private String username;
+    private String nickname;
     private Long productId;
 }

@@ -3,6 +3,7 @@ package com.suryansh.reviewservice.service;
 import com.suryansh.reviewservice.dto.PagingReviewDto;
 import com.suryansh.reviewservice.dto.ReviewDto;
 import com.suryansh.reviewservice.entity.Review;
+import com.suryansh.reviewservice.exception.MicroserviceException;
 import com.suryansh.reviewservice.exception.SpringReviewException;
 import com.suryansh.reviewservice.model.ReviewModel;
 import com.suryansh.reviewservice.repository.ReviewRepository;
@@ -11,9 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
@@ -34,15 +37,18 @@ public class ReviewServiceImpl implements ReviewService{
                 .dateOfReview(Instant.now())
                 .userName(reviewModel.getUserName())
                 .build();
+        // Calling Product Service for updating rating inside product.
+        webClientBuilder.build().post()
+                .uri("http://PRODUCT-SERVICE/api/products/addRatingForProduct/"
+                        + reviewModel.getProductId() + "/" + reviewModel.getNoOfStars())
+                .header("Authorization",token)
+                .retrieve()
+                .onStatus(HttpStatus::isError,clientResponse -> Mono.error(
+                        new MicroserviceException("Unable to Communicate ProductService for Adding Rating " +
+                                ":addReview")))
+                .bodyToMono(String.class)
+                .block();
         try {
-            // Calling Product Service for updating rating inside product.
-            webClientBuilder.build().post()
-                    .uri("http://localhost:8080/api/products/addRatingForProduct/"
-                            + reviewModel.getProductId() + "/" + reviewModel.getNoOfStars())
-                    .header("Authorization",token)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
             reviewRepository.save(review);
             log.info("Added review for user :  {} of productId : {}",reviewModel.getUserName(),reviewModel.getProductId());
         }catch (Exception e){
@@ -58,7 +64,7 @@ public class ReviewServiceImpl implements ReviewService{
         return PagingReviewDto.builder()
                 .reviews(reviewDto)
                 .totalPage(reviews.getTotalPages())
-                .currentPage(pageable.getPageNumber())
+                .currentPage(pageable.getPageNumber()+1)
                 .build();
     }
 

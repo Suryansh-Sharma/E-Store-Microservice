@@ -1,11 +1,10 @@
 package com.suryansh.userservice.service;
 
-import com.suryansh.userservice.dto.AddressDto;
-import com.suryansh.userservice.dto.LikedProductDto;
-import com.suryansh.userservice.dto.UserDto;
+import com.suryansh.userservice.dto.*;
 import com.suryansh.userservice.entity.LikedProduct;
 import com.suryansh.userservice.entity.User;
 import com.suryansh.userservice.entity.UserAddress;
+import com.suryansh.userservice.exception.MicroserviceException;
 import com.suryansh.userservice.exception.UserServiceException;
 import com.suryansh.userservice.model.AddressModel;
 import com.suryansh.userservice.model.LikeModel;
@@ -14,11 +13,19 @@ import com.suryansh.userservice.repository.UserAddressRepository;
 import com.suryansh.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -28,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final LikedProductRepository likedProductRepository;
     private final UserAddressRepository userAddressRepository;
+    private final WebClient.Builder webClientBuilder;
 
     @Override
     @Transactional
@@ -123,7 +131,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserServiceException("Unable to Find User for Address " +
                         addressModel.getUserName()));
         UserAddress userAddress = UserAddress.builder()
-                .userId(user.getId())
+                .id(user.getId())
                 .line1(addressModel.getLine1())
                 .city(addressModel.getCity())
                 .pinCode(addressModel.getPinCode())
@@ -153,36 +161,39 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<AddressDto> getUserAddress(String userName) {
+    public AddressDto getUserAddress(String userName) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserServiceException("Unable to Find User for Address " +
                         userName));
-        List<UserAddress> addresses = user.getUserAddresses();
-        return addresses.stream()
-                .map(this::AddressEntityToDto)
-                .toList();
+        return AddressEntityToDto(user.getUserAddresses());
     }
 
-    @Override
-    public AddressDto getUserAddressById(Long id) {
-        UserAddress address = userAddressRepository.findByUserId(id)
-                .orElseThrow(() -> new UserServiceException("Unable to Find Address By Id " + id));
-        return AddressEntityToDto(address);
-    }
 
     @Override
-    public List<LikedProductDto> getAllLikedProductsByUser(String userName) {
+    @Async
+    public CompletableFuture<LikedProductPaging> getAllLikedProductsByUser(String userName, Pageable pageable) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(()->new UserServiceException("Unable to find User"));
-        List<LikedProduct>result = likedProductRepository.findByUserId(user.getId());
-        return result.stream()
-                .map((val-> LikedProductDto.builder()
-                        .id(val.getId())
-                        .userId(val.getUserId())
-                        .productName(val.getProductName())
-                        .productId(val.getProductId())
-                        .build()))
-                .toList();
+        Page<LikedProduct> page = likedProductRepository.findByUserId(user.getId(),pageable);
+        List<ProductDto> products = new ArrayList<>();
+        for (LikedProduct likedProduct : page.getContent()){
+            ProductDto product= webClientBuilder.build()
+                    .get()
+                    .uri("http://PRODUCT-SERVICE/api/products/by-id/"+likedProduct.getProductId())
+                    .retrieve()
+                    .onStatus(HttpStatus::isError,
+                            clientResponse -> Mono.error(
+                                    new MicroserviceException("Unable to communicate product service for getAllLikedProduct")
+                            ))
+                    .bodyToMono(ProductDto.class)
+                    .block();
+            products.add(product);
+        }
+        return CompletableFuture.completedFuture(LikedProductPaging.builder()
+                .products(products)
+                .currentPage(pageable.getPageNumber() + 1)
+                .totalPages(page.getTotalPages())
+                .build());
     }
 
     @Override
@@ -203,11 +214,9 @@ public class UserServiceImpl implements UserService {
         }
 
     }
-
     private AddressDto AddressEntityToDto(UserAddress userAddress) {
         return AddressDto.builder()
                 .id(userAddress.getId())
-                .userId(userAddress.getUserId())
                 .line1(userAddress.getLine1())
                 .city(userAddress.getCity())
                 .pinCode(userAddress.getPinCode())

@@ -1,11 +1,12 @@
 eureka:
-  instance:
-    prefer-ip-address: true
   client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    registerWithEureka: true
+    fetchRegistry: true
+    healthcheck:
+      enabled: true
+
 
 logging:
   level:
@@ -20,6 +21,17 @@ spring:
     name: API-GATEWAY
   cloud:
     gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: 'http://localhost:3000'
+            allowedHeaders:
+              - Content-Type
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
       routes:
         - id : PRODUCT-SERVICE
           uri: lb://PRODUCT-SERVICE
@@ -83,20 +95,3 @@ resilience4j:
         limitForPeriod: 5
         limitRefreshPeriod: 1s
         timeoutDuration: 0
-
-server:
-  port: 8080
-  spring:
-    cloud:
-      gateway:
-        discovery:
-          locator:
-            enabled: true
-            lowerCaseServiceId: true
-okta:
-  oauth2:
-    issuer: https://dev-40949592.okta.com/oauth2/default
-    audience: api://default
-    client-id: 0oa7l4ohmkUG6enhN5d7
-    client-secret: vBnOQRNr04oU11GcJz2J8iTjd4b7ES47jyNjunaq
-    scopes: openid, profile, email, offline_access

@@ -1,25 +1,28 @@
 package com.suryansh.service;
 
-import com.suryansh.dto.BrandDto;
 import com.suryansh.dto.ProductDto;
+import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.entity.Brand;
 import com.suryansh.entity.Product;
 import com.suryansh.exception.SpringProductException;
 import com.suryansh.model.BrandModel;
 import com.suryansh.repository.BrandRepository;
+import com.suryansh.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
+    private final ProductRepository productRepository;
 
     @Override
     @Transactional
@@ -39,35 +42,20 @@ public class BrandServiceImpl implements BrandService {
     }
 
     @Override
-    public List<BrandDto> getAllBrands() {
-        return brandRepository.findAll()
-                .stream().map(this::brandEntityToDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     @Transactional
-    public BrandDto findByName(String name) {
+    public ProductPagingDto findByName(String name, Pageable pageable) {
         Brand brand = brandRepository.findByName(name)
                 .orElseThrow(() -> new SpringProductException("Unable to find Brand by name From BrandServiceImpl"));
-        List<ProductDto> products = brand.getProducts()
+        Page<Product>res = productRepository.findByBrand(brand,pageable);
+        List<ProductDto> products = res.getContent()
                 .stream()
                 .map(this::productEntityToDto)
-                .collect(Collectors.toList());
-        return BrandDto.builder()
-                .id(brand.getBrandId())
-                .name(brand.getName())
-                .noOfProducts(brand.getNoOfProducts())
+                .toList();
+        return ProductPagingDto.builder()
                 .products(products)
-                .build();
-    }
-
-    private BrandDto brandEntityToDto(Brand brand) {
-        return BrandDto.builder()
-                .id(brand.getBrandId())
-                .name(brand.getName())
-                .noOfProducts(brand.getNoOfProducts())
-                .products(null)
+                .currentPage(pageable.getPageNumber()+1)
+                .totalPages(res.getTotalPages())
+                .totalData(res.getTotalElements())
                 .build();
     }
 
@@ -82,6 +70,7 @@ public class BrandServiceImpl implements BrandService {
                 .discount(product.getDiscount())
                 .newPrice(product.getNewPrice())
                 .productImage(product.getProductImage())
+                .imageUrl("http://localhost:8080/api/image/download/"+product.getProductImage())
                 .productCategory(product.getProductCategory())
                 .build();
     }

@@ -3,7 +3,7 @@ package com.suryansh.service;
 import com.suryansh.dto.InventoryResponse;
 import com.suryansh.entity.Inventory;
 import com.suryansh.exception.SpringInventoryException;
-import com.suryansh.model.InventoryModel;
+import com.suryansh.model.OrderItemsModel;
 import com.suryansh.repository.InventoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    public void saveProducts(List<InventoryModel> model) {
+    public void saveProducts(List<OrderItemsModel> model) {
         List<Inventory> inventory = model.stream()
                 .map(this::inventoryModelToEntity)
                 .toList();
@@ -37,9 +37,9 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    public List<InventoryResponse> checkAllProducts(List<InventoryModel> models) {
+    public List<InventoryResponse> checkAllProducts(List<OrderItemsModel> models) {
         List<InventoryResponse> result = new ArrayList<>();
-        for (InventoryModel val : models) {
+        for (OrderItemsModel val : models) {
             Inventory inventory = inventoryRepository.findByProductName(val.getProductName())
                     .orElseThrow(() -> new SpringInventoryException("Unable to find product : " +
                             val.getProductName()));
@@ -55,7 +55,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    public void updateProduct(InventoryModel model) {
+    public void updateProduct(OrderItemsModel model) {
         Inventory inventory = inventoryRepository.findByProductName(model.getProductName())
                 .orElseThrow(() -> new SpringInventoryException("Unable to find product for Stock Update : "));
         inventory.setNoOfStock(model.getNoOfStock());
@@ -110,20 +110,21 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    @Async
-    public void updateInventory(List<InventoryModel> model) {
-        for (InventoryModel val : model) {
+    public String updateInventory(List<OrderItemsModel> model) {
+        for (OrderItemsModel val : model) {
             Inventory inventory = inventoryRepository.findByProductId(val.getProductId())
                     .orElseThrow(() -> new SpringInventoryException("Unable to find Inventory for : " + val));
             inventory.setNoOfStock(inventory.getNoOfStock() - val.getNoOfStock());
-            inventory.setTotalSold(val.getTotalSold() + inventory.getNoOfStock());
+            inventory.setTotalSold(val.getTotalSold() + inventory.getTotalSold());
             inventory.setLastStockUpdate(Instant.now());
             try {
                 inventoryRepository.save(inventory);
+                log.info("Inventory Updated ");
             } catch (Exception e) {
                 throw new SpringInventoryException("Unable to Update Inventory for : " + val);
             }
         }
+        return "Inventory Updated Successfully";
     }
 
     private InventoryResponse entityToModel(Inventory inventory) {
@@ -136,7 +137,7 @@ public class InventoryServiceImpl implements InventoryService {
                 .build();
     }
 
-    private Inventory inventoryModelToEntity(InventoryModel model) {
+    private Inventory inventoryModelToEntity(OrderItemsModel model) {
         return Inventory.builder()
                 .productName(model.getProductName())
                 .productId(model.getProductId())

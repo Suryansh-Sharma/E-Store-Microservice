@@ -22,6 +22,8 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((requests) -> {
             requests
+                    .antMatchers("api/order/getOrder-byUser/**")
+                    .permitAll()
                     .anyRequest()
                     .authenticated();
 

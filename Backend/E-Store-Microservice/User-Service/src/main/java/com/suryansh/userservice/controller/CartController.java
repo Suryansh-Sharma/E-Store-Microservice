@@ -1,11 +1,11 @@
 package com.suryansh.userservice.controller;
 
+import com.suryansh.userservice.dto.CartCheckDto;
 import com.suryansh.userservice.dto.CartDto;
 import com.suryansh.userservice.model.CartModel;
 import com.suryansh.userservice.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,14 +21,8 @@ public class CartController {
 
     @PostMapping("/addProductToCart")
     @Async
-    public CompletableFuture<ResponseEntity<Void>> AddProductToCart(@RequestBody CartModel cartModel,
-                                                                    @RequestHeader(name = "Authorization") String token) {
-        try {
-            cartService.addProductToCart(cartModel,token);
-            return CompletableFuture.completedFuture(new ResponseEntity<>(null, HttpStatus.OK));
-        } catch (Exception e) {
-            return CompletableFuture.completedFuture(new ResponseEntity<>(null, HttpStatus.NOT_FOUND));
-        }
+    public CompletableFuture<String> AddProductToCart(@RequestBody CartModel cartModel) {
+        return cartService.addProductToCart(cartModel);
     }
 
     @GetMapping("/getCartByUser/{userName}")
@@ -41,15 +35,18 @@ public class CartController {
 
     @PostMapping("/updateCartOfUser/{userName}")
     @Async
-    public CompletableFuture<String> updateCart(@RequestBody List<CartModel> cartModels,
+    public void updateCart(@RequestBody List<CartModel> cartModels,
                                                 @PathVariable String userName,
                                                 @RequestHeader(name = "Authorization") String token) {
-        cartService.updateCartForUser(cartModels, userName,token);
-        return CompletableFuture.completedFuture("Cart is updated for user : - " + userName);
+     cartService.updateProductCartForUser(cartModels, userName, token);
     }
-    @DeleteMapping("/deleteProductFromCart/{userName}")
-    public void removeProductFromCart(@PathVariable String userName,@RequestBody CartModel cartModel){
-        cartService.removeProductFromCart(userName,cartModel);
+    @PostMapping("/deleteProductFromCart/{userName}/{cartId}")
+    public String removeProductFromCart(@PathVariable String userName,@PathVariable Long cartId){
+        return cartService.removeProductFromCart(userName,cartId);
+    }
+    @GetMapping("/isProductInCart/{username}/{productId}")
+    public CartCheckDto isProductInCart(@PathVariable String username, @PathVariable Long productId){
+        return cartService.isProductPresentInCart(username,productId);
     }
     @GetMapping("/clearCartForUser/{userName}")
     @Async

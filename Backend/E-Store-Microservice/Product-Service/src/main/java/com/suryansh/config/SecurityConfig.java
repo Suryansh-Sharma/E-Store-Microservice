@@ -23,7 +23,6 @@ public class SecurityConfig {
         http.authorizeHttpRequests((requests) -> {
             requests
                     .antMatchers(
-                            "/api/products/testProductController",
                             "/api/products/save",
                             "/api/products/save-subProduct",
                             "/api/products/api/image/upload"

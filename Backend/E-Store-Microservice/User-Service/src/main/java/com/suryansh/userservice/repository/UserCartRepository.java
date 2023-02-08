@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserCartRepository extends JpaRepository<UserCart, Long> {
@@ -13,4 +14,6 @@ public interface UserCartRepository extends JpaRepository<UserCart, Long> {
     @Modifying
     @Query("delete from UserCart c where c.id =:id")
     void deleteProductFromCart(Long id);
+
+    UserCart findFirstByUserIdAndProductId(Long id, Long productId);
 }

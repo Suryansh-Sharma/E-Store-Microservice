@@ -1,5 +1,6 @@
 package com.suryansh.repository;
 
+import com.suryansh.entity.Brand;
 import com.suryansh.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,4 +21,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query(value = "SELECT * FROM public.product WHERE product_name ILIKE %:productName% LIMIT 10 ",nativeQuery = true)
     List<Product> findProductNameAndId(String productName);
+
+    Page<Product> findByBrand(Brand brand, Pageable pageable);
 }

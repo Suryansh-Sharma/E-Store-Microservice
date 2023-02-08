@@ -16,5 +16,6 @@ public class Answer {
     private String questionId;
     private String text;
     private String username;
+    private String nickname;
     private Instant date;
 }

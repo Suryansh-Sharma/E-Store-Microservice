@@ -2,13 +2,21 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch ReviewAndQuestionServiceApplication",
+            "request": "launch",
+            "mainClass": "com.suryansh.reviewservice.ReviewAndQuestionServiceApplication",
+            "projectName": "ReviewAndQuestion-Service"
+        },
+        {
+            "type": "java",
             "name": "Spring Boot-ServiceRegistryApplication<Service-Registory>",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "mainClass": "com.suryansh.serviceregistory.ServiceRegistryApplication",
             "projectName": "Service-Registory",
             "args": "",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=36441 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=Service-Registory"
         },
         {
             "type": "java",
@@ -17,6 +25,48 @@
             "cwd": "${workspaceFolder}",
             "mainClass": "com.suryansh.apigateway.ApiGatewayApplication",
             "projectName": "Api-Gateway",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=34591 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=Api-Gateway"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ProductSpringMicroservice<Product-Service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.suryansh.ProductSpringMicroservice",
+            "projectName": "Product-Service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env",
+            "vmArgs": " -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=39329 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dspring.jmx.enabled=true -Djava.rmi.server.hostname=localhost -Dspring.application.admin.enabled=true -Dspring.boot.project.name=Product-Service"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-UserServiceApplication<User-Service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.suryansh.userservice.UserServiceApplication",
+            "projectName": "User-Service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-InventoryServiceApplication<Inventory-Service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.suryansh.InventoryServiceApplication",
+            "projectName": "Inventory-Service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-OrderServiceApplication<Order-Service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.suryansh.orderservice.OrderServiceApplication",
+            "projectName": "Order-Service",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
         }

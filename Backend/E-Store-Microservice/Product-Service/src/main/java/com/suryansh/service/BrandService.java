@@ -1,14 +1,12 @@
 package com.suryansh.service;
 
-import com.suryansh.dto.BrandDto;
+import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.model.BrandModel;
-
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 public interface BrandService {
     void save(BrandModel brandModel);
 
-    List<BrandDto> getAllBrands();
 
-    BrandDto findByName(String name);
+    ProductPagingDto findByName(String name, Pageable pageable);
 }

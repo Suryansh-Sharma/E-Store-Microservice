@@ -2,11 +2,11 @@ package com.suryansh.service;
 
 import com.suryansh.dto.*;
 import com.suryansh.entity.*;
+import com.suryansh.exception.MicroserviceException;
 import com.suryansh.exception.SpringProductException;
 import com.suryansh.model.ProductModel;
 import com.suryansh.model.SubProductModel;
 import com.suryansh.repository.BrandRepository;
-import com.suryansh.repository.DescriptionRepository;
 import com.suryansh.repository.ProductRepository;
 import com.suryansh.repository.SubProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +15,7 @@ import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,6 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
     private final BrandRepository brandRepository;
-    private final DescriptionRepository descriptionRepository;
     private final ProductRepository productRepository;
     private final SubProductRepository subProductRepository;
     private final WebClient.Builder webClientBuilder;
@@ -39,20 +39,11 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Async
     public void save(ProductModel productModel, String token) {
-        log.info("Searching Brand");
         Brand brand = brandRepository.findByName(productModel.getBrandName())
                 .orElseThrow(() -> new SpringProductException("Unable to find Brand : ProductServiceImpl.save"));
-        log.info("Brand Find");
         Description description = Description.builder()
                 .data(productModel.getDescription())
                 .build();
-        descriptionRepository.save(description);
-        log.info("Description Saved");
-
-        Description productDescription = descriptionRepository.findTopByOrderByIdDesc()
-                .orElseThrow(() -> new SpringProductException("Unable to get description"));
-        log.info("Description Find");
-
         Product product = Product.builder()
                 .productName(productModel.getProductName())
                 .ratings(0)
@@ -62,26 +53,27 @@ public class ProductServiceImpl implements ProductService {
                 .price(productModel.getPrice())
                 .discount(productModel.getDiscount())
                 .newPrice(productModel.getNewPrice())
-                .productImage(productModel.getProductImage())
+                .productImage(null)
                 .productCategory(productModel.getProductCategory())
-                .description(productDescription)
+                .description(description)
                 .brand(brand)
                 .build();
         try {
             productRepository.save(product);
-            log.info("Product  Saved");
             brand.setNoOfProducts(brand.getNoOfProducts() + 1);
             brandRepository.save(brand);
             log.info("Brand  Saved");
             Product p = productRepository.findByProductName(productModel.getProductName())
                     .orElseThrow();
-            log.info("Product  Found");
             // Calling Inventory Microservice for Adding noOfStock of product.
             webClientBuilder.build().post()
-                    .uri("http://localhost:8080/api/inventory/addToInventory/"
-                            + productModel.getProductName() + "/" + p.getId() +"/"+ productModel.getNoOfStock())
-                    .header("Authorization",token)
+                    .uri("http://INVENTORY-SERVICE/api/inventory/addToInventory/"
+                            + productModel.getProductName() + "/" + p.getId() + "/" + productModel.getNoOfStock())
+                    .header("Authorization", token)
                     .retrieve()
+                    .onStatus(HttpStatus::isError,
+                            clientResponse -> Mono.error(
+                                    new MicroserviceException("Unable to save product because service is down")))
                     .bodyToMono(String.class)
                     .block();
             log.info("Product Saved to Product Microservice and Inventory Service");
@@ -94,14 +86,18 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ProductDto fullViewByName(String name) {
         Product product = productRepository.findByProductName(name)
-                .orElseThrow(() -> new SpringProductException("Unable to find Product :ProductService.findByName"));
+                .orElseThrow(() ->
+                        new SpringProductException("Unable to find Product of name:- " +
+                                name + ":ProductService.fullViewByName"));
         return getProductFullDetails(product);
     }
     @Override
     @Transactional
     public ProductDto fullViewById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new SpringProductException("Unable to find Product :ProductService.findByName"));
+                .orElseThrow(() ->
+                        new SpringProductException("Unable to find Product of id :- " +
+                                id + ":ProductService.fullViewById"));
         return getProductFullDetails(product);
     }
     @Transactional
@@ -111,7 +107,6 @@ public class ProductServiceImpl implements ProductService {
                 .id(brand.getBrandId())
                 .name(brand.getName())
                 .noOfProducts(brand.getNoOfProducts())
-                .products(null)
                 .build();
         List<ProductImageDto> productImages = product.getProductImages().stream()
                 .map(this::ImageEntityToDto)
@@ -121,7 +116,7 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
         // Calling Inventory Microservice to get update about stock.
         InventoryResponse productStock = webClientBuilder.build().get()
-                .uri("http://localhost:8080/api/inventory/get-product-byId/" + product.getId())
+                .uri("http://INVENTORY-SERVICE/api/inventory/get-product-byId/" + product.getId())
                 .retrieve()
                 .bodyToMono(InventoryResponse.class)
                 .transform(it->{
@@ -194,23 +189,14 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     @Async
     public void saveSubProduct(SubProductModel val, String token) {
-        try {
-            SubProduct subProduct = SubProduct.builder()
-                    .productId(val.getProductId())
-                    .subProductName(val.getSubProductName())
-                    .price(val.getPrice())
-                    .build();
-            Brand brand = brandRepository.findByName(val.getBrandName())
-                    .orElseThrow(() -> new
-                            SpringProductException("Unable to find Brand : ProductServiceImpl.saveSubProduct"));
-            Description description = Description.builder()
-                    .data(val.getDescription())
-                    .build();
-            descriptionRepository.save(description);
-            log.info("Description Saved");
 
-            Description productDescription = descriptionRepository.findTopByOrderByIdDesc()
-                    .orElseThrow(() -> new SpringProductException("Unable to get description"));
+        Brand brand = brandRepository.findByName(val.getBrandName())
+                .orElseThrow(() -> new
+                        SpringProductException("Unable to find Brand of brandName:- " +
+                        val.getBrandName() + ": ProductServiceImpl.saveSubProduct"));
+        Description description = Description.builder()
+                .data(val.getDescription())
+                .build();
             Product product = Product.builder()
                     .productName(val.getSubProductName())
                     .ratings(0)
@@ -220,21 +206,31 @@ public class ProductServiceImpl implements ProductService {
                     .price(val.getPrice())
                     .discount(val.getDiscount())
                     .newPrice(val.getNewPrice())
-                    .productImage(val.getProductImage())
+                    .productImage(null)
                     .productCategory(val.getProductCategory())
-                    .description(productDescription)
+                    .description(description)
                     .brand(brand)
                     .build();
+        try {
             productRepository.save(product);
             log.info("Product saved Successfully");
-            Product lastSavedProduct =productRepository.findTopByOrderByIdDesc();
-            log.info("Last Saved Id : {} ",lastSavedProduct.getId());
+            Product lastSavedProduct = productRepository.findTopByOrderByIdDesc();
+            SubProduct subProduct = SubProduct.builder()
+                    .id(lastSavedProduct.getId())
+                    .productId(val.getProductId())
+                    .subProductName(val.getSubProductName())
+                    .price(val.getPrice())
+                    .productImage(null)
+                    .build();
             // Calling Inventory Microservice to add SubProduct noOfStock.
             webClientBuilder.build().post()
-                    .uri("http://localhost:8080/api/inventory/addToInventory/"
-                            + val.getSubProductName() + "/" + lastSavedProduct.getId() +"/"+ val.getNoOfStock())
-                    .header("Authorization",token)
+                    .uri("http://INVENTORY-SERVICE/api/inventory/addToInventory/"
+                            + val.getSubProductName() + "/" + lastSavedProduct.getId() + "/" + val.getNoOfStock())
+                    .header("Authorization", token)
                     .retrieve()
+                    .onStatus(HttpStatus::isError,
+                            clientResponse ->
+                                    Mono.error(new MicroserviceException("Unable to Contact Inventory Microservice ")))
                     .bodyToMono(String.class)
                     .block();
             brand.setNoOfProducts(brand.getNoOfProducts()+1);
@@ -249,7 +245,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDto getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new SpringProductException("Unable to find Product :ProductService.findById"));
+                .orElseThrow(() -> new SpringProductException("Unable to find Product of id:-  " +
+                        id + ":ProductService.findById"));
         return ProductDto.builder()
                 .id(product.getId())
                 .productName(product.getProductName())
@@ -338,6 +335,7 @@ public class ProductServiceImpl implements ProductService {
                 .subProductName(subProduct.getSubProductName())
                 .productId(subProduct.getProductId())
                 .price(subProduct.getPrice())
+                .imageUrl("http://localhost:8080/api/image/download/"+subProduct.getProductImage())
                 .build();
     }
     private ProductImageDto ImageEntityToDto(ProductImages image) {

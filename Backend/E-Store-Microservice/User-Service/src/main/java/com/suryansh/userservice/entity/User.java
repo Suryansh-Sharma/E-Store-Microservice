@@ -20,15 +20,13 @@ public class User {
     private int cartTotalProducts;
     private Float cartTotalPrice;
     private int totalLikedProduct;
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     @JoinColumn(name = "userId", referencedColumnName = "id")
     private List<UserCart> cartProducts;
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "userId", referencedColumnName = "id")
     private List<LikedProduct> likedProducts;
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", referencedColumnName = "id")
-    private List<UserAddress> userAddresses;
-
-
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "id",referencedColumnName = "id")
+    private UserAddress userAddresses;
 }

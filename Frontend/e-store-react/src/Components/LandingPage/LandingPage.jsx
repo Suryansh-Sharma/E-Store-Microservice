@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 const  LandingPage=()=> {
   
   useEffect(() => {
+    document.title="Home Page";
     window.scrollTo(0, 0);
   }, [])
   
@@ -35,6 +36,7 @@ const  LandingPage=()=> {
     <>
     
     <div className="grid-container ">
+      
         <img className="image" src={watch} alt=""/>
         <div className="item content">
             <h1 className="page-title">Make life diffrent.Your life - a ride </h1>    

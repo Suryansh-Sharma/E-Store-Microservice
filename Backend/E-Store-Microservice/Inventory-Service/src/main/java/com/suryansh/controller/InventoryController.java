@@ -1,7 +1,7 @@
 package com.suryansh.controller;
 
 import com.suryansh.dto.InventoryResponse;
-import com.suryansh.model.InventoryModel;
+import com.suryansh.model.OrderItemsModel;
 import com.suryansh.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ public class InventoryController {
     }
 
     @PostMapping()
-    public ResponseEntity<Void> addProductToInventory(@RequestBody List<InventoryModel> model) {
+    public ResponseEntity<Void> addProductToInventory(@RequestBody List<OrderItemsModel> model) {
         try {
             inventoryService.saveProducts(model);
             return new ResponseEntity<>(null, HttpStatus.OK);
@@ -69,12 +69,12 @@ public class InventoryController {
     }
 
     @GetMapping("/check-products")
-    public List<InventoryResponse> checkProductsIsInStock(@RequestBody List<InventoryModel> models) {
+    public List<InventoryResponse> checkProductsIsInStock(@RequestBody List<OrderItemsModel> models) {
         return inventoryService.checkAllProducts(models);
     }
 
     @PutMapping("/updateProduct")
-    public ResponseEntity<Void> updateInventoryProduct(@RequestBody InventoryModel model) {
+    public ResponseEntity<Void> updateInventoryProduct(@RequestBody OrderItemsModel model) {
         try {
             inventoryService.updateProduct(model);
             return new ResponseEntity<>(null, HttpStatus.OK);
@@ -84,7 +84,7 @@ public class InventoryController {
     }
 
     @PostMapping("/updateInventoryProducts")
-    public void updateInventoryProducts(@RequestBody List<InventoryModel> model) {
-        inventoryService.updateInventory(model);
+    public String updateInventoryProducts(@RequestBody List<OrderItemsModel> model) {
+        return inventoryService.updateInventory(model);
     }
 }

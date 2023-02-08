@@ -1,23 +1,24 @@
 package com.suryansh.userservice.service;
 
-import com.suryansh.userservice.dto.CartDto;
-import com.suryansh.userservice.dto.CartItems;
-import com.suryansh.userservice.dto.InventoryResponse;
-import com.suryansh.userservice.dto.ProductDto;
+import com.suryansh.userservice.dto.*;
 import com.suryansh.userservice.entity.User;
 import com.suryansh.userservice.entity.UserCart;
+import com.suryansh.userservice.exception.MicroserviceException;
 import com.suryansh.userservice.exception.UserServiceException;
 import com.suryansh.userservice.model.CartModel;
 import com.suryansh.userservice.repository.UserCartRepository;
 import com.suryansh.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -30,27 +31,28 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     @Async
-    public void addProductToCart(CartModel cartModel, String token) {
+    public CompletableFuture<String> addProductToCart(CartModel cartModel) {
         // Calling Product Microservice for Getting Product.
         ProductDto productResponse = webClientBuilder.build().get()
-                .uri("http://localhost:8080/api/products/by-id/" + cartModel.getProductId())
-                .header("Authorization",token)
+                .uri("http://PRODUCT-SERVICE/api/products/by-id/" + cartModel.getProductId())
                 .retrieve()
+                .onStatus(HttpStatus::isError, clientResponse -> Mono.error(new MicroserviceException(
+                        "Unable to Communicate Product Service for AddProductToCart"
+                )))
                 .bodyToMono(ProductDto.class)
                 .block();
         log.info("Found Product from Product Service");
         User user = userRepository.findByUserName(cartModel.getUserName())
                 .orElseThrow(() -> new UserServiceException("Unable to Find User for Add to Cart " +
                         cartModel.getUserName()));
-        log.info("Found User");
-        assert productResponse != null;
+        if (productResponse == null) throw new UserServiceException("Product not found for AddToCart");
         UserCart cart = UserCart.builder()
                 .userId(user.getId())
                 .productId(productResponse.getId())
                 .productName(productResponse.getProductName())
                 .productImage(productResponse.getProductImage())
-                .price(productResponse.getPrice())
-                .totalPrice(productResponse.getPrice() * cartModel.getNoOfProduct())
+                .price(productResponse.getNewPrice())
+                .totalPrice(productResponse.getNewPrice() * cartModel.getNoOfProduct())
                 .noOfProduct(cartModel.getNoOfProduct())
                 .build();
         user.setCartTotalPrice(user.getCartTotalPrice() + cart.getTotalPrice());
@@ -59,6 +61,7 @@ public class CartServiceImpl implements CartService {
             userRepository.save(user);
             userCartRepository.save(cart);
             log.info("Added Product Cart");
+            return CompletableFuture.completedFuture("Product Added to cart Successfully");
         } catch (Exception e) {
             throw new UserServiceException("Unable to Save Product to Cart " + productResponse.getProductName());
         }
@@ -83,33 +86,41 @@ public class CartServiceImpl implements CartService {
     @Override
     @Transactional
     @Async
-    public void updateCartForUser(List<CartModel> cartModels, String userName, String token) {
+    public void updateProductCartForUser(List<CartModel> cartModels, String userName, String token) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserServiceException("User is not present : updateCart " + userName));
         cartModels.forEach((model -> {
-            if (model.getNoOfProduct() == 0) removeProductFromCart(userName, model);
+            if (model.getNoOfProduct() == 0) removeProductFromCart(userName, model.getId());
             else {
                 UserCart cart = userCartRepository.findByIdAndUserId(model.getId(), user.getId())
                         .orElseThrow(() -> new UserServiceException("Unable to find cart product for " + model));
                 ProductDto productResponse = webClientBuilder.build().get()
-                        .uri("http://localhost:8080/api/products/by-id/" + model.getProductId())
-                        .header("Authorization",token)
+                        .uri("http://PRODUCT-SERVICE/api/products/by-id/" + model.getProductId())
+                        .header("Authorization", token)
                         .retrieve()
+                        .onStatus(HttpStatus::isError, clientResponse -> Mono.error(new MicroserviceException(
+                                "Unable to Communicate Product Service for AddProductToCart"
+                        )))
                         .bodyToMono(ProductDto.class)
                         .block();
+                if (productResponse == null)
+                    throw new UserServiceException("Unable to find product of id : - " + model.getProductId());
+                log.info("Product Name " + productResponse.getProductName());
                 user.setCartTotalPrice(user.getCartTotalPrice() - cart.getTotalPrice());
-                assert productResponse != null;
-                user.setCartTotalPrice(user.getCartTotalPrice() + productResponse.getPrice() *
+                user.setCartTotalPrice(user.getCartTotalPrice() + productResponse.getNewPrice() *
                         model.getNoOfProduct());
-                cart.setPrice(productResponse.getPrice());
-                cart.setTotalPrice(productResponse.getPrice() * model.getNoOfProduct());
+                cart.setPrice(productResponse.getNewPrice());
+                cart.setTotalPrice(productResponse.getNewPrice() * model.getNoOfProduct());
                 cart.setProductImage(productResponse.getProductImage());
                 cart.setNoOfProduct(model.getNoOfProduct());
                 try {
+
                     userCartRepository.save(cart);
                     userRepository.save(user);
+                    log.info("Cart Updated Successfully");
                 } catch (Exception e) {
-                    throw new UserServiceException("Unable to save Updated Cart : " + model);
+                    CompletableFuture.failedFuture(new
+                            UserServiceException("User Address is not Available. :placeOrder"));
                 }
             }
         }));
@@ -128,13 +139,14 @@ public class CartServiceImpl implements CartService {
             userCartRepository.deleteProductFromCart(val.getId());
         }
     }
+
     @Override
     @Transactional
-    public void removeProductFromCart(String userName, CartModel model) {
+    public String removeProductFromCart(String userName, Long id) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserServiceException("User is not present : updateCart " + userName));
-        UserCart cart = userCartRepository.findByIdAndUserId(model.getId(), user.getId())
-                .orElseThrow(() -> new UserServiceException("Unable to find cart product for " + model));
+        UserCart cart = userCartRepository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(() -> new UserServiceException("Unable to find cart product for " + id));
         user.setCartTotalProducts(user.getCartTotalProducts() - cart.getNoOfProduct());
         if (user.getCartTotalProducts() <= 0) user.setCartTotalProducts(0);
         user.setCartTotalPrice(user.getCartTotalPrice() - cart.getTotalPrice());
@@ -142,17 +154,37 @@ public class CartServiceImpl implements CartService {
             userCartRepository.deleteProductFromCart(cart.getId());
             userRepository.save(user);
             log.info("Removed Product from Cart !!");
+            return "Product removed successfully from cart.";
         } catch (Exception e) {
-            throw new UserServiceException("Unable to Delete Product From Cart " + model);
+            throw new UserServiceException("Unable to Delete Product From Cart " + id);
         }
     }
 
-    private CartItems CartEntityToDto(UserCart userCart,String token) {
+    @Override
+    public CartCheckDto isProductPresentInCart(String username, Long productId) {
+        User user = userRepository.findByUserName(username)
+                .orElseThrow(() -> new UserServiceException("Unable to find user of name :- " + username));
+        UserCart cart = userCartRepository.findFirstByUserIdAndProductId(user.getId(), productId);
+        if (cart == null) {
+            return CartCheckDto.builder()
+                    .isProductInCart(false)
+                    .build();
+        }
+        return CartCheckDto.builder()
+                .isProductInCart(true)
+                .cartId(cart.getId())
+                .build();
+    }
+
+    private CartItems CartEntityToDto(UserCart userCart, String token) {
         // Calling Inventory Repository.
         InventoryResponse productStock = webClientBuilder.build().get()
-                .uri("http://localhost:8080/api/inventory/get-product-byId/" + userCart.getProductId())
-                .header("Authorization",token)
+                .uri("http://INVENTORY-SERVICE/api/inventory/get-product-byId/" + userCart.getProductId())
+                .header("Authorization", token)
                 .retrieve()
+                .onStatus(HttpStatus::isError, clientResponse -> Mono.error(new MicroserviceException(
+                        "Unable to Communicate Inventory Service for findAllByUserName"
+                )))
                 .bodyToMono(InventoryResponse.class)
                 .block();
         assert productStock != null;

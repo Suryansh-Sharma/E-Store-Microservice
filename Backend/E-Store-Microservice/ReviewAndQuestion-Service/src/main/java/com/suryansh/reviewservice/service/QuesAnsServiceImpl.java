@@ -32,6 +32,7 @@ public class QuesAnsServiceImpl implements QuesAnsService{
         Question question=Question.builder()
                 .text(questionModel.getText())
                 .username(questionModel.getUsername())
+                .nickname(questionModel.getNickname())
                 .date(Instant.now())
                 .productId(questionModel.getProductId())
                 .noOfAnswers(0)
@@ -55,6 +56,7 @@ public class QuesAnsServiceImpl implements QuesAnsService{
         Answer answer = Answer.builder()
                 .questionId(answerModel.getQuestionId())
                 .username(answerModel.getUsername())
+                .nickname(answerModel.getNickname())
                 .text(answerModel.getText())
                 .date(Instant.now())
                 .build();
@@ -79,7 +81,7 @@ public class QuesAnsServiceImpl implements QuesAnsService{
         return PagingQuestionDto.builder()
                 .questions(questions)
                 .totalPage(questionPage.getTotalPages())
-                .currentPage(pageable.getPageNumber())
+                .currentPage(pageable.getPageNumber()+1)
                 .build();
     }
 
@@ -100,6 +102,7 @@ public class QuesAnsServiceImpl implements QuesAnsService{
                 .questionId(answer.getQuestionId())
                 .text(answer.getText())
                 .username(answer.getUsername())
+                .nickname(answer.getNickname())
                 .date(prettyTime.format(answer.getDate()))
                 .build();
     }
@@ -111,6 +114,7 @@ public class QuesAnsServiceImpl implements QuesAnsService{
                 .productId(question.getProductId())
                 .text(question.getText())
                 .username(question.getUsername())
+                .nickname(question.getNickname())
                 .noOfAnswers(question.getNoOfAnswers())
                 .date(prettyTime.format(question.getDate()))
                 .build();

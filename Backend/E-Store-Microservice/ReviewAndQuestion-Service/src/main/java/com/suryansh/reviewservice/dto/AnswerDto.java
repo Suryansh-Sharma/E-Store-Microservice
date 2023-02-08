@@ -11,4 +11,6 @@ public class AnswerDto {
     private String text;
     private String username;
     private String date;
+    private String nickname;
+
 }

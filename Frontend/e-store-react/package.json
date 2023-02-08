@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@auth0/auth0-react": "^1.12.1",
     "@iconscout/react-unicons": "^1.1.6",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
@@ -11,7 +12,9 @@
     "bootstrap": "^5.2.0",
     "classnames": "^2.3.1",
     "flickity": "^2.3.0",
+    "html-react-parser": "^3.0.8",
     "mdb-react-ui-kit": "^4.1.0",
+    "oidc-client-ts": "^2.2.1",
     "react": "^18.1.0",
     "react-axios": "^2.0.6",
     "react-bootstrap": "^2.4.0",

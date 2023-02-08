@@ -28,7 +28,7 @@ public class Product {
     private String productImage;
     private String productCategory;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id", referencedColumnName = "id")
     private Description description;
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)

@@ -13,5 +13,4 @@ public class BrandDto {
     private Long id;
     private String name;
     private int noOfProducts;
-    private List<ProductDto> products;
 }
