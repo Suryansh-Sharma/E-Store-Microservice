@@ -4,14 +4,13 @@ import com.suryansh.dto.NavSearchDto;
 import com.suryansh.dto.ProductDto;
 import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.model.ProductModel;
-import com.suryansh.model.SubProductModel;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface ProductService {
-    void save(ProductModel productModel, String token);
+    CompletableFuture<String> save(ProductModel productModel, String token);
 
     ProductDto fullViewByName(String name);
 
@@ -21,7 +20,6 @@ public interface ProductService {
 
     ProductPagingDto getProductByCategory(String category, Pageable pageable);
 
-    void saveSubProduct(SubProductModel model, String token);
 
     ProductDto getProductById(Long id);
 
@@ -30,4 +28,5 @@ public interface ProductService {
     List<NavSearchDto> findProductNameAndId(String productName);
 
     CompletableFuture<String> addRatingForProduct(Long id, int rating);
+
 }

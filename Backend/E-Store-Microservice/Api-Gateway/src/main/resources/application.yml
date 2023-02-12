@@ -36,7 +36,7 @@ spring:
         - id : PRODUCT-SERVICE
           uri: lb://PRODUCT-SERVICE
           predicates:
-            - Path=/api/products/** , /api/image/** , /api/brand/**
+            - Path=/api/products/** , /api/image/** , /api/brand/** , /swagger-ui/index.html#/
           filters:
             - name: CircuitBreaker
               args:
@@ -93,5 +93,5 @@ resilience4j:
     configs:
       default:
         limitForPeriod: 5
-        limitRefreshPeriod: 1s
-        timeoutDuration: 0
+        limitRefreshPeriod: 2s
+        timeoutDuration: 10

@@ -27,6 +27,7 @@ public class ImageServiceImpl implements ImageService{
     public String uploadImageToFileSystem(MultipartFile file, String productName, String isPrimary) throws IOException {
         String filePath=FOLDER_PATH+file.getOriginalFilename();
         file.transferTo(new File(filePath));
+        try{
         Product product = productRepository.findByProductName(productName)
                 .orElseThrow(()->new SpringProductException("Unable to find Product for upload image"));
         if (isPrimary.equals("Yes")){
@@ -39,6 +40,11 @@ public class ImageServiceImpl implements ImageService{
                 .build();
         productImagesRepository.save(productImage);
         return "file uploaded successfully : " + filePath;
+        }catch (Exception e){
+            System.out.println(e);
+            throw new SpringProductException("Unable to save image for product");
+        }
+
     }
 
     @Override

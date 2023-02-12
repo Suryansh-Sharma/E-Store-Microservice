@@ -20,4 +20,5 @@ public interface OrderService {
 
     void updateOrder(OrderUpdateModel orderUpdateModel);
 
+    void sendDummyMail();
 }

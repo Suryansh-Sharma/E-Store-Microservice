@@ -19,7 +19,6 @@ public class Brand {
     @NotBlank(message = "Brand Name can't be Empty")
     private String name;
     private int noOfProducts;
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brandId", referencedColumnName = "brandId")
+    @OneToMany(mappedBy = "brand")
     private List<Product> products;
 }

@@ -32,7 +32,7 @@ const QuesAns = ({ productId }) => {
     setTimeout(()=>{
       handleFetchData();
     },"2000");
-  },[setCommentsData])
+  },[productId])
   const handleFetchData= async()=>{
     setLoading(true);
     axios.get(`http://localhost:8080/api/QuestionAndAnswer/getByProductId/${productId}?pageNo=0`)

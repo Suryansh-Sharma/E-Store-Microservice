@@ -1,10 +1,7 @@
 package com.suryansh.dto;
 
 import com.suryansh.entity.Description;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -12,6 +9,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Builder
 public class ProductDto {
     private Long id;
@@ -25,9 +24,10 @@ public class ProductDto {
     private String productImage;
     private String imageUrl;
     private String productCategory;
-    private Description description;
-    private Boolean productIsInStock;
+    private DescriptionDto description;
     private BrandDto brand;
     private List<ProductImageDto>productImages;
-    private List<SubProductDto> subProducts;
+    private Boolean productIsInStock;
+    private InventoryResponse inventoryData;
+    private List<ProductDto>similarProducts;
 }

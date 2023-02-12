@@ -9,5 +9,4 @@ import java.util.Optional;
 @Repository
 public interface DescriptionRepository extends JpaRepository<Description, Long> {
 
-    Optional<Description> findTopByOrderByIdDesc();
 }

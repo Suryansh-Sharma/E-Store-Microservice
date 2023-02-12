@@ -12,6 +12,7 @@ import QuesAns from "./QuestionAnswer/QuesAns";
 import Review from "./ReviewSection/Review";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import parse from "html-react-parser";
 SwiperCore.use([Pagination]);
 
 const Product = () => {
@@ -30,11 +31,12 @@ const Product = () => {
       .get(`http://localhost:8080/api/products/fullView-by-id/${id}`)
       .then((response) => {
         setData(response.data);
-        document.title=response.data.productName
+        document.title=response.data.productName;
       })
       .catch((error) => {
         console.log(error);
       });
+
     if (isAuthenticated) {
       const token = await getAccessTokenSilently();
       axios
@@ -244,10 +246,10 @@ const Product = () => {
       </div>
       <div>
         {
-          data.subProducts.length>0?
+          data.similarProducts!==null?
           <>
         <div className="slider subProductSection">
-          <h3 className="subProductSectionTitle">Sub Products </h3>
+          <h3 className="subProductSectionTitle">Similar Products</h3>
           <Swiper
             slidesPerView={3}
             spaceBetween={60}
@@ -258,9 +260,9 @@ const Product = () => {
             }}
             className="subProductCardSlider"
           >
-            {data.subProducts.map((subProduct) => (
+            {data.similarProducts.map((subProduct) => (
               <div key={subProduct.id}>
-                <SwiperSlide key={subProduct.id}>
+                <SwiperSlide>
                   <div className="row subProductCard"
                     onClick={()=>{navigate("/product/"+subProduct.id)}}
                   >
@@ -268,8 +270,8 @@ const Product = () => {
                       <img src={`${subProduct.imageUrl}`} className={"subProductCardImage"} alt={""}/>
                     </div>
                     <div className="subProductCardBottom">
-                      <span>{subProduct.subProductName}</span>
-                      <span className="">Rs {subProduct.price}</span>
+                      <span>{subProduct.productName.slice(0,50)}...</span>
+                      {/* <span className="">Rs {subProduct.price}</span> */}
                     </div>
                   </div>
                 </SwiperSlide>
@@ -281,11 +283,16 @@ const Product = () => {
           :null
         }
       </div>
+      <div>
+        {
+          parse(data.description.data)
+        }
+      </div>
 
       <QuesAns productId={productId} />
       <button
         type="button"
-        className="ReviewSubmitBtn"
+        className="ReviewSubmitBtn showReviewBtn"
         onClick={() => {
           if (showReview) setShowReview(false);
           else setShowReview(true);

@@ -20,15 +20,15 @@ import { useAuth0 } from '@auth0/auth0-react';
 import { useEffect } from 'react';
 import axios from 'axios';
 import CheckOut from './Components/CheckOut/CheckOut';
+import AddOrEditProduct from './Components/Product/AddOrEditProduct';
 function App() {
   const {isAuthenticated,user} =useAuth0();
   useEffect(()=>{
     document.title="E Store";
     if(isAuthenticated){
-      // axios.get("http://localhost:8080/api/user/isUserPresent/"+user.email)
-      // .then(response=>{
-      //   console.log(response);
-      // })
+      axios.get("http://localhost:8080/api/user/isUserPresent/"+user.email)
+      .then(response=>{
+      })
     }
   },[isAuthenticated])
   return (
@@ -43,7 +43,6 @@ function App() {
         <Router>
         <NavigationBar  />
             <Routes>
-              
                 <Route path={"/"} element={<LandingPage/>}/>
                 <Route path={"/search"} element={<SearchBar/>}/>
                 <Route path={"error404"} element={<PageNotFound/>}/>
@@ -54,6 +53,7 @@ function App() {
                 <Route path={"/profile"} element={<UserProfile/>}/>
                 <Route path={"/orderDetails/:id"} element={<OrderDetails/>}/>
                 <Route path={"/checkOut"} element={<CheckOut/>}/>
+                <Route path={"/addOrEditProduct"} element={<AddOrEditProduct/>}/>
             </Routes>
         </Router>
         </LoginContext.Provider>

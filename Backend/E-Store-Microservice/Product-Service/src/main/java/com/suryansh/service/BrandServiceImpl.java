@@ -1,5 +1,6 @@
 package com.suryansh.service;
 
+import com.suryansh.dto.BrandDto;
 import com.suryansh.dto.ProductDto;
 import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.entity.Brand;
@@ -30,7 +31,7 @@ public class BrandServiceImpl implements BrandService {
         try {
             Optional<Brand> checkBrand = brandRepository.findByName(brandModel.getName());
             if (checkBrand.isPresent()) throw new
-                    SpringProductException("Brand is Already Present !! From BrandServiceImpl save");
+                    SpringProductException("Brand is Already Present !!");
             Brand brand = Brand.builder()
                     .name(brandModel.getName())
                     .noOfProducts(0)
@@ -57,6 +58,18 @@ public class BrandServiceImpl implements BrandService {
                 .totalPages(res.getTotalPages())
                 .totalData(res.getTotalElements())
                 .build();
+    }
+
+    @Override
+    public List<BrandDto> findByNameLike(String name) {
+        return brandRepository.findBrandByName(name).stream()
+                .map((brand ->BrandDto.builder()
+                        .id(brand.getBrandId())
+                        .name(brand.getName())
+                        .noOfProducts(brand.getNoOfProducts())
+                        .build()))
+                .toList();
+
     }
 
     private ProductDto productEntityToDto(Product product) {

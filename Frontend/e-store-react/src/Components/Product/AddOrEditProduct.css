@@ -1,0 +1,14 @@
+.appProductImageSection{
+    margin-top: 50px;
+    margin-bottom: 100px;
+}
+.AddImageInput{
+    margin-top: 20px;
+    margin-bottom: 50px;
+    border: 2px solid black;
+    width: 100%;
+}
+.AddImageCheckBox{
+    margin-top: 20px;
+    width: 20%;
+}

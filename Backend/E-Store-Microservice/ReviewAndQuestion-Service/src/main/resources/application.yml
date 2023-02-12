@@ -7,6 +7,17 @@ spring:
       database: reviewAndCommentService
   application:
     name: REVIEW-SERVICE
+  mail:
+    host: smtp.gmail.com
+    password: vrrcoczqdpuxpndj
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    username: suryanshsharmab@gmail.com
 eureka:
   client:
     registerWithEureka: true

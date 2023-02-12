@@ -12,19 +12,21 @@ function Review({ productId }) {
   const [isPageLoading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const {user}=useAuth0();
-  useEffect(() => {
-    handleFetchData();
-  }, [data]);
   const handleFetchData=async ()=>{
     axios.get(`http://localhost:8080/api/review/getReviewsByProductId/${productId}?pageNo=${currentPage}`)
     .then(response=>{
       setData(response.data);
       setLoading(false);
+      console.log(response.data);
     })
     .catch(error=>{
       setLoading(true);
     })
   }
+  useEffect(() => {
+    handleFetchData();
+  }, [productId]);
+
   const postReview = {
     productId: 0,
     noOfStars: 0,
@@ -41,7 +43,7 @@ function Review({ productId }) {
     );
   }
   const submitReview = () => {
-    postReview.userName = user.email
+    postReview.userName = user.name
     postReview.nickname = user.nickname;
     postReview.productId = productId;
     console.log(postReview);
@@ -68,7 +70,7 @@ function Review({ productId }) {
         <nav className="reviewPagination">
           <ul className="pagination">
             <li className="page-item">
-              <a className="page-link"
+              <p className="page-link"
                 onClick={()=>{
                   if(currentPage>0){
                     handleFetchData();
@@ -76,22 +78,22 @@ function Review({ productId }) {
                   }
                   else alert("No previous page available");
                 }}
-              >Previous</a>
+              >Previous</p>
             </li>
             <li className="page-item">
-              <a className="page-link">
+              <p className="page-link">
                 {data != null ? data.currentPage : null}
-              </a>
+              </p>
             </li>
             <li className="page-item">
-              <a className="page-link"
+              <p className="page-link"
                 onClick={()=>{
                   if(data.currentPage < data.totalPages){
                     setCurrentPage(currentPage+1);
                     handleFetchData();
                   }else alert("No next page is available");
                 }}
-              >Next</a>
+              >Next</p>
             </li>
           </ul>
         </nav>

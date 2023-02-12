@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import account from "../../icons/account.png";
 import "./UserProfile.css";
-const ordersJson = require("./OrderJson.json");
 function UserProfile() {
   const { user,getAccessTokenSilently,isLoading,isAuthenticated} = useAuth0();
 

@@ -1,17 +1,20 @@
 package com.suryansh.orderservice.service;
 
+import com.suryansh.orderservice.config.RabbitMqConfig;
 import com.suryansh.orderservice.dto.*;
 import com.suryansh.orderservice.entity.Order;
 import com.suryansh.orderservice.entity.OrderAddress;
 import com.suryansh.orderservice.entity.OrderItems;
 import com.suryansh.orderservice.exception.MicroserviceException;
 import com.suryansh.orderservice.exception.SpringOrderException;
+import com.suryansh.orderservice.mail.OrderPlacedMail;
 import com.suryansh.orderservice.model.InventoryModel;
 import com.suryansh.orderservice.model.OrderUpdateModel;
 import com.suryansh.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.ocpsoft.prettytime.PrettyTime;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -30,6 +35,7 @@ import java.util.concurrent.CompletableFuture;
 public class OrderServiceImpl implements OrderService {
     private final WebClient.Builder webClientBuilder;
     private final OrderRepository orderRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     @Override
     @Async
@@ -101,7 +107,6 @@ public class OrderServiceImpl implements OrderService {
                 .orderAddress(orderAddress)
                 .build();
         try {
-
             orderRepository.save(order);
             List<InventoryModel> inventoryModels = cart.getCartProduct()
                     .stream()
@@ -132,13 +137,29 @@ public class OrderServiceImpl implements OrderService {
             log.info(cartResponse);
             log.info("Inventory Response:- "+inventoryResponse);
             log.info("Order Placed Successfully");
+            sendOrderPlacedEmail(userName,order,addressDto);
             return CompletableFuture.completedFuture("Order Placed Successfully !!");
         } catch (Exception e) {
             throw new SpringOrderException("Unable to Place Order !! :placeOrder");
         }
     }
 
-
+    public void sendOrderPlacedEmail(String username, Order order, AddressDto address){
+        OrderPlacedMail orderPlacedMail = OrderPlacedMail.builder()
+                .messageId(UUID.randomUUID().toString())
+                .email(username)
+                .totalItem(order.getTotalItems())
+                .price(order.getPrice())
+                .totalPrice(100F+150.00F+ order.getPrice())
+                .line1(address.getLine1())
+                .city(address.getCity())
+                .pinCode(address.getPinCode())
+                .date(new Date())
+                .build();
+        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE,
+                RabbitMqConfig.ROUTING_KEY,orderPlacedMail);
+        log.info("Mail sent to Rabbit Queue for order placed.");
+    }
 
     @Override
     public List<OrderDto> getAllOrderByUser(String userName, String token) {
@@ -211,6 +232,24 @@ public class OrderServiceImpl implements OrderService {
         order.setLastUpdate(Instant.now());
         order.setStatus(model.getStatus());
         orderRepository.save(order);
+    }
+
+    @Override
+    public void sendDummyMail() {
+        OrderPlacedMail orderPlacedMail = OrderPlacedMail.builder()
+                .messageId(UUID.randomUUID().toString())
+                .email("suryanshsharma1942@gmail.com")
+                .totalItem(2)
+                .price(2500F)
+                .totalPrice(100F+150.00F+ 2500F)
+                .line1("(Rajesh Sharma) House no 4 Chaudhary Shikarpur Compound near D.M Residence")
+                .city("Bulandshahr")
+                .pinCode(203001)
+                .date(new Date())
+                .build();
+        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE,
+                RabbitMqConfig.ROUTING_KEY,orderPlacedMail);
+        log.info("Mail sent to Rabbit Queue for order placed.");
     }
 
     /* List Mapping Functions. */

@@ -50,6 +50,7 @@
     height: 48px;
 
 }
+
 .btn-pro-pri:hover{
     transform: scale(1.04);
     background-color: #21e065;
@@ -90,7 +91,7 @@
     font-style: italic;
 }
 .subProductSection{
-    margin-top: -100px;
+    margin-top: -200px;
 }
 .subProductCardSlider{
     /* margin-top: -50px; */
@@ -114,6 +115,11 @@
 }
 .subProductCardImage:hover{
     opacity: 0.7;
+}
+.showReviewBtn{
+    margin-top: 100px;
+    margin-bottom: 50px;
+    left: 40%;
 }
 @media screen and (max-width: 480px){
     .product-grid{

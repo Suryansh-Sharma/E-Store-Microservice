@@ -4,7 +4,6 @@ import com.suryansh.dto.NavSearchDto;
 import com.suryansh.dto.ProductDto;
 import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.model.ProductModel;
-import com.suryansh.model.SubProductModel;
 import com.suryansh.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -36,8 +35,7 @@ public class ProductController {
     @Async
     public CompletableFuture<String> saveProduct(@RequestBody @Valid ProductModel productModel,
                                                  @RequestHeader(name = "Authorization") String token) {
-        productService.save(productModel,token);
-        return CompletableFuture.completedFuture("Product saved successfully :Controller");
+        return productService.save(productModel,token);
     }
 
     @GetMapping("fullView-by-name/{name}")
@@ -50,7 +48,6 @@ public class ProductController {
     public CompletableFuture<ProductDto> fullViewById(@PathVariable Long id) {
         return CompletableFuture.completedFuture(productService.fullViewById(id));
     }
-
     @GetMapping("by-name/{name}")
     public ResponseEntity<ProductDto> getProductByName(@PathVariable String name) {
         try {
@@ -77,13 +74,6 @@ public class ProductController {
             return new ResponseEntity<>(null
                     , HttpStatus.NOT_FOUND);
         }
-    }
-    @PostMapping("/save-subProduct")
-//    @PreAuthorize("hasAuthority('Admin')")
-    @Async
-    public void saveSubProduct(@RequestBody @Valid SubProductModel Model,
-                               @RequestHeader(name = "Authorization") String token) {
-        productService.saveSubProduct(Model,token);
     }
     @GetMapping("/by-nameLike/{productName}")
     public ProductPagingDto getAllNameLike(@PathVariable String productName,

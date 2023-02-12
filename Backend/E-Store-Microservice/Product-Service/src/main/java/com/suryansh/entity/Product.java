@@ -28,15 +28,11 @@ public class Product {
     private String productImage;
     private String productCategory;
 
-    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "id", referencedColumnName = "id")
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, optional = false)
     private Description description;
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JoinColumn(name = "brandId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id")
     private Brand brand;
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "productId", referencedColumnName = "id")
-    private List<SubProduct> subProducts;
     @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "productId",referencedColumnName = "id")
     private List<ProductImages>productImages;

@@ -18,7 +18,6 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
-
     @PostMapping("/placeOrder/{userName}")
     @Async
     public CompletableFuture<String> placeOrder(@PathVariable String userName,
@@ -51,6 +50,9 @@ public class OrderController {
     public void updateOrder(@RequestBody OrderUpdateModel orderUpdateModel) {
         orderService.updateOrder(orderUpdateModel);
     }
-
-
+    @GetMapping("/dummyMail")
+    public String sendDummyMail(){
+        orderService.sendDummyMail();
+        return "Mail Send";
+    }
 }
