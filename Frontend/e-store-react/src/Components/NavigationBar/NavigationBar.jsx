@@ -26,6 +26,7 @@ const Navigation = () => {
           onClick={() => {
             navigate("/");
           }}
+          alt=""
         ></img>
         <button
           className="navbar-toggler"

@@ -13,8 +13,9 @@ import sony_speaker from "../../icons/sony_speaker.png";
 import bose_earbuds from "../../icons/bose_earbuds.png";
 import appleTv from "../../icons/appleTv.png";
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 const  LandingPage=()=> {
-  
+  let navigate = useNavigate();
   useEffect(() => {
     document.title="Home Page";
     window.scrollTo(0, 0);
@@ -48,27 +49,35 @@ const  LandingPage=()=> {
     {/* Top categories */}
 
     <div className="top-categories">
-      <div className="top-cat-item tct1" >
+      <div className="top-cat-item tct1" onClick={()=>{
+        navigate("/allProduct/product/Travelling")
+      }}>
         <h2 className='tct-title'>Travelling</h2>
         <p className='tct-title'> From $30.00</p>
         <img src={right_icon} alt="" />
         <img className="tct1-img"src={camera} alt="" />
       </div>
 
-      <div className="top-cat-item tct2">
+      <div className="top-cat-item tct2"
+        onClick={()=>navigate("/allProduct/product/Electronics")}
+      >
         <h2 className='tct-title'>Electronics</h2>
         <p className='tct-title'>From $30.00</p>
         <img className='right-icon' src={right_icon} alt="" />
         <img className="tct2-img"src={powerbank} alt="" />
       </div>
 
-      <div className="top-cat-item tct3">
+      <div className="top-cat-item tct3"
+        onClick={()=>navigate("/allProduct/product/Gaming")}
+      >
       <h2 className='tct-title'>I am the Gammer !!</h2>
         <p className='tct-title'>From $20.00</p>
         <img className='right-icon' src={right_icon} alt="" />
         <img className="tct3-img" src={ps5} alt="" />
       </div>
-      <div className="top-cat-item tct4">
+      <div className="top-cat-item tct4"
+        onClick={()=>navigate("/allProduct/product/Music")}
+      >
         <h2 className='tct-title' style={{color:'black'}}>Music & Sound</h2>
         <p className='tct-title' style={{color:'black'}}>From $30.00</p>
         <img className='right-icon' src={right_icon} alt="" />
@@ -77,7 +86,9 @@ const  LandingPage=()=> {
 
     </div>
     <h1>Featured Products</h1>
-    <div className="top-categories">
+    <div className="top-categories"
+      onClick={()=>navigate("/allProduct/product/Mobile")}
+    >
       <div className="tct-item1" onClick={()=>alert("All Phones.")}>
         <h2 className='tct-title'>All Phones</h2>
         <img className={"tct-item-img-1"} src={iphoneGif} alt="" />
