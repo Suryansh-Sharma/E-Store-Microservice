@@ -170,13 +170,13 @@ Response
                 "imageUrl": "http://localhost:8080/api/image/download/ps5.png"
             }
         ],
-        "productIsInStock": false,
+        "productIsInStock": true,
         "inventoryData": {
-            "productName": null,
-            "productId": null,
-            "isInStock": null,
-            "noOfStock": 0,
-            "totalSold": 0
+            "productName": Sony PS5 Digital Edition Gaming Console (50668613, White),
+            "productId": 1,
+            "isInStock": true,
+            "noOfStock": 20,
+            "totalSold": 1
         },
         "similarProducts": [
             {
