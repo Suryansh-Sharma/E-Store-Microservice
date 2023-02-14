@@ -82,12 +82,12 @@ public class ProductController {
         return productService.findByProductNameLike(productName,pageable);
     }
     @GetMapping("/navSearch/{productName}")
-    public List<NavSearchDto> getProductNameAndId(@PathVariable String productName){
+    public List<NavSearchDto> getProductNameAndId(@PathVariable String productName) {
         return productService.findProductNameAndId(productName);
     }
+
     @PostMapping("/addRatingForProduct/{id}/{rating}")
-    @Async
-    public CompletableFuture<String> addRatingForProduct(@PathVariable Long id,@PathVariable int rating){
-        return productService.addRatingForProduct(id,rating);
+    public void addRatingForProduct(@PathVariable Long id, @PathVariable int rating) {
+        productService.addRatingForProduct(id, rating);
     }
 }

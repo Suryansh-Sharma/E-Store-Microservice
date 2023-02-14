@@ -1,7 +1,10 @@
 package com.suryansh.service;
 
 import com.suryansh.dto.*;
-import com.suryansh.entity.*;
+import com.suryansh.entity.Brand;
+import com.suryansh.entity.Description;
+import com.suryansh.entity.Product;
+import com.suryansh.entity.ProductImages;
 import com.suryansh.exception.MicroserviceException;
 import com.suryansh.exception.SpringProductException;
 import com.suryansh.model.ProductModel;
@@ -87,7 +90,6 @@ public class ProductServiceImpl implements ProductService {
             log.info("Product Saved to Product Microservice and Inventory Service");
             return CompletableFuture.completedFuture("Product placed successfully");
         } catch (Exception e) {
-            System.out.println(e);
             throw new SpringProductException("Unable to save Product : ProductServiceImpl.save Catch block");
         }
     }
@@ -252,27 +254,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Async
-    public CompletableFuture<String> addRatingForProduct(Long id, int rating) {
+    public void addRatingForProduct(Long id, int rating) {
         Product product = productRepository.findById(id)
-                .orElseThrow(()->new SpringProductException("Unable to find product for Rating"));
-        if(product.getNoOfRatings()==0){
-                product.setRatings(rating);
-                product.setNoOfRatings(product.getNoOfRatings()+1);
-                product.setTotalRating(rating);
-                log.info("new Rating");
-        }else{
-                int newRating = (product.getTotalRating()+rating) / (product.getNoOfRatings()+1);
-                product.setRatings(newRating);
+                .orElseThrow(() -> new SpringProductException("Unable to find product for Rating"));
+        if (product.getNoOfRatings() == 0) {
+            product.setRatings(rating);
+            product.setNoOfRatings(product.getNoOfRatings() + 1);
+            product.setTotalRating(rating);
+            log.info("new Rating");
+        } else {
+            int newRating = (product.getTotalRating() + rating) / (product.getNoOfRatings() + 1);
+            product.setRatings(newRating);
                 product.setTotalRating(product.getTotalRating()+rating);
                 product.setNoOfRatings(product.getNoOfRatings()+1);
         }
         try {
             productRepository.save(product);
-            return CompletableFuture.completedFuture("Review Added Successfully");
-        }catch (Exception e){
-            return CompletableFuture.failedFuture(new
-                    SpringProductException("Unable to add review for Product"));
+        }catch (Exception e) {
+            throw new
+                    SpringProductException("Unable to add review for Product");
         }
     }
 

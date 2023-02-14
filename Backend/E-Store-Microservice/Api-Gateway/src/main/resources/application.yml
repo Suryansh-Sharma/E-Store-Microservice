@@ -21,6 +21,9 @@ spring:
     name: API-GATEWAY
   cloud:
     gateway:
+      httpclient:
+        ssl:
+          use-insecure-trust-manager: true
       globalcors:
         corsConfigurations:
           '[/**]':

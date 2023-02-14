@@ -25,15 +25,3 @@ eureka:
   instance:
     instanceId: ${spring.application.name}
     hostname: localhost
-okta:
-  oauth2:
-    issuer: https://dev-40949592.okta.com/oauth2/default
-    audience: api://default
-
-resilience4j:
-  ratelimiter:
-    configs:
-      default:
-        limitForPeriod: 5
-        limitRefreshPeriod: 2s
-        timeoutDuration: 1

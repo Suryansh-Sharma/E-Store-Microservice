@@ -38,17 +38,17 @@ public class ReviewServiceImpl implements ReviewService{
                 .userName(reviewModel.getUserName())
                 .build();
         // Calling Product Service for updating rating inside product.
-        webClientBuilder.build().post()
+        String res = webClientBuilder.build().post()
                 .uri("http://PRODUCT-SERVICE/api/products/addRatingForProduct/"
                         + reviewModel.getProductId() + "/" + reviewModel.getNoOfStars())
-                .header("Authorization",token)
                 .retrieve()
-                .onStatus(HttpStatus::isError,clientResponse -> Mono.error(
+                .onStatus(HttpStatus::isError, clientResponse -> Mono.error(
                         new MicroserviceException("Unable to Communicate ProductService for Adding Rating " +
                                 ":addReview")))
                 .bodyToMono(String.class)
                 .block();
         try {
+            log.info("Product Service Response : " + res);
             reviewRepository.save(review);
             log.info("Added review for user :  {} of productId : {}",reviewModel.getUserName(),reviewModel.getProductId());
         }catch (Exception e){

@@ -17,9 +17,10 @@ function Cart() {
   const [isCarUpdated, setIsUpdated] = useState(false);
   useEffect(() => {
     fetchData();
-  }, [isLoading,setLoading]);
+  }, [isLoading,setLoading,user]);
   const fetchData = async () => {
     const token = await getAccessTokenSilently();
+    console.log(token);
     axios
       .get(`http://localhost:8080/api/cart/getCartByUser/${user.email}`, {
         headers: { Authorization: `Bearer ${token}` },

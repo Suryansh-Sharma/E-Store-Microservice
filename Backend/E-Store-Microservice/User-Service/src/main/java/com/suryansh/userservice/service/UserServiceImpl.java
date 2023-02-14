@@ -1,6 +1,9 @@
 package com.suryansh.userservice.service;
 
-import com.suryansh.userservice.dto.*;
+import com.suryansh.userservice.dto.AddressDto;
+import com.suryansh.userservice.dto.LikedProductPaging;
+import com.suryansh.userservice.dto.ProductDto;
+import com.suryansh.userservice.dto.UserDto;
 import com.suryansh.userservice.entity.LikedProduct;
 import com.suryansh.userservice.entity.User;
 import com.suryansh.userservice.entity.UserAddress;
@@ -41,9 +44,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void save(String userName) {
         Optional<User> user = userRepository.findByUserName(userName);
-        if (user.isPresent()){
-            log.info("User {} is already present : ",userName);
-        }else{
+        if (user.isEmpty()) {
             User newUser = User.builder()
                     .userName(userName)
                     .cartTotalPrice((float) 0)
@@ -51,6 +52,7 @@ public class UserServiceImpl implements UserService {
                     .totalLikedProduct(0)
                     .build();
             userRepository.save(newUser);
+            log.info("User Added to database");
         }
 
     }

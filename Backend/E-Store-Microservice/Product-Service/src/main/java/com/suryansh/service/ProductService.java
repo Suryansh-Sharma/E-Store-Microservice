@@ -27,6 +27,6 @@ public interface ProductService {
 
     List<NavSearchDto> findProductNameAndId(String productName);
 
-    CompletableFuture<String> addRatingForProduct(Long id, int rating);
+    void addRatingForProduct(Long id, int rating);
 
 }

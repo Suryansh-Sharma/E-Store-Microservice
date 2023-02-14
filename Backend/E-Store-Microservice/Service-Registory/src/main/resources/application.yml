@@ -1,16 +1,3 @@
-#eureka:
-#  instance:
-#    hostname: localhost
-#    prefer-ip-address: true
-#    instance-id:
-#  client:  # Not a client, don't register with yourself
-#    registerWithEureka: false
-#    fetchRegistry: false
-#  server:
-#    enable-self-preservation: false
-#
-#server:
-#  port: 8761
 server:
   port: 8761
 
