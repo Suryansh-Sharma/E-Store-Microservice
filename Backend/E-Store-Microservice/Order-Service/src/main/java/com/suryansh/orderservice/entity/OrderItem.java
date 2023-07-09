@@ -1,13 +1,20 @@
-package com.suryansh.orderservice.dto;
+package com.suryansh.orderservice.entity;
 
 import lombok.*;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "OrderItemTbl")
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderItemsDto {
+@ToString
+public class OrderItems {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemId;
     private Long orderId;
     private Long productId;

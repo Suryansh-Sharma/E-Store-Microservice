@@ -1,26 +1,30 @@
 package com.suryansh.entity;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 @Entity
 @Builder
 @Getter
-@Service
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductImages {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long productId;
-    private String imageName;
+    private String imageUrl;
+    @Enumerated(EnumType.STRING)
+    private imageType imageType;
+
+    private enum imageType{
+        POSTER,
+        SLIDE,
+        DESCRIPTION
+    }
 }
+
+
