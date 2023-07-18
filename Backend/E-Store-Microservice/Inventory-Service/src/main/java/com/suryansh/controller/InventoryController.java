@@ -27,10 +27,6 @@ public class InventoryController {
     public InventoryResponse getInventoryResponse(@PathVariable Long id) {
         return inventoryService.getInventoryByProductId(id);
     }
-    @PostMapping("/single-product")
-    public String addSingleProductToInventory(@RequestBody @Valid InventoryModel inventoryModel) {
-        return inventoryService.saveProductInInventory(inventoryModel);
-    }
 
     @GetMapping("/check/availability/{product}/quantity/{quantity}")
     public boolean checkProductIsInStock(@PathVariable Long product,@PathVariable int quantity) {

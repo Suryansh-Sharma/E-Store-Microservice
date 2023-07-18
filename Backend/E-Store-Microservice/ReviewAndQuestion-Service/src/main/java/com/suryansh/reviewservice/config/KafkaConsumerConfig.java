@@ -1,7 +1,6 @@
-package com.suryansh.config;
+package com.suryansh.reviewservice.config;
 
-import com.suryansh.model.InventoryModel;
-import com.suryansh.model.OrderInventDetailModel;
+import com.suryansh.reviewservice.model.RatingAndReviewModel;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
@@ -23,36 +22,20 @@ public class KafkaConsumerConfig {
     final String KAFKA_SERVER_URL="localhost:9200";
     final String GROUP_ID="Inventory-Service";
     @Bean
-    public ConsumerFactory<String, OrderInventDetailModel> orderInventDetailModelConsumerFactory(){
+    public ConsumerFactory<String, RatingAndReviewModel> raatingReviewModelConsumerFactory(){
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,KAFKA_SERVER_URL );
         props.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(),
-                new JsonDeserializer<>(OrderInventDetailModel.class));
+                new JsonDeserializer<>(RatingAndReviewModel.class));
     }
     @Bean
     public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer
-            <String, OrderInventDetailModel>> orderInventKafkaListener() {
-        ConcurrentKafkaListenerContainerFactory<String, OrderInventDetailModel>
+            <String, RatingAndReviewModel>> ratingReviewKafkaListener() {
+        ConcurrentKafkaListenerContainerFactory<String, RatingAndReviewModel>
                 factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(orderInventDetailModelConsumerFactory());
+        factory.setConsumerFactory(raatingReviewModelConsumerFactory());
         return factory;
     }
 
-    @Bean
-    public ConsumerFactory<String, InventoryModel> inventoryModelConsumerFactory(){
-        Map<String, Object> props = new HashMap<>();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,KAFKA_SERVER_URL );
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID);
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(),
-                new JsonDeserializer<>(InventoryModel.class));
-    }
-    @Bean
-    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer
-            <String, InventoryModel>> productKafkaListener() {
-        ConcurrentKafkaListenerContainerFactory<String, InventoryModel>
-                factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(inventoryModelConsumerFactory());
-        return factory;
-    }
 }

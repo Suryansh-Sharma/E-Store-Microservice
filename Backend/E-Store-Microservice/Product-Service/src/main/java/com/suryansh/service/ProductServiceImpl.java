@@ -7,12 +7,11 @@ import com.suryansh.dto.ProductRatingDto;
 import com.suryansh.entity.Brand;
 import com.suryansh.entity.Product;
 import com.suryansh.entity.ProductBelongsTo;
-import com.suryansh.exception.MicroserviceException;
-import com.suryansh.exception.SpringInventoryException;
 import com.suryansh.exception.SpringProductException;
 import com.suryansh.mapper.ProductMapper;
 import com.suryansh.model.InventoryModel;
 import com.suryansh.model.ProductModel;
+import com.suryansh.model.RatingAndReviewModel;
 import com.suryansh.repository.BrandRepository;
 import com.suryansh.repository.ProductBelongsToRepository;
 import com.suryansh.repository.ProductRepository;
@@ -21,13 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -45,6 +41,8 @@ public class ProductServiceImpl implements ProductService {
     private final ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory;
     private final ProductBelongsToRepository belongsToRepository;
     private final ProductMapper productMapper;
+    private final KafkaTemplate<String,InventoryModel>kafkaInventoryTemplate;
+    private final KafkaTemplate<String, RatingAndReviewModel>kafkaRatingReviewTemplate;
 
     @Override
     @Transactional
@@ -71,47 +69,17 @@ public class ProductServiceImpl implements ProductService {
             productInventoryModel.setTitle(product.getTitle());
             inventoryModel.setProduct(productInventoryModel);
 
-            // Calling Inventory Microservice for Adding noOfStock of product.
-            webClientBuilder.build().post()
-                    .uri("https://INVENTORY-SERVICE/api/inventory/single-product")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(BodyInserters.fromValue(inventoryModel))
-                    .retrieve()
-                    .onStatus(HttpStatusCode::is5xxServerError,
-                            clientResponse -> Mono.error(
-                                    new MicroserviceException("Unable to save product because Inventory service is down ," +
-                                            " Please try after some time")))
-                    .onStatus(HttpStatusCode::is4xxClientError, clientRes ->
-                         Mono.error(new SpringInventoryException("Seller is not present or product already present !!"
-                                ,clientRes.toString(), (HttpStatus) clientRes.statusCode()))
-                    )
-                    .bodyToMono(String.class)
-                    .block();
+            // Send request to inventory for new product through Kafka.
+            kafkaInventoryTemplate.send("add-new-product-inventory", inventoryModel);
 
-            // Add new Product in Rating Service.
-            webClientBuilder.build().post()
-                    .uri("https://REVIEW-SERVICE/api/rating/new-product/"+product.getId()+"/"+product.getTitle())
-                    .retrieve()
-                    .onStatus(HttpStatusCode::is5xxServerError,
-                            clientResponse -> Mono.error(
-                                    new MicroserviceException("Unable to save product because Review service is down ," +
-                                            " Please try after some time")))
-                    .onStatus(HttpStatusCode::is4xxClientError, clientRes ->
-                            Mono.error(new SpringInventoryException("Unable to save product inside Review Service !!"
-                                    ,clientRes.toString(), (HttpStatus) clientRes.statusCode()))
-                    )
-                    .bodyToMono(Void.class)
-                    .block();
-
+            // Send request to rating-review-service for new product through Kafka.
+            RatingAndReviewModel ratingAndReviewModel = new RatingAndReviewModel(product.getId(), product.getTitle());
+            kafkaRatingReviewTemplate.send("add-new-product-rating",ratingAndReviewModel);
 
             // Send Product details to Elastic search through kafka.
 
             logger.info("Product Saved to Product Microservice,Inventory Service,Review Service");
             return CompletableFuture.completedFuture("Product added successfully");
-        } catch (MicroserviceException m){
-            throw new MicroserviceException(m.getMessage());
-        } catch (SpringInventoryException e){
-            throw new SpringInventoryException(e.getMessage(),e.getType(),e.getStatus());
         }catch (Exception e) {
             logger.error("Unable to save product !! " + e);
             throw new SpringProductException("Unable to save Product : ProductServiceImpl.save Catch block");

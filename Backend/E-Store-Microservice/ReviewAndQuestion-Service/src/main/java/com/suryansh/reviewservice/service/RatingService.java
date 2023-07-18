@@ -3,7 +3,6 @@ package com.suryansh.reviewservice.service;
 import com.suryansh.reviewservice.dto.ProductRatingDto;
 
 public interface RatingService {
-    void saveNewProduct(Long productId, String title);
 
     ProductRatingDto getRatingsForRatings(Long id);
 

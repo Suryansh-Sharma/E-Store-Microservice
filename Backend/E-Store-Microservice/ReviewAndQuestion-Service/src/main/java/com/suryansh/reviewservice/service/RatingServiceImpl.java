@@ -1,11 +1,14 @@
 package com.suryansh.reviewservice.service;
 
+import com.google.gson.Gson;
 import com.suryansh.reviewservice.dto.ProductRatingDto;
 import com.suryansh.reviewservice.entity.ProductRating;
 import com.suryansh.reviewservice.exception.SpringReviewException;
+import com.suryansh.reviewservice.model.RatingAndReviewModel;
 import com.suryansh.reviewservice.repository.RatingRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,24 +18,32 @@ import java.util.ArrayList;
 public class RatingServiceImpl implements RatingService {
     private static final Logger logger = LoggerFactory.getLogger(RatingServiceImpl.class);
     private final RatingRepository ratingRepository;
+    private final Gson gson;
 
-    public RatingServiceImpl(RatingRepository ratingRepository) {
+    public RatingServiceImpl(RatingRepository ratingRepository, Gson gson) {
         this.ratingRepository = ratingRepository;
+        this.gson = gson;
     }
 
-    @Override
+    @KafkaListener(topics = "add-new-product-rating")
     @Transactional
-    public void saveNewProduct(Long productId, String title) {
+    public void saveNewProduct(String reviewRatingModelString) {
+        RatingAndReviewModel ratingAndReviewModel = gson.fromJson(reviewRatingModelString,RatingAndReviewModel.class);
+
         var histogram = new ArrayList<ProductRating.ratings>();
         for (int i = 1; i <= 5; i++) {
             histogram.add(new ProductRating.ratings(Integer.toString(i), 0));
         }
-        ProductRating productRating = ProductRating.builder().productId(productId).productTitle(title).averageRating(0).ratingsHistogram(histogram).build();
+        ProductRating productRating = ProductRating.builder()
+                .productId(ratingAndReviewModel.productId())
+                .productTitle(ratingAndReviewModel.productTitle())
+                .averageRating(0)
+                .ratingsHistogram(histogram).build();
         try {
             ratingRepository.save(productRating);
-            logger.info("New Product is saved for rating of id {} ", productId);
+            logger.info("New Product is saved for rating of id {} ", productRating.getProductId());
         } catch (Exception e) {
-            logger.error("Unable to save rating for product {} ", productId, e);
+            logger.error("Unable to save rating for product {} ", productRating.getProductId(), e);
             throw new SpringReviewException("Unable to save rating " + e);
         }
     }

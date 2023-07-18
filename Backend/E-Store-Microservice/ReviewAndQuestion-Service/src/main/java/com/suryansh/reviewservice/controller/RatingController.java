@@ -14,10 +14,6 @@ public class RatingController {
         this.ratingService = ratingService;
     }
 
-    @PostMapping("new-product/{productId}/{title}")
-    public void addNewProductForRating(@PathVariable Long productId, @PathVariable String title) {
-        ratingService.saveNewProduct(productId, title);
-    }
 
     @GetMapping("product-id/{id}")
     public ProductRatingDto getProductRatings(@PathVariable Long id) {

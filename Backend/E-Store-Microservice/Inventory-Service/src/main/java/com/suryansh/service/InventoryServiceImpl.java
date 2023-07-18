@@ -59,9 +59,10 @@ public class InventoryServiceImpl implements InventoryService {
         }
     }
 
-    @Override
+    @KafkaListener(topics = "add-new-product-inventory")
     @Transactional
-    public String saveProductInInventory(InventoryModel inventoryModel) {
+    public String saveProductInInventory(String inventoryModelString) {
+        InventoryModel inventoryModel = gson.fromJson(inventoryModelString,InventoryModel.class);
         Optional<InventoryDocument> inventoryDocument = inventoryDocumentRepository
                 .findByProduct_ProductId(inventoryModel.getProduct().getProductId());
         if (inventoryDocument.isPresent()){
