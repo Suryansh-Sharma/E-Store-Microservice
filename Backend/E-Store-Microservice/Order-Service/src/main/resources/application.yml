@@ -3,6 +3,13 @@ server:
   error:
     include-message: always
 spring:
+
+  kafka:
+    bootstrap-servers: localhost:9002
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
   datasource:
     password: Suryansh@1904
     url: jdbc:postgresql://localhost:5432/E-Store

@@ -4,7 +4,7 @@ import com.suryansh.orderservice.dto.*;
 import com.suryansh.orderservice.entity.Order;
 import com.suryansh.orderservice.entity.OrderAddress;
 import com.suryansh.orderservice.entity.OrderItem;
-import com.suryansh.orderservice.model.OrderDetailModel;
+import com.suryansh.orderservice.model.OrderInventoryModel;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.stereotype.Service;
 
@@ -43,12 +43,12 @@ public class OrderServiceMapping {
                 .price(cartItems.getPrice())
                 .build();
     }
-    public OrderDetailModel cartItemToInventory(List<CartItem> cartItem,long userId) {
-        List<OrderDetailModel.product> products = cartItem.stream()
-                .map(item-> new OrderDetailModel.product(item.getProductId(), item.getPrice(), item.getNoOfProduct())
+    public OrderInventoryModel orderDetailToInventory(List<OrderItem> cartItem, long userId) {
+        List<OrderInventoryModel.product> products = cartItem.stream()
+                .map(item-> new OrderInventoryModel.product(item.getProductId(), item.getPrice(), item.getQuantity())
                         )
                 .toList();
-        return new OrderDetailModel(userId,products);
+        return new OrderInventoryModel(userId,products);
     }
 
 

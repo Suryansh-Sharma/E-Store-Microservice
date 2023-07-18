@@ -1,6 +1,5 @@
 package com.suryansh.orderservice.service;
 
-import com.suryansh.orderservice.config.RabbitMqConfig;
 import com.suryansh.orderservice.dto.*;
 import com.suryansh.orderservice.entity.Order;
 import com.suryansh.orderservice.entity.OrderItem;
@@ -8,13 +7,14 @@ import com.suryansh.orderservice.exception.MicroserviceException;
 import com.suryansh.orderservice.exception.SpringOrderException;
 import com.suryansh.orderservice.mail.OrderPlacedMail;
 import com.suryansh.orderservice.mapper.OrderServiceMapping;
+import com.suryansh.orderservice.model.OrderInventoryModel;
 import com.suryansh.orderservice.model.OrderUpdateModel;
 import com.suryansh.orderservice.repository.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,17 +32,20 @@ import java.util.concurrent.CompletableFuture;
 public class OrderServiceImpl implements OrderService {
     private final WebClient.Builder webClientBuilder;
     private final OrderRepository orderRepository;
-    private final RabbitTemplate rabbitTemplate;
     private final OrderServiceMapping mapping;
+    private final KafkaTemplate<String, OrderInventoryModel> kafkaInventOrderTemplate;
+    private final KafkaTemplate<String,String>clearCartKafkaTemplate;
     private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
 
     public OrderServiceImpl(WebClient.Builder webClientBuilder,
-                            OrderRepository orderRepository, RabbitTemplate rabbitTemplate, OrderServiceMapping mapping) {
+                            OrderRepository orderRepository, OrderServiceMapping mapping,
+                            KafkaTemplate<String, OrderInventoryModel> kafkaOrderTemplate, KafkaTemplate<String, String> clearCartKafkaTemplate) {
         this.webClientBuilder = webClientBuilder;
         this.orderRepository = orderRepository;
-        this.rabbitTemplate = rabbitTemplate;
         this.mapping = mapping;
+        this.kafkaInventOrderTemplate = kafkaOrderTemplate;
+        this.clearCartKafkaTemplate = clearCartKafkaTemplate;
     }
 
     @Async
@@ -93,13 +96,15 @@ public class OrderServiceImpl implements OrderService {
         try {
             orderRepository.save(order);
 
-//            OrderItemModel orderItemModel =mapping.cartItemToInventory(cart.getCartProduct(),user.id());
+            OrderInventoryModel  model= mapping.orderDetailToInventory(orderItems,user.id());
 
             // Sending orderItemModel through KAFKA to inventory for updating after order placed.
+            kafkaInventOrderTemplate.send("order-placed-detail",model);
 
             // Clearing cart of user after order placed through kafka.
 
             // Sending Order placed email to user through Kafka.
+            sendOrderPlacedEmail(order,user);
 
             logger.info("Order placed successfully by user {} ",user.id());
             return CompletableFuture.completedFuture("Order Placed Successfully !!");
@@ -125,8 +130,7 @@ public class OrderServiceImpl implements OrderService {
                 .pinCode(user.address().pinCode())
                 .date(new Date())
                 .build();
-        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE,
-                RabbitMqConfig.ROUTING_KEY,orderPlacedMail);
+        logger.info("Order placed mail {}",orderPlacedMail);
         logger.info("Mail sent to Rabbit Queue for order placed.");
     }
 
@@ -188,21 +192,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void sendDummyMail() {
-        OrderPlacedMail orderPlacedMail = OrderPlacedMail.builder()
-                .messageId(UUID.randomUUID().toString())
-                .email("suryanshsharma1942@gmail.com")
-                .totalItem(2)
-                .price(2500F)
-                .totalPrice(100F+150.00F+ 2500F)
-                .line1("(Rajesh Sharma) House no 4 Chaudhary Shikarpur Compound near D.M Residence")
-                .city("Bulandshahr")
-                .pinCode("203001")
-                .date(new Date())
-                .build();
-        rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE,
-                RabbitMqConfig.ROUTING_KEY,orderPlacedMail);
-        logger.info("Mail sent to Rabbit Queue for order placed.");
+    public void sendDummyInventoryDetail() {
+        OrderItem orderItem = new OrderItem(1L,1L,6L,"Fake Product",2,120.0F);
+        OrderItem orderItem2 = new OrderItem(2L,1L,12L,"Fake Product",4,420.0F);
+        OrderItem orderItem3 = new OrderItem(3L,1L,3L,"Fake Product",1,220.0F);
+        OrderInventoryModel  model= mapping.orderDetailToInventory(List.of(orderItem,orderItem2,orderItem3),3L);
+        kafkaInventOrderTemplate.send("order-placed-detail",model);
+    }
+
+    @Override
+    public void sendFakeClearCart(){
+        clearCartKafkaTemplate.send("clear-cart","123");
     }
 
 

@@ -1,5 +1,6 @@
 package com.suryansh.service;
 
+import com.google.gson.Gson;
 import com.suryansh.dto.CheckOrderDto;
 import com.suryansh.dto.InventoryResponse;
 import com.suryansh.entity.*;
@@ -7,7 +8,7 @@ import com.suryansh.exception.SpringInventoryException;
 import com.suryansh.mapper.InventoryMapper;
 import com.suryansh.model.CheckOrderModel;
 import com.suryansh.model.InventoryModel;
-import com.suryansh.model.OrderDetailModel;
+import com.suryansh.model.OrderInventDetailModel;
 import com.suryansh.repository.InventoryDocumentRepository;
 import com.suryansh.repository.SellerDocumentRepository;
 import com.suryansh.repository.SellerOrderRepository;
@@ -15,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +33,7 @@ public class InventoryServiceImpl implements InventoryService {
     private final SellerDocumentRepository sellerDocumentRepository;
     private final InventoryMapper inventoryMapper;
     private final SellerOrderRepository sellerOrderRepository;
+    private final Gson gson;
     private static final Logger logger = LoggerFactory.getLogger(InventoryServiceImpl.class);
 
     @Override
@@ -141,10 +145,15 @@ public class InventoryServiceImpl implements InventoryService {
                     HttpStatus.BAD_REQUEST);
         }
     }
-    @Override
+
     @Transactional
-    public String updateInventory(OrderDetailModel model) {
-        for (OrderDetailModel.product m : model.products()) {
+    @Async
+    @KafkaListener(topics = "order-placed-detail")
+    public void updateInventory(String modelString) {
+
+        final OrderInventDetailModel model = gson.fromJson(modelString, OrderInventDetailModel.class);
+
+        for (OrderInventDetailModel.product m : model.products()) {
             var inventory = inventoryDocumentRepository.findByProduct_ProductId(m.productId())
                     .orElseThrow(() -> new SpringInventoryException("Unable to find inventory of id " + m.productId(),
                             "InventoryNotFound", HttpStatus.NOT_FOUND));
@@ -171,12 +180,12 @@ public class InventoryServiceImpl implements InventoryService {
                 sellerOrderRepository.save(sellerOrder);
                 logger.info("Product {} stock updated !! & order added for seller {} ",m.productId(),inventory.getSellerId());
             }catch (Exception e){
-                logger.info("Unable to update inventory after order placed "+e);
+                logger.error("Unable to update inventory after order placed "+e);
                 throw new SpringInventoryException("Unable to find inventory of id " + m.productId(),
                         "InventoryNotFound", HttpStatus.NOT_FOUND);
             }
         }
-        return "Inventory is successfully updated after order placed!";
+        logger.info("Inventory is fully updated after order of user {} ",model.userId());
     }
 
 

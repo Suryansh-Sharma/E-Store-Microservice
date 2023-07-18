@@ -1,6 +1,14 @@
 server:
   port: '8086'
 spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: User-Service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
   datasource:
     password: Suryansh@1904
     url: jdbc:postgresql://localhost:5432/E-Store

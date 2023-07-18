@@ -56,9 +56,12 @@ public class OrderController {
     public void updateOrder(@RequestBody OrderUpdateModel orderUpdateModel) {
         orderService.updateOrder(orderUpdateModel);
     }
-    @GetMapping("/dummy-mail")
-    public String sendDummyMail(){
-        orderService.sendDummyMail();
-        return "Mail Send";
+    @PostMapping("/dummy-inventory-detail-kafka")
+    public void sendDummyMail(){
+        orderService.sendDummyInventoryDetail();
+    }
+    @PostMapping("/dummy-clear-cart-kafka")
+    public void sendFakeKafkaClearCart(){
+        orderService.sendFakeClearCart();
     }
 }

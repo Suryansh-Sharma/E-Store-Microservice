@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,7 +112,7 @@ public class CartServiceImpl implements CartService {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserServiceException("Unable to Find User for Add to Cart " +
                         userName));
-        // If cart is empty.
+        // If the cart is empty.
         if (user.getCartTotalProducts() == 0) {
             return CompletableFuture.completedFuture(
                     CartDto.builder()
@@ -184,7 +185,7 @@ public class CartServiceImpl implements CartService {
         if (cartModel.getNoOfProduct() == 0) {
             removeProductFromCart(user.getUserName(), cartModel.getProductId());
         }else{
-            // Calling Inventory Service to check stock of product.
+            // Calling Inventory Service to check the stock of product.
             Boolean inventoryResponse = webClientBuilder.build().get()
                     .uri("http://Inventory-SERVICE/api/inventory/check/availability/"+
                             cartModel.getProductId()+"/quantity/"+cartModel.getNoOfProduct()
@@ -233,12 +234,14 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    @Override
     @Transactional
+    @KafkaListener(topics = "clear-cart")
     @Async
-    public void clearCartForUser(String userName) {
-        User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new UserServiceException("User is not present : updateCart " + userName));
+    public void clearCartForUser(String id) {
+        Long longUserId = Long.parseLong(id);
+        logger.info("Long id "+longUserId);
+        User user = userRepository.findById(longUserId)
+                .orElseThrow(() -> new UserServiceException("User is not present : updateCart " + id));
         user.setCartTotalPrice((float) 0);
         user.setCartTotalProducts(0);
         List<UserCart> carts = user.getCartProducts();

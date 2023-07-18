@@ -4,7 +4,6 @@ import com.suryansh.dto.CheckOrderDto;
 import com.suryansh.dto.InventoryResponse;
 import com.suryansh.model.CheckOrderModel;
 import com.suryansh.model.InventoryModel;
-import com.suryansh.model.OrderDetailModel;
 import com.suryansh.service.InventoryService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +46,5 @@ public class InventoryController {
         inventoryService.updateProduct(model,id);
     }
 
-    @PostMapping("/update-after-order-placed")
-    public String updateInventoryAfterOrder(@RequestBody @Valid OrderDetailModel model) {
-        return inventoryService.updateInventory(model);
-    }
 
 }
