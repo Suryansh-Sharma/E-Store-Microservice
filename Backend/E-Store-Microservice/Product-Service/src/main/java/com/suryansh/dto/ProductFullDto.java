@@ -1,32 +1,62 @@
 package com.suryansh.dto;
-
-import com.suryansh.entity.Description;
 import lombok.*;
 
 import java.util.List;
 
 
-@AllArgsConstructor
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
+@AllArgsConstructor
 @Builder
-public class ProductDto {
+public class ProductFullDto {
     private Long id;
-    private String productName;
-    private int ratings;
-    private int noOfRatings;
-    private String text;
-    private Float price;
-    private int discount;
-    private Float newPrice;
-    private String productImage;
+    private String title;
+    private String subTitle;
+    private String shortDescription;
+    // Price
+    private Price price;
+
+    private String categoryPath;
     private String imageUrl;
-    private String productCategory;
-    private DescriptionDto description;
-    private BrandDto brand;
-    private List<ProductImageDto>productImages;
-    private Boolean productIsInStock;
-    private InventoryResponse inventoryData;
-    private List<ProductDto>similarProducts;
+    // Additional Image
+    private List<ProductImage>productImages;
+    // Inventory Response;
+    private InventoryResponse inventoryResponse;
+
+    private String color;
+    // Brand
+    private Brand brand;
+
+    private String itemWebUrl;
+    private String description;
+    // Product Belongs to
+    private ProductBelongsTo belongsTo;
+    // Product Ratings
+    public ProductRatingDto productRatingDto;
+    @Data
+    public static class Price{
+        private String value;
+        private String currency;
+    }
+    @Data
+    public static class ProductImage{
+        private String imageUrl;
+        private ImageType imageType;
+
+        private enum ImageType{
+            POSTER,
+            SLIDE,
+            DESCRIPTION
+        }
+    }
+    @Data
+    public static class Brand{
+        private String name;
+    }
+    @Data
+    public static class ProductBelongsTo{
+        private Long id;
+        boolean haveParent;
+        private String productName;
+    }
 }

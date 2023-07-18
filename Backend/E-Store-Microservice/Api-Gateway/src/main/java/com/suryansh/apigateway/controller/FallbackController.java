@@ -1,24 +1,31 @@
 package com.suryansh.apigateway.controller;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("*")
-@ResponseStatus(HttpStatus.NOT_FOUND)
+@ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
 public class FallbackController {
 
     @GetMapping("/productServiceFallBack")
-    public String productServiceFallBack(){
+    public String productServiceFallBackGet(){
         return "Product Service is Down !! , Please try After Sometime";
     }
+    @PostMapping("/productServiceFallBack")
+    public String productServiceFallBackPost(){
+        return "Product Service is Down !! , Please try After Sometime";
+    }
+
     @GetMapping("/inventoryServiceFallBack")
-    public String inventoryServiceFallBack(){
+    public String inventoryServiceFallBackGet(){
         return "Inventory Service is Down !! , Please try After Sometime";
     }
+    @PostMapping("/inventoryServiceFallBack")
+    public String inventoryServiceFallBackPost(){
+        return "Inventory Service is Down !! , Please try After Sometime";
+    }
+
     @GetMapping("/orderServiceFallBack")
     public String orderServiceFallBack(){
         return "Order Service is Down !! , Please try After Sometime";

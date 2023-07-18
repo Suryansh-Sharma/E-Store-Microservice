@@ -1,24 +1,24 @@
 package com.suryansh.service;
 
+import com.suryansh.dto.CheckOrderDto;
 import com.suryansh.dto.InventoryResponse;
-import com.suryansh.model.OrderItemsModel;
-
-import java.util.List;
+import com.suryansh.model.CheckOrderModel;
+import com.suryansh.model.InventoryModel;
+import com.suryansh.model.OrderDetailModel;
 
 public interface InventoryService {
-    void saveProducts(List<OrderItemsModel> model);
+    String addNewSeller(Long userId);
 
-    List<InventoryResponse> checkAllProducts(List<OrderItemsModel> models);
+    String saveProductInInventory(InventoryModel inventoryModel);
 
-    void updateProduct(OrderItemsModel model);
+    InventoryResponse getInventoryByProductId(Long productId);
 
-    List<InventoryResponse> findAll();
+    boolean CheckProduct(Long product, int quantity);
 
-    void CheckProduct(String product);
+    void updateProduct(InventoryModel model, String id);
 
-    void saveProduct(String productName, Long id, int noOfStock);
+    String updateInventory(OrderDetailModel model);
 
-    InventoryResponse getProductById(Long productId);
+    CheckOrderDto checkAllProductsIsInStock(CheckOrderModel dto);
 
-    String updateInventory(List<OrderItemsModel> model);
 }

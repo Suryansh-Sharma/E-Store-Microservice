@@ -2,7 +2,9 @@ package com.suryansh.userservice.entity;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,13 +22,21 @@ public class User {
     private int cartTotalProducts;
     private Float cartTotalPrice;
     private int totalLikedProduct;
-    @OneToMany(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    @JoinColumn(name = "userId", referencedColumnName = "id")
+    private String nickname;
+
+    @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private List<UserCart> cartProducts;
+
     @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JoinColumn(name = "userId", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private List<LikedProduct> likedProducts;
+
     @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
     @JoinColumn(name = "id",referencedColumnName = "id")
     private UserAddress userAddresses;
+
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "id",referencedColumnName = "id")
+    private UserContact userContact;
 }

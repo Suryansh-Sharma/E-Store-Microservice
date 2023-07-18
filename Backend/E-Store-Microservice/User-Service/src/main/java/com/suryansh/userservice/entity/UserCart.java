@@ -1,11 +1,7 @@
 package com.suryansh.userservice.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 @Entity
 @AllArgsConstructor
@@ -13,12 +9,10 @@ import javax.persistence.Id;
 @Builder
 @Getter
 @Setter
-@ToString
 public class UserCart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Long userId;
     private Long productId;
     private String productName;
     private String productImage;
@@ -26,4 +20,6 @@ public class UserCart {
     private Float totalPrice;
     private int noOfProduct;
 
+    @ManyToOne
+    private User user;
 }

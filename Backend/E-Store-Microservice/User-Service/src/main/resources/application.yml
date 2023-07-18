@@ -1,10 +1,12 @@
 server:
-  port: '0'
+  port: '8086'
 spring:
   datasource:
     password: Suryansh@1904
-    url: jdbc:postgresql://localhost:5432/User-Service
+    url: jdbc:postgresql://localhost:5432/E-Store
     username: postgres
+    hikari:
+      schema: User-Service
   jpa:
     hibernate:
       ddl-auto: update

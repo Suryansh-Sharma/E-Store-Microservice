@@ -1,90 +1,55 @@
 package com.suryansh.controller;
 
+import com.suryansh.dto.CheckOrderDto;
 import com.suryansh.dto.InventoryResponse;
-import com.suryansh.model.OrderItemsModel;
+import com.suryansh.model.CheckOrderModel;
+import com.suryansh.model.InventoryModel;
+import com.suryansh.model.OrderDetailModel;
 import com.suryansh.service.InventoryService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
 @RestController
-@RequestMapping("/api/inventory")
-@RequiredArgsConstructor
+@RequestMapping("/api/inventory/")
 @CrossOrigin
 public class InventoryController {
     private final InventoryService inventoryService;
 
-    @GetMapping()
-    public List<InventoryResponse> getAllProducts() {
-        return inventoryService.findAll();
+    public InventoryController(InventoryService inventoryService) {
+        this.inventoryService = inventoryService;
     }
 
-    @PostMapping()
-    public ResponseEntity<Void> addProductToInventory(@RequestBody List<OrderItemsModel> model) {
-        try {
-            inventoryService.saveProducts(model);
-            return new ResponseEntity<>(null, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.CONFLICT);
-        }
+    @PostMapping("/add-seller/{userId}")
+    public String addSellerToInventory(@PathVariable Long userId){
+        return inventoryService.addNewSeller(userId);
     }
 
-    @PostMapping("/addToInventory/{productName}/{id}/{noOfStock}")
-    @Async
-    public CompletableFuture<ResponseEntity<String>> addSingleProductToInventory(@PathVariable String productName
-            , @PathVariable Long id, @PathVariable int noOfStock) {
-        try {
-            inventoryService.saveProduct(productName, id, noOfStock);
-            return CompletableFuture.completedFuture(new ResponseEntity<>("Product Saved to Inventory Successfully",
-                    HttpStatus.OK));
-        } catch (Exception e) {
-            return CompletableFuture.completedFuture(new ResponseEntity<>("Unable to Save Product to Inventory",
-                    HttpStatus.CONFLICT));
-        }
+    @GetMapping("/by-product-id/{id}")
+    public InventoryResponse getInventoryResponse(@PathVariable Long id) {
+        return inventoryService.getInventoryByProductId(id);
+    }
+    @PostMapping("/single-product")
+    public String addSingleProductToInventory(@RequestBody @Valid InventoryModel inventoryModel) {
+        return inventoryService.saveProductInInventory(inventoryModel);
     }
 
-    @GetMapping("/check-product/{product}")
-    public ResponseEntity<Boolean> checkProductIsInStock(@PathVariable String product) {
-        try {
-            inventoryService.CheckProduct(product);
-            return new ResponseEntity<>(true, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(false, HttpStatus.OK);
-        }
+    @GetMapping("/check/availability/{product}/quantity/{quantity}")
+    public boolean checkProductIsInStock(@PathVariable Long product,@PathVariable int quantity) {
+       return inventoryService.CheckProduct(product,quantity);
+    }
+    @GetMapping("/check/list/availability")
+    public CheckOrderDto checkAllProductsAreInStock(@RequestBody @Valid CheckOrderModel model){
+        return inventoryService.checkAllProductsIsInStock(model);
     }
 
-    @GetMapping("/get-product-byId/{productId}")
-    public ResponseEntity<InventoryResponse> checkProductIsInStockById(@PathVariable Long productId) {
-        try {
-            InventoryResponse product = inventoryService.getProductById(productId);
-            return new ResponseEntity<>(product, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
+    @PutMapping("/update/{id}")
+    public void updateInventoryProduct(@RequestBody InventoryModel model,@PathVariable String id) {
+        inventoryService.updateProduct(model,id);
     }
 
-    @GetMapping("/check-products")
-    public List<InventoryResponse> checkProductsIsInStock(@RequestBody List<OrderItemsModel> models) {
-        return inventoryService.checkAllProducts(models);
-    }
-
-    @PutMapping("/updateProduct")
-    public ResponseEntity<Void> updateInventoryProduct(@RequestBody OrderItemsModel model) {
-        try {
-            inventoryService.updateProduct(model);
-            return new ResponseEntity<>(null, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @PostMapping("/updateInventoryProducts")
-    public String updateInventoryProducts(@RequestBody List<OrderItemsModel> model) {
+    @PostMapping("/update-after-order-placed")
+    public String updateInventoryAfterOrder(@RequestBody @Valid OrderDetailModel model) {
         return inventoryService.updateInventory(model);
     }
+
 }

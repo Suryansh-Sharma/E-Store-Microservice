@@ -10,12 +10,15 @@
         <module name="Inventory-Service" />
         <module name="Order-Service" />
         <module name="Service-Registory" />
-        <module name="ReviewAndQuestion-Service" />
+        <module name="ReviewAndComment-Service" />
         <module name="Api-Gateway" />
         <module name="Product-Service" />
         <module name="User-Service" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ReviewAndQuestion-Service" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
@@ -23,6 +26,7 @@
       <module name="Inventory-Service" options="-parameters" />
       <module name="Order-Service" options="-parameters" />
       <module name="Product-Service" options="-parameters" />
+      <module name="ReviewAndComment-Service" options="-parameters" />
       <module name="ReviewAndQuestion-Service" options="-parameters" />
       <module name="Service-Registory" options="-parameters" />
       <module name="User-Service" options="-parameters" />

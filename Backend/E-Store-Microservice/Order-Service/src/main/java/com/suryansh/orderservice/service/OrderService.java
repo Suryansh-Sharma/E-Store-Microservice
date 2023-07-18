@@ -1,6 +1,6 @@
 package com.suryansh.orderservice.service;
 
-import com.suryansh.orderservice.dto.OrderDetails;
+import com.suryansh.orderservice.dto.OrderDetailDto;
 import com.suryansh.orderservice.dto.OrderDto;
 import com.suryansh.orderservice.model.OrderUpdateModel;
 
@@ -12,7 +12,7 @@ public interface OrderService {
 
     List<OrderDto> getAllOrderByUser(String userName, String token);
 
-    OrderDetails getOrderDetails(Long orderId);
+    OrderDetailDto getOrderDetails(Long orderId);
 
     OrderDto getOrderByOrderId(Long orderId);
 

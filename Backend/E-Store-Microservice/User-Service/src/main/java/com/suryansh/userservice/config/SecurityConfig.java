@@ -3,7 +3,6 @@ package com.suryansh.userservice.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
@@ -21,21 +20,21 @@ public class SecurityConfig {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
         http.authorizeHttpRequests((requests) -> requests
-                .antMatchers(
-                        "/api/user/getUserAddress/{userName}",
-                        "/api/user/isProductLikedByUser/{userName}/{productId}",
-                        "/api/user/likedProducts-byUser/{userName}",
-                        "/api/user/updateUserAddress",
-                        "/api/user/addUserAddress",
-                        "/api/user/likeProduct",
-                        "/api/user/unLikeProduct",
-                        "/api/user/by-username/{username}")
+                .requestMatchers(
+                        "/api/cart/**",
+                        "/api/user/like-product",
+                        "/api/user/unlike-product",
+                        "/api/user/update-profile",
+                        "/api/user/liked-products/**"
+
+                )
                 .authenticated()
                 .anyRequest()
                 .permitAll());
-        http.authorizeHttpRequests()
+        http.cors()
                 .and()
-                .cors(Customizer.withDefaults())
+                .csrf()
+                .disable()
                 .oauth2ResourceServer()
                 .jwt();
         return http.build();

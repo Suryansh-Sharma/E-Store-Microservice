@@ -5,22 +5,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Service;
 
 @Entity
 @Builder
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductImages {
+public class ProductImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String imageUrl;
     @Enumerated(EnumType.STRING)
-    private imageType imageType;
+    private ImageType imageType;
 
-    private enum imageType{
+    public enum ImageType {
         POSTER,
         SLIDE,
         DESCRIPTION

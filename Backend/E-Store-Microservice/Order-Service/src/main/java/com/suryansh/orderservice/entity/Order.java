@@ -2,7 +2,7 @@ package com.suryansh.orderservice.entity;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class Order {
     private Boolean isProductDelivered = false;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "orderId",referencedColumnName = "id")
-    private List<OrderItems> orderItems;
+    private List<OrderItem> orderItems;
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private OrderAddress orderAddress;
 }

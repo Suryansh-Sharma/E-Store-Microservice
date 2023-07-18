@@ -4,14 +4,13 @@ import lombok.*;
 
 import java.util.List;
 
-@Getter
-@Setter
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 @Builder
 public class CartDto {
-    List<CartItems> cartProduct;
+    private List<CartItem> cartProduct;
     private int totalProducts;
     private Float totalPrice;
 

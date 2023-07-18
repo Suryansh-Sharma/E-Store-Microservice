@@ -1,9 +1,8 @@
 package com.suryansh.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Entity
@@ -15,10 +14,10 @@ import java.util.List;
 public class Brand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long brandId;
-    @NotBlank(message = "Brand Name can't be Empty")
+    private Long id;
     private String name;
     private int noOfProducts;
-    @OneToMany(mappedBy = "brand")
+    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @JoinColumn(name = "brand_id",referencedColumnName = "id")
     private List<Product> products;
 }

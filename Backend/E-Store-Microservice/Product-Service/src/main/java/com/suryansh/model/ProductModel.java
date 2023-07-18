@@ -1,35 +1,80 @@
 package com.suryansh.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.suryansh.entity.ProductImage.ImageType;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 public class ProductModel {
-    @NotBlank(message = "Product name cannot be null")
-    private String productName;
-    @NotNull(message = "No of stock can't be empty")
-    @Min(value = 1,message = "No of stock can't be less than or equal to zero")
-    private int noOfStock;
-    private String text;
-    @NotNull(message = "Price of product can't be empty")
-    private Float price;
-    private int discount;
-    private Float newPrice;
-    @NotBlank(message = "Product Category can't be empty")
-    private String productCategory;
-    // For Description.
+    private Long id;
+
+    private BelongsTo productBelongsTo;
+
+    @NotBlank(message = "Title is required")
+    private String title;
+
+    // InventoryModel
+    @Valid
+    private InventoryModel inventoryModel;
+
+    @NotBlank(message = "SubTitle is required")
+    private String subTitle;
+
+    @NotBlank(message = "Short description is required")
+    private String shortDescription;
+
+    @Valid
+    private Price price;
+
+    private String categoryPath;
+    private String imageUrl;
+
+    @Valid
+    private List<ProductImage> productImages;
+
+    private String color;
+
+    @Valid
+    private Brand brand;
+
+    private String itemWebUrl;
+
+    @NotBlank(message = "Description is required")
     private String description;
-    @NotBlank(message = "Product Brand name can't be empty")
-    // For Brand.
-    private String brandName;
+
+    @Valid
+    private String belongsTo;
+
+    @Valid
+    private List<ProductElasticSearchModel.Filter> filterModel;
+
+    @Data
+    public static class Price{
+        @NotBlank(message = "Price is required")
+        private String value;
+        @NotBlank(message = "Currency is required")
+        private String currency;
+    }
+    @Data
+    public static class ProductImage{
+        @NotBlank(message = "ImageUrl is required")
+        private String imageUrl;
+        private ImageType imageType;
+
+    }
+    @Data
+    public static class Brand{
+        @NotBlank(message = "Brand is required")
+        private String name;
+    }
+    @Data
+    public static class BelongsTo{
+        private Long id;
+        private boolean haveParent;
+        private String productName;
+    }
 }

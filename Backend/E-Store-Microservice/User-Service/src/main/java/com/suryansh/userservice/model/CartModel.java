@@ -1,22 +1,15 @@
 package com.suryansh.userservice.model;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-@Getter
-@Setter
-@ToString
+@Data
 public class CartModel {
-    private Long id;
+    @NotBlank(message = "username can't be blank")
     private String userName;
-    private Boolean isInStock;
+    @Min(value = 0,message = "product id can't be less than 0")
     private Long productId;
-    private String productName;
-    private String productImage;
-    private String imageUrl;
-    private Float price;
-    private Float totalPrice;
+    @Min(value = 0,message = "no of product can't be less than 0")
     private int noOfProduct;
 }

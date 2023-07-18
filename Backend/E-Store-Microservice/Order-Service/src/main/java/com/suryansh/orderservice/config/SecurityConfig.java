@@ -19,16 +19,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-
-        http.authorizeHttpRequests((requests) -> {
-            requests
-                    .antMatchers("api/order/getOrder-byUser/**",
-                            "/api/order/dummyMail")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated();
-
-        });
+        http
+                .csrf()
+                .disable()
+                .authorizeHttpRequests(requests -> requests
+                .requestMatchers(
+                        "/api/order/place/**",
+                        "/api/order/by-user/**",
+                        "/api/order/update"
+                )
+                .authenticated()
+                .anyRequest()
+                .permitAll());
         http.authorizeHttpRequests()
                 .and()
                 .cors(Customizer.withDefaults())

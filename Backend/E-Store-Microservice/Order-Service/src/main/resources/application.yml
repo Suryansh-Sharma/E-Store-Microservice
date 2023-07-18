@@ -1,12 +1,14 @@
 server:
-  port: '0'
+  port: '8082'
   error:
     include-message: always
 spring:
   datasource:
     password: Suryansh@1904
-    url: jdbc:postgresql://localhost:5432/Order-Service
+    url: jdbc:postgresql://localhost:5432/E-Store
     username: postgres
+    hikari:
+      schema: Order-Service
 
   jpa:
     hibernate:

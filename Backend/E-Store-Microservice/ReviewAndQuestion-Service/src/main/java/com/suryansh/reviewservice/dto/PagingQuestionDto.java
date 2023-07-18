@@ -12,4 +12,5 @@ public class PagingQuestionDto {
     private List<QuestionDto>questions;
     private int totalPage;
     private int currentPage;
+    private long totalData;
 }

@@ -3,222 +3,170 @@ package com.suryansh.orderservice.service;
 import com.suryansh.orderservice.config.RabbitMqConfig;
 import com.suryansh.orderservice.dto.*;
 import com.suryansh.orderservice.entity.Order;
-import com.suryansh.orderservice.entity.OrderAddress;
-import com.suryansh.orderservice.entity.OrderItems;
+import com.suryansh.orderservice.entity.OrderItem;
 import com.suryansh.orderservice.exception.MicroserviceException;
 import com.suryansh.orderservice.exception.SpringOrderException;
 import com.suryansh.orderservice.mail.OrderPlacedMail;
-import com.suryansh.orderservice.model.InventoryModel;
+import com.suryansh.orderservice.mapper.OrderServiceMapping;
 import com.suryansh.orderservice.model.OrderUpdateModel;
 import com.suryansh.orderservice.repository.OrderRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.ocpsoft.prettytime.PrettyTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-@Slf4j
-@RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
     private final WebClient.Builder webClientBuilder;
     private final OrderRepository orderRepository;
     private final RabbitTemplate rabbitTemplate;
+    private final OrderServiceMapping mapping;
+    private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
-    @Override
+
+    public OrderServiceImpl(WebClient.Builder webClientBuilder,
+                            OrderRepository orderRepository, RabbitTemplate rabbitTemplate, OrderServiceMapping mapping) {
+        this.webClientBuilder = webClientBuilder;
+        this.orderRepository = orderRepository;
+        this.rabbitTemplate = rabbitTemplate;
+        this.mapping = mapping;
+    }
+
     @Async
     @Transactional
     public CompletableFuture<String> placeOrder(String userName, String token) {
-
-        CartDto cart = webClientBuilder.build().get()
-                .uri("http://USER-SERVICE/api/cart/getCartByUser/" + userName)
+        var cart = webClientBuilder.build().get()
+                .uri("http://USER-SERVICE/api/cart/of-user/" + userName)
                 .header("Authorization", token)
                 .retrieve()
-                .onStatus(HttpStatus::isError,clientResponse -> Mono.error(new
-                        MicroserviceException("Unable to find Cart for username:- "+userName+" for Place Order")))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new
+                        MicroserviceException("Sorry cart service is down , try after some time !! : place order")))
                 .bodyToMono(CartDto.class)
                 .block();
         if (cart == null) {
             return CompletableFuture.failedFuture(new
-                    SpringOrderException("User Cart is Empty. :placeOrder"));
+                    SpringOrderException("User Cart is Empty. :placeOrder","CartEmpty", HttpStatus.NOT_FOUND));
         }
 
-        List<OrderItems>orderItemsModel = cart.getCartProduct().stream()
-                .map(this::cartItemsToOrderItemsEntity)
-                .toList();
+        List<OrderItem>orderItems = new ArrayList<>();
+        for(CartItem item:cart.getCartProduct()){
+            if (!item.getIsInStock()){
+                return CompletableFuture.failedFuture(
+                        new SpringOrderException("Sorry Product "+item.getProductName()+" is out of stock !!","ProductOutOfStock",HttpStatus.NOT_FOUND)
+                );
+            }else{
+                orderItems.add(mapping.cartItemsToOrderItemEntity(item));
+            }
+        }
 
         // Calling User Microservice to get User By UserName.
-        UserDto user = webClientBuilder.build().get()
+        var user = webClientBuilder.build().get()
                 .uri("http://USER-SERVICE/api/user/by-username/" + userName)
                 .header("Authorization", token)
                 .retrieve()
-                .onStatus(HttpStatus::isError,clientResponse -> Mono.error(new
-                        MicroserviceException("Unable to find User of  username:- "+userName+" for Place Order")))
-                .bodyToMono(UserDto.class)
+                .onStatus(HttpStatusCode::is5xxServerError,clientResponse -> Mono.error(new
+                        MicroserviceException("Sorry user service is down , please try after some time.")))
+                .bodyToMono(UserProfileDto.class)
                 .block();
 
         if (user == null) {
             return CompletableFuture.failedFuture(new
-                    SpringOrderException("User is not Available. :placeOrder"));
+                    SpringOrderException("User is not Available. :placeOrder","UerNotFound",HttpStatus.NOT_FOUND));
         }
 
-        AddressDto addressDto = webClientBuilder.build().get()
-                .uri("http://USER-SERVICE/api/user/getUserAddress/" + user.getUserName())
-                .header("Authorization", token)
-                .retrieve()
-                .onStatus(HttpStatus::isError,clientResponse -> Mono.error(
-                        new MicroserviceException("Unable to find Address of user of id:- "+user.getId()+
-                                " For Place Order")))
-                .bodyToMono(AddressDto.class)
-                .block();
-        if (addressDto == null) {
-            return CompletableFuture.failedFuture(new
-                    SpringOrderException("User Address is not Available. :placeOrder"));
-        }
-        OrderAddress orderAddress = OrderAddress.builder()
-                .userId(user.getId())
-                .line1(addressDto.getLine1())
-                .city(addressDto.getCity())
-                .pinCode(addressDto.getPinCode())
-                .otherDetails(addressDto.getOtherDetails())
-                .build();
+        var orderAddress = mapping.mapAddressDtoToEntity(user);
 
-        Order order = Order.builder()
-                .userId(user.getId())
-                .orderDate(Instant.now())
-                .lastUpdate(Instant.now())
-                .status("Order Placed Successfully")
-                .totalItems(cart.getTotalProducts())
-                .price(cart.getTotalPrice())
-                .isProductDelivered(false)
-                .orderItems(orderItemsModel)
-                .orderAddress(orderAddress)
-                .build();
+        var order = mapping.mapOrderModelToEntity(cart,user.id(),orderAddress,orderItems);
         try {
             orderRepository.save(order);
-            List<InventoryModel> inventoryModels = cart.getCartProduct()
-                    .stream()
-                    .map(this::CartProductsToInventoryModel)
-                    .toList();
 
-            // Calling Inventory Service for Updating Inventory.
-            String inventoryResponse = webClientBuilder.build().post()
-                    .uri("http://INVENTORY-SERVICE/api/inventory/updateInventoryProducts")
-                    .header("Authorization",token)
-                    .body(BodyInserters.fromValue(inventoryModels))
-                    .retrieve()
-                    .onStatus(HttpStatus::isError,clientResponse -> Mono.error(
-                            new MicroserviceException("Unable to communicate Inventory Microservice.")
-                    ))
-                    .bodyToMono(String.class)
-                    .block();
-            // Calling Cart Service for Clearing Cart for User After Order Placed.
-            String cartResponse = webClientBuilder.build().get()
-                    .uri("http://USER-SERVICE/api/cart/clearCartForUser/" + userName)
-                    .header("Authorization",token)
-                    .retrieve()
-                    .onStatus(HttpStatus::isError,clientResponse -> Mono.error(new
-                            MicroserviceException("Unable to clear cart  for username:-"+userName+" for Place Order")))
-                    .bodyToMono(String.class)
-                    .block();
+//            OrderItemModel orderItemModel =mapping.cartItemToInventory(cart.getCartProduct(),user.id());
 
-            log.info(cartResponse);
-            log.info("Inventory Response:- "+inventoryResponse);
-            log.info("Order Placed Successfully");
-            sendOrderPlacedEmail(userName,order,addressDto);
+            // Sending orderItemModel through KAFKA to inventory for updating after order placed.
+
+            // Clearing cart of user after order placed through kafka.
+
+            // Sending Order placed email to user through Kafka.
+
+            logger.info("Order placed successfully by user {} ",user.id());
             return CompletableFuture.completedFuture("Order Placed Successfully !!");
-        } catch (Exception e) {
-            throw new SpringOrderException("Unable to Place Order !! :placeOrder");
+        }catch (MicroserviceException e){
+            logger.info("Micro Service is down "+e);
+            throw e;
+        }
+        catch (Exception e) {
+            logger.info("Unable to place order for user {} ",user.id(),e);
+            throw new SpringOrderException("Unable to Place Order !! :placeOrder","SomethingWentWrong",HttpStatus.BAD_REQUEST);
         }
     }
 
-    public void sendOrderPlacedEmail(String username, Order order, AddressDto address){
+    public void sendOrderPlacedEmail(Order order, UserProfileDto user){
         OrderPlacedMail orderPlacedMail = OrderPlacedMail.builder()
                 .messageId(UUID.randomUUID().toString())
-                .email(username)
+                .email(user.username())
                 .totalItem(order.getTotalItems())
                 .price(order.getPrice())
                 .totalPrice(100F+150.00F+ order.getPrice())
-                .line1(address.getLine1())
-                .city(address.getCity())
-                .pinCode(address.getPinCode())
+                .line1(user.address().line1())
+                .city(user.address().city())
+                .pinCode(user.address().pinCode())
                 .date(new Date())
                 .build();
         rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE,
                 RabbitMqConfig.ROUTING_KEY,orderPlacedMail);
-        log.info("Mail sent to Rabbit Queue for order placed.");
+        logger.info("Mail sent to Rabbit Queue for order placed.");
     }
 
     @Override
     public List<OrderDto> getAllOrderByUser(String userName, String token) {
-        UserDto user = webClientBuilder.build().get()
+        UserProfileDto user = webClientBuilder.build().get()
                 .uri("http://USER-SERVICE/api/user/by-username/" + userName)
-                .header("Authorization",token)
+                .header("Authorization", token)
                 .retrieve()
-                .onStatus(HttpStatus::isError,clientResponse -> Mono.error(new
-                        MicroserviceException("Unable to communicate userService for getAllOrder")))
-                .bodyToMono(UserDto.class)
+                .onStatus(HttpStatusCode::is5xxServerError,clientResponse -> Mono.error(new
+                        MicroserviceException("Sorry User-Service is down : get All order by user")))
+                .bodyToMono(UserProfileDto.class)
                 .block();
-        if (user == null) throw new SpringOrderException("User is not found of name: - "+userName);
-        List<Order> orders = orderRepository.findByUserIdOrderByIdDesc(user.getId());
+        if (user == null) throw new SpringOrderException("User is not Available. :placeOrder","UerNotFound",HttpStatus.NOT_FOUND);
+        List<Order> orders = orderRepository.findByUserIdOrderByIdDesc(user.id());
         return orders.stream()
-                .map(this::OrderEntityToDto)
+                .map(mapping::OrderEntityToDto)
                 .toList();
     }
 
     @Override
-    public OrderDetails getOrderDetails(Long orderId) {
+    public OrderDetailDto getOrderDetails(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new SpringOrderException("Unable to Find Order of Id : " + orderId +
-                        " getOrderDetails"));
-        OrderAddress orderAddress = order.getOrderAddress();
-        List<OrderItemsDto> orderItems = order.getOrderItems().stream()
-                .map((item) -> OrderItemsDto.builder()
-                        .itemId(item.getItemId())
-                        .productId(item.getProductId())
-                        .productName(item.getProductName())
-                        .quantity(item.getQuantity())
-                        .price(item.getPrice())
-                        .build())
-                .toList();
-        return OrderDetails.builder()
-                .orderId(order.getId())
-                .status(order.getStatus())
-                .price(order.getPrice())
-                .totalItems(order.getTotalItems())
-                .orderItems(orderItems)
-                .line1(orderAddress.getLine1())
-                .city(orderAddress.getCity())
-                .pinCode(orderAddress.getPinCode())
-                .otherDetails(orderAddress.getOtherDetails())
-                .isProductDelivered(order.getIsProductDelivered())
-                .build();
+                        " getOrderDetails","OrderNotFound",HttpStatus.NOT_FOUND));
+        return mapping.orderEntityToDetail(order);
     }
 
     @Override
     public OrderDto getOrderByOrderId(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new SpringOrderException("Unable to Find Order By Id : " + orderId+
-                        " :getOrderByOrderId "));
-        return OrderEntityToDto(order);
+                .orElseThrow(() -> new SpringOrderException("Unable to Find Order of Id : " + orderId +
+                        " getOrderDetails","OrderNotFound",HttpStatus.NOT_FOUND));
+        return mapping.OrderEntityToDto(order);
     }
 
     @Override
     public List<OrderDto> getAllPendingOrder() {
         return orderRepository.findByIsProductDelivered(false)
-                .stream().map(this::OrderEntityToDto)
+                .stream().map(mapping::OrderEntityToDto)
                 .toList();
     }
 
@@ -226,12 +174,17 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void updateOrder(OrderUpdateModel model) {
         Order order = orderRepository.findById(model.getOrderId())
-                .orElseThrow(() -> new SpringOrderException("Unable to Find Order By Id : " + model.getOrderId()+
-                        " :updateOrder"));
+                .orElseThrow(() -> new SpringOrderException("Unable to Find Order of Id : " + model.getOrderId() +
+                        " getOrderDetails","OrderNotFound",HttpStatus.NOT_FOUND));
         order.setIsProductDelivered(model.getIsProductDelivered());
         order.setLastUpdate(Instant.now());
         order.setStatus(model.getStatus());
-        orderRepository.save(order);
+        try{
+            orderRepository.save(order);
+        }catch (Exception e){
+            logger.info("Unable to update order "+e);
+            throw new SpringOrderException("Unable to update product ","SomethingWentWrong",HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
@@ -244,48 +197,16 @@ public class OrderServiceImpl implements OrderService {
                 .totalPrice(100F+150.00F+ 2500F)
                 .line1("(Rajesh Sharma) House no 4 Chaudhary Shikarpur Compound near D.M Residence")
                 .city("Bulandshahr")
-                .pinCode(203001)
+                .pinCode("203001")
                 .date(new Date())
                 .build();
         rabbitTemplate.convertAndSend(RabbitMqConfig.EXCHANGE,
                 RabbitMqConfig.ROUTING_KEY,orderPlacedMail);
-        log.info("Mail sent to Rabbit Queue for order placed.");
+        logger.info("Mail sent to Rabbit Queue for order placed.");
     }
 
-    /* List Mapping Functions. */
 
-    private OrderItems cartItemsToOrderItemsEntity(CartItems cartItems) {
-        if (!cartItems.getIsInStock())throw new SpringOrderException("Sorry Product:- "+cartItems.getProductName()+" " +
-                " is out of stock. Please Try after sometime.");
-        else
-            return OrderItems.builder()
-                    .productId(cartItems.getProductId())
-                    .productName(cartItems.getProductName())
-                    .quantity(cartItems.getNoOfProduct())
-                    .price(cartItems.getPrice())
-                    .build();
-    }
-    private OrderDto OrderEntityToDto(Order order) {
-        PrettyTime p = new PrettyTime();
-        return OrderDto.builder()
-                .id(order.getId())
-                .userId(order.getUserId())
-                .orderDate(p.format(order.getOrderDate()))
-                .lastUpdate(p.format(order.getLastUpdate()))
-                .status(order.getStatus())
-                .totalItems(order.getTotalItems())
-                .price(order.getPrice())
-                .isProductDelivered(order.getIsProductDelivered())
-                .build();
-    }
 
-    private InventoryModel CartProductsToInventoryModel(CartItems cartItem) {
-        return InventoryModel.builder()
-                .productName(cartItem.getProductName())
-                .productId(cartItem.getProductId())
-                .noOfStock(cartItem.getNoOfProduct())
-                .totalSold(cartItem.getNoOfProduct())
-                .build();
-    }
+
 
 }

@@ -2,8 +2,8 @@ package com.suryansh.entity;
 
 import lombok.*;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
+import jakarta.persistence.*;
+
 import java.util.List;
 
 @Entity
@@ -12,28 +12,38 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "product")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotBlank(message = "Product name can't be blank.!!")
-    private String productName;
-    private int ratings;
-    private int noOfRatings;
-    private int totalRating;
-    private String text;
-    private Float price;
-    private int discount;
-    private Float newPrice;
-    private String productImage;
-    private String productCategory;
+    private String title;
+    private String subTitle;
+    private String shortDescription;
+    // Price
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "price_id")
+    private Price price;
 
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, optional = false)
-    private Description description;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brand_id")
-    private Brand brand;
+    private String categoryPath;
+    private String imageUrl;
+    // Additional Image
     @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    @JoinColumn(name = "productId",referencedColumnName = "id")
-    private List<ProductImages>productImages;
+    @JoinColumn(name = "product_id",referencedColumnName = "id")
+    private List<ProductImage>productImages;
+
+    private String color;
+    // Brand
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "brand_id",referencedColumnName = "id")
+    private Brand brand;
+
+    private String itemWebUrl;
+    private String description;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "belong_id",referencedColumnName = "id")
+    private ProductBelongsTo belongsTo;
+
+
 }

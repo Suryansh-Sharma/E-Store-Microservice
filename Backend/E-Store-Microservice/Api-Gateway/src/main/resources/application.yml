@@ -8,14 +8,14 @@ eureka:
       enabled: true
 
 
-logging:
-  level:
-    org:
-      springframework:
-        cloud:
-          gateway: TRACE
-          gateway.route.RouteDefinitionLocator: INFO
-    root: INFO
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        cloud:
+#          gateway: TRACE
+#          gateway.route.RouteDefinitionLocator: INFO
+#    root: INFO
 spring:
   application:
     name: API-GATEWAY
@@ -47,6 +47,7 @@ spring:
                 name: PRODUCT-SERVICE
                 # noinspection SpringBootApplicationYaml
                 fallbackuri: forward:/productServiceFallBack
+
         - id : INVENTORY-SERVICE
           uri: lb://INVENTORY-SERVICE
           predicates:
@@ -58,6 +59,7 @@ spring:
                 name: INVENTORY-SERVICE
                 # noinspection SpringBootApplicationYaml
                 fallbackuri: forward:/inventoryServiceFallBack
+
         - id: ORDER-SERVICE
           uri: lb://ORDER-SERVICE
           predicates:
@@ -83,7 +85,7 @@ spring:
         - id: REVIEW-SERVICE
           uri: lb://REVIEW-SERVICE
           predicates:
-            - Path=/api/review/** , /api/QuestionAndAnswer/**
+            - Path=/api/review/** , /api/question-ans/** ,/api/rating/**
           filters:
             - name: CircuitBreaker
               args:
@@ -97,4 +99,4 @@ resilience4j:
       default:
         limitForPeriod: 5
         limitRefreshPeriod: 2s
-        timeoutDuration: 10
+        timeoutDuration: 5

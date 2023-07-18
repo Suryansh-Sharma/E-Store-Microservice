@@ -1,24 +1,24 @@
 package com.suryansh.userservice.service;
 
-import com.suryansh.userservice.dto.AddressDto;
 import com.suryansh.userservice.dto.LikedProductPaging;
 import com.suryansh.userservice.dto.ProductDto;
-import com.suryansh.userservice.dto.UserDto;
+import com.suryansh.userservice.dto.UserProfileDto;
 import com.suryansh.userservice.entity.LikedProduct;
 import com.suryansh.userservice.entity.User;
 import com.suryansh.userservice.entity.UserAddress;
+import com.suryansh.userservice.entity.UserContact;
 import com.suryansh.userservice.exception.MicroserviceException;
 import com.suryansh.userservice.exception.UserServiceException;
-import com.suryansh.userservice.model.AddressModel;
 import com.suryansh.userservice.model.LikeModel;
+import com.suryansh.userservice.model.UserProfileModel;
 import com.suryansh.userservice.repository.LikedProductRepository;
-import com.suryansh.userservice.repository.UserAddressRepository;
 import com.suryansh.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,43 +31,69 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final LikedProductRepository likedProductRepository;
-    private final UserAddressRepository userAddressRepository;
     private final WebClient.Builder webClientBuilder;
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Override
     @Transactional
-    public void save(String userName) {
+    public String save(String userName) {
         Optional<User> user = userRepository.findByUserName(userName);
-        if (user.isEmpty()) {
-            User newUser = User.builder()
-                    .userName(userName)
-                    .cartTotalPrice((float) 0)
-                    .cartTotalProducts(0)
-                    .totalLikedProduct(0)
-                    .build();
-            userRepository.save(newUser);
-            log.info("User Added to database");
+        if (user.isPresent()) {
+            throw new UserServiceException("Username is already present !!");
         }
-
+        int atIndex = userName.indexOf('@');
+        User newUser = User.builder()
+                .userName(userName)
+                .nickname(userName.substring(0, atIndex))
+                .cartTotalPrice((float) 0)
+                .cartTotalProducts(0)
+                .totalLikedProduct(0)
+                .userAddresses(null)
+                .userContact(null)
+                .build();
+        try {
+            userRepository.save(newUser);
+            logger.info("User {} Added to database ", userName);
+            return "User " + userName + " is successfully added ";
+        } catch (Exception e) {
+            logger.error("Unable to save user " + e);
+            throw new UserServiceException("Unable to save user ");
+        }
     }
 
     @Override
-    public UserDto findUserByName(String userName) {
+    public UserProfileDto findUserByName(String userName) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserServiceException("Unable to find user for findByUsername " + userName));
-        return UserDto.builder()
-                .id(user.getId())
-                .userName(user.getUserName())
-                .cartTotalProducts(user.getCartTotalProducts())
-                .cartTotalPrice(user.getCartTotalPrice())
-                .totalLikedProduct(user.getTotalLikedProduct())
-                .build();
+        UserProfileDto.UserAddress address = new UserProfileDto.UserAddress(
+                user.getUserAddresses().getLine1(),
+                user.getUserAddresses().getCity(),
+                user.getUserAddresses().getPinCode(),
+                user.getUserAddresses().getOtherDetails()
+        );
+
+        UserProfileDto.UserContact contact = new UserProfileDto.UserContact(
+                user.getUserContact().getEmail(),
+                user.getUserContact().getContact(),
+                user.getUserContact().getCountry(),
+                user.getUserContact().getCountryCode()
+        );
+
+        return new UserProfileDto(
+                user.getId(),
+                user.getUserName(),
+                user.getNickname(),
+                user.getCartTotalProducts(),
+                user.getCartTotalPrice(),
+                user.getTotalLikedProduct(),
+                address,
+                contact
+        );
     }
 
     @Override
@@ -75,23 +101,39 @@ public class UserServiceImpl implements UserService {
     public void likeProduct(LikeModel likeModel) {
         User user = userRepository.findByUserName(likeModel.getUserName())
                 .orElseThrow(() -> new UserServiceException("Unable to Find User for Like " + likeModel.getUserName()));
-        likedProductRepository
-                .findByUserIdAndProductId(user.getId(), likeModel.getProductId())
-                .ifPresent(s -> {
-                    throw new UserServiceException("Already Liked this Product");
+        user.getLikedProducts()
+                .forEach(p -> {
+                    if (p.getProductId().equals(likeModel.getProductId()))
+                        throw new UserServiceException("Already liked product");
                 });
+        ProductDto productDto = webClientBuilder.build().get()
+                .uri("http://PRODUCT-SERVICE/api/products/by-id/" + likeModel.getProductId())
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, r ->
+                        Mono.error(
+                                new UserServiceException("Unable to find product of id " + likeModel.getProductId())
+                        )
+                )
+                .onStatus(HttpStatusCode::is5xxServerError, r ->
+                        Mono.error(
+                                new UserServiceException("Sorry Product Service is not responding , please try after some time")
+                        )
+                )
+                .bodyToMono(ProductDto.class)
+                .block();
+        if (productDto == null) throw new UserServiceException("Product is empty ");
         LikedProduct likedProduct = LikedProduct.builder()
-                .userId(user.getId())
-                .productId(likeModel.getProductId())
-                .productName(likeModel.getProductName())
+                .user(user)
+                .productId(productDto.id())
                 .build();
         user.setTotalLikedProduct(user.getTotalLikedProduct() + 1);
+        user.getLikedProducts().add(likedProduct);
         try {
-            likedProductRepository.save(likedProduct);
             userRepository.save(user);
+            logger.info("Product {} is liked by user {} ", productDto.id(), user.getUserName());
         } catch (Exception e) {
-            log.error("Product {} not able to Liked for user {}",likeModel.getProductName(),user.getUserName());
-            throw new UserServiceException("Unable Add Product in Liked Table");
+            logger.error("Product {} not able to Liked for user {}", likeModel.getProductName(), user.getUserName(), e);
+            throw new UserServiceException("Exception : " + e.getMessage());
         }
     }
 
@@ -107,69 +149,55 @@ public class UserServiceImpl implements UserService {
         try {
             likedProductRepository.delete(likedProduct);
         } catch (Exception e) {
-            log.error("Unable to UnLike product {} for user {} ",likeModel.getProductName(),user.getUserName());
+            logger.error("Unable to UnLike product {} for user {} ", likeModel.getProductName(), user.getUserName());
             throw new UserServiceException("Unable to Delete Product From Liked Product");
         }
     }
 
     @Override
-    public void checkProductIsLikedOrNot(String userName, Long productId) {
+    public boolean checkProductIsLikedOrNot(String userName, Long productId) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new UserServiceException("Unable to Find User for Like " + userName));
-        try {
-            LikedProduct likedProduct = likedProductRepository
-                    .findByUserIdAndProductId(user.getId(), productId)
-                    .orElseThrow(() -> new UserServiceException("Unable to find Liked product in UnLike Product "));
-            if (likedProduct == null) throw new UserServiceException("Product is not present");
-        } catch (Exception e) {
-            throw new UserServiceException("Product is not Liked by user");
+        boolean res = false;
+        for (LikedProduct p : user.getLikedProducts()) {
+            if (p.getProductId().equals(productId)) {
+                res = true;
+                break;
+            }
         }
+        return res;
     }
 
     @Override
     @Transactional
-    public void addUserAddress(AddressModel addressModel) {
-        User user = userRepository.findByUserName(addressModel.getUserName())
-                .orElseThrow(() -> new UserServiceException("Unable to Find User for Address " +
-                        addressModel.getUserName()));
-        UserAddress userAddress = UserAddress.builder()
-                .id(user.getId())
-                .line1(addressModel.getLine1())
-                .city(addressModel.getCity())
-                .pinCode(addressModel.getPinCode())
-                .otherDetails(addressModel.getOtherDetails())
+    public UserProfileModel updateUserProfile(UserProfileModel model) {
+        var user = userRepository.findByUserName(model.getUserName())
+                .orElseThrow(() -> new UserServiceException("Unable to find user " + model.getUserName()));
+        var userAddress = UserAddress.builder()
+                .line1(model.getUserAddressModel().getLine1())
+                .city(model.getUserAddressModel().getCity())
+                .pinCode(model.getUserAddressModel().getPinCode())
+                .otherDetails(model.getUserAddressModel().getOtherDetails())
                 .build();
+        var userContact = UserContact.builder()
+                .email(model.getUserContactModel().getEmail())
+                .contact(model.getUserContactModel().getContact())
+                .country(model.getUserContactModel().getCountry())
+                .countryCode(model.getUserContactModel().getCountryCode())
+                .user(user)
+                .build();
+        user.setNickname(model.getNickname());
+        user.setUserAddresses(userAddress);
+        user.setUserContact(userContact);
         try {
-            userAddressRepository.save(userAddress);
+            userRepository.save(user);
+            logger.info("User {} profile is updated ", user.getUserName());
+            return model;
         } catch (Exception e) {
-            throw new UserServiceException("Unable to save Address for User " + user.getUserName());
+            logger.error("User {} profile is not updated ", user.getUserName());
+            throw new UserServiceException("Unable to update User Profile ");
         }
     }
-
-    @Override
-    @Transactional
-    public void updateUserAddress(AddressModel addressModel) {
-        UserAddress address = userAddressRepository.findById(addressModel.getId())
-                .orElseThrow(() -> new UserServiceException("Unable to find Address for User"));
-        address.setLine1(addressModel.getLine1());
-        address.setCity(addressModel.getCity());
-        address.setPinCode(addressModel.getPinCode());
-        address.setOtherDetails(addressModel.getOtherDetails());
-        try {
-            userAddressRepository.save(address);
-        } catch (Exception e) {
-            throw new UserServiceException("Unable to Update User Address");
-        }
-    }
-
-    @Override
-    public AddressDto getUserAddress(String userName) {
-        User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new UserServiceException("Unable to Find User for Address " +
-                        userName));
-        return AddressEntityToDto(user.getUserAddresses());
-    }
-
 
     @Override
     @Async
@@ -181,9 +209,9 @@ public class UserServiceImpl implements UserService {
         for (LikedProduct likedProduct : page.getContent()){
             ProductDto product= webClientBuilder.build()
                     .get()
-                    .uri("http://PRODUCT-SERVICE/api/products/by-id/"+likedProduct.getProductId())
+                    .uri("http://PRODUCT-SERVICE/api/products/by-id/" + likedProduct.getProductId())
                     .retrieve()
-                    .onStatus(HttpStatus::isError,
+                    .onStatus(HttpStatusCode::isError,
                             clientResponse -> Mono.error(
                                     new MicroserviceException("Unable to communicate product service for getAllLikedProduct")
                             ))
@@ -191,11 +219,9 @@ public class UserServiceImpl implements UserService {
                     .block();
             products.add(product);
         }
-        return CompletableFuture.completedFuture(LikedProductPaging.builder()
-                .products(products)
-                .currentPage(pageable.getPageNumber() + 1)
-                .totalPages(page.getTotalPages())
-                .build());
+        return CompletableFuture.completedFuture(
+                new LikedProductPaging(products, pageable.getPageNumber() + 1, page.getTotalPages())
+        );
     }
 
     @Override
@@ -203,26 +229,20 @@ public class UserServiceImpl implements UserService {
     public void isUserPresent(String userName) {
         Optional<User>user=userRepository.findByUserName(userName);
         if (user.isPresent()){
-            log.info("User {} is Present in Database: ",userName);
+            logger.info("User {} is Present in Database: ", userName);
         }else{
             User newUser = User.builder()
                     .userName(userName)
                     .cartTotalPrice((float) 0)
                     .cartTotalProducts(0)
                     .totalLikedProduct(0)
+                    .userAddresses(null)
+                    .userContact(null)
                     .build();
             userRepository.save(newUser);
-            log.info("User {} is Added To Database : ",userName);
+            logger.info("User {} is Added To Database : ", userName);
         }
 
     }
-    private AddressDto AddressEntityToDto(UserAddress userAddress) {
-        return AddressDto.builder()
-                .id(userAddress.getId())
-                .line1(userAddress.getLine1())
-                .city(userAddress.getCity())
-                .pinCode(userAddress.getPinCode())
-                .otherDetails(userAddress.getOtherDetails())
-                .build();
-    }
+
 }

@@ -22,17 +22,19 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((requests) -> {
             requests
-                    .antMatchers("/api/inventory/addToInventory",
-                            "/api/inventory/updateProduct",
-                            "/api/inventory/updateInventoryProducts")
+                    .requestMatchers(
+                            "/api/inventory/add-seller/**",
+                            "/api/products/api/image/upload"
+                    )
                     .authenticated()
                     .anyRequest()
                     .permitAll();
 
         });
-        http.authorizeHttpRequests()
+        http.cors()
                 .and()
-                .cors(Customizer.withDefaults())
+                .csrf()
+                .disable()
                 .oauth2ResourceServer()
                 .jwt();
         return http.build();

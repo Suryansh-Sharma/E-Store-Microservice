@@ -22,19 +22,23 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((requests) -> {
             requests
-                    .antMatchers("/api/review/addReview",
-                            "/api/review/updateReview",
-                            "/api/review/deleteReview/**",
-                            "/api/review/addNewQuestion",
-                            "/api/review/addAnswer")
+                    .requestMatchers("/api/review/add",
+                            "/api/review/update/**",
+                            "/api/review/delete/**",
+
+                            "/api/question-ans/add-new-question",
+                            "/api/question-ans/add-answer",
+                            "/api/question-ans/update-question/**"
+                    )
                     .authenticated()
                     .anyRequest()
                     .permitAll();
 
         });
-        http.authorizeHttpRequests()
+        http.cors()
                 .and()
-                .cors(Customizer.withDefaults())
+                .csrf()
+                .disable()
                 .oauth2ResourceServer()
                 .jwt();
         return http.build();

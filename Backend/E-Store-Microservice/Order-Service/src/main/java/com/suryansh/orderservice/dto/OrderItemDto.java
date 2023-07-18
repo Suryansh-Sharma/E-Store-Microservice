@@ -1,6 +1,6 @@
 package com.suryansh.orderservice.dto;
 
-public record OrderItemsDto (
+public record OrderItemDto(
     Long itemId,
      Long orderId,
      Long productId,

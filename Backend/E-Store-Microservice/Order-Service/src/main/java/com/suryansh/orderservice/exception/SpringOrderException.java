@@ -1,11 +1,23 @@
 package com.suryansh.orderservice.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class SpringOrderException extends RuntimeException {
-    public SpringOrderException(String exMessage) {
+    private final HttpStatus httpStatus;
+    private final String errorCode;
+    public SpringOrderException(String exMessage,String errorCode,HttpStatus status) {
         super(exMessage);
+        this.errorCode=errorCode;
+        this.httpStatus=status;
     }
+
+    public HttpStatus getHttpStatus() {
+        return httpStatus;
+    }
+
+    public String getErrorCode() {
+        return errorCode;
+    }
+
 }
 

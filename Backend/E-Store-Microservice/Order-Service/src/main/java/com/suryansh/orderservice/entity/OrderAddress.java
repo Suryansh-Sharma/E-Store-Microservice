@@ -2,7 +2,7 @@ package com.suryansh.orderservice.entity;
 
 import lombok.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "OrderAddressTbl")
@@ -18,6 +18,6 @@ public class OrderAddress {
     private Long userId;
     private String line1;
     private String city;
-    private int pinCode;
+    private String pinCode;
     private String otherDetails;
 }

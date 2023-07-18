@@ -8,13 +8,13 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ReviewService {
-    void addReview(ReviewModel reviewModel, String token);
+    void addReview(ReviewModel reviewModel);
 
     PagingReviewDto getAllReviewForProduct(Long productId, Pageable pageable);
 
     List<ReviewDto> getAllReviewForUser(String userName);
 
-    void updateReview(ReviewModel reviewModel);
+    void updateReview(ReviewModel reviewModel, String id);
 
     void deleteReview(String id);
 }

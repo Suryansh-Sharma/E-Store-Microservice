@@ -6,10 +6,13 @@ import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.entity.Brand;
 import com.suryansh.entity.Product;
 import com.suryansh.exception.SpringProductException;
+import com.suryansh.mapper.ProductMapper;
 import com.suryansh.model.BrandModel;
 import com.suryansh.repository.BrandRepository;
 import com.suryansh.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,8 @@ public class BrandServiceImpl implements BrandService {
 
     private final BrandRepository brandRepository;
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
+    private static final Logger logger = LoggerFactory.getLogger(BrandServiceImpl.class);
 
     @Override
     @Transactional
@@ -37,7 +42,9 @@ public class BrandServiceImpl implements BrandService {
                     .noOfProducts(0)
                     .build();
             brandRepository.save(brand);
+            logger.info("Successfully added new brand {} ",brand.getName());
         } catch (Exception e) {
+            logger.error("Unable to save brand {} ",brandModel.getName()+e);
             throw new SpringProductException("Unable to save Brand !! From BrandServiceImpl save");
         }
     }
@@ -50,7 +57,7 @@ public class BrandServiceImpl implements BrandService {
         Page<Product>res = productRepository.findByBrand(brand,pageable);
         List<ProductDto> products = res.getContent()
                 .stream()
-                .map(this::productEntityToDto)
+                .map(productMapper::convertProductEntityToDto)
                 .toList();
         return ProductPagingDto.builder()
                 .products(products)
@@ -63,28 +70,13 @@ public class BrandServiceImpl implements BrandService {
     @Override
     public List<BrandDto> findByNameLike(String name) {
         return brandRepository.findBrandByName(name).stream()
-                .map((brand ->BrandDto.builder()
-                        .id(brand.getBrandId())
+                .map(brand ->BrandDto.builder()
+                        .id(brand.getId())
                         .name(brand.getName())
                         .noOfProducts(brand.getNoOfProducts())
-                        .build()))
+                        .build())
                 .toList();
 
     }
 
-    private ProductDto productEntityToDto(Product product) {
-        return ProductDto.builder()
-                .id(product.getId())
-                .productName(product.getProductName())
-                .ratings(product.getRatings())
-                .noOfRatings(product.getNoOfRatings())
-                .text(product.getText())
-                .price(product.getPrice())
-                .discount(product.getDiscount())
-                .newPrice(product.getNewPrice())
-                .productImage(product.getProductImage())
-                .imageUrl("http://localhost:8080/api/image/download/"+product.getProductImage())
-                .productCategory(product.getProductCategory())
-                .build();
-    }
 }

@@ -1,9 +1,7 @@
 package com.suryansh.userservice.entity;
 
+import jakarta.persistence.*;
 import lombok.*;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
 
 @Entity
 @AllArgsConstructor
@@ -13,10 +11,13 @@ import javax.persistence.Id;
 @Setter
 public class UserAddress {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String line1;
     private String city;
-    private int pinCode;
+    private String pinCode;
     private String otherDetails;
 
+    @OneToOne
+    private User user;
 }

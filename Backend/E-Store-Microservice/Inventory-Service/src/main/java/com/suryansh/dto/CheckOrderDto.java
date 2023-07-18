@@ -1,19 +1,11 @@
 package com.suryansh.dto;
 
-import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Data
-public class CheckOrderResponse {
-    private boolean isSomeThingOutOfStock;
-    private int totalProducts;
-    private ArrayList<ProductAvailability>productAvailabilities;
-    @Data
-    public static class ProductAvailability{
-        private Long productId;
-        private String title;
-        private int availableAmount;
+public record CheckOrderDto(boolean isSomeThingOutOfStock, int totalProducts, List<Product> products) {
+
+    public record Product(Long productId, String title,boolean isInStock, int availableAmount) {
     }
 }
+

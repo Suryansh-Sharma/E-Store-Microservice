@@ -1,25 +1,22 @@
 server:
-  port: '0'
+  port: '8084'
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 spring:
-  datasource:
-    password: Suryansh@1904
-    url: jdbc:postgresql://localhost:5432/Inventory-Service
-    username: postgres
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/inventoryService
+      database: inventoryService
+
   application:
     name: INVENTORY-SERVICE
-
+springdoc:
+  swagger-ui:
+    path: "/inventory-api-docs.html"
 eureka:
   client:
-    registerWithEureka: true
-    fetchRegistry: true
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
-  instance:
-    instanceId: ${spring.application.name}
-    hostname: localhost

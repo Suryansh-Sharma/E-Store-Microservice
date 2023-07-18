@@ -1,14 +1,13 @@
-import React, { useState } from "react";
-import "./AllProduct.css";
-import heart from "../../icons/heart.png";
-import cart from "../../icons/cart2.png";
-import zoom_in from "../../icons/zoom_in.png";
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
-import axios from "axios";
 import { useAuth0 } from "@auth0/auth0-react";
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import cart from "../../icons/cart2.png";
+import heart from "../../icons/heart.png";
+import zoom_in from "../../icons/zoom_in.png";
+import "./AllProduct.css";
 function AllProduct(props) {
   const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -201,7 +200,7 @@ function AllProduct(props) {
         <nav aria-label="Page navigation example">
           <ul className="pagination">
             <li className="page-item">
-              <a
+              <span
                 className="page-link"
                 onClick={() => {
                   if (currentPage > 0) {
@@ -211,7 +210,7 @@ function AllProduct(props) {
                 }}
               >
                 Previous
-              </a>
+              </span>
             </li>
             <li className="page-item">
               <a className="page-link">{data.currentPage}</a>

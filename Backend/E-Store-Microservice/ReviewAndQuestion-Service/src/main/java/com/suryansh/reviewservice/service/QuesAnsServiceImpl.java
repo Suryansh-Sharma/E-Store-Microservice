@@ -8,10 +8,11 @@ import com.suryansh.reviewservice.entity.Question;
 import com.suryansh.reviewservice.exception.SpringReviewException;
 import com.suryansh.reviewservice.model.AnswerModel;
 import com.suryansh.reviewservice.model.QuestionModel;
-import com.suryansh.reviewservice.repository.AnswerRepository;
 import com.suryansh.reviewservice.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import org.ocpsoft.prettytime.PrettyTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,13 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class QuesAnsServiceImpl implements QuesAnsService{
     private final QuestionRepository questionRepository;
-    private final AnswerRepository answerRepository;
+    private static final Logger logger = LoggerFactory.getLogger(QuesAnsServiceImpl.class);
     @Override
     @Transactional
     public String addQuestion(QuestionModel questionModel) {
@@ -36,12 +36,15 @@ public class QuesAnsServiceImpl implements QuesAnsService{
                 .date(Instant.now())
                 .productId(questionModel.getProductId())
                 .noOfAnswers(0)
+                .answers(null)
                 .build();
         try {
             questionRepository.save(question);
+            logger.info("New Question is added by user {} for product {} ",question.getUsername(),question.getProductId());
             return "Question Added Successfully for User : "+questionModel.getUsername()+
                     " for product : "+questionModel.getProductId();
         }catch (Exception e){
+            logger.error("Unable to add new question "+e);
             return "Sorry Unable to Add Question for User : "+questionModel.getUsername()+
                     " for product : "+questionModel.getProductId();
         }
@@ -53,20 +56,15 @@ public class QuesAnsServiceImpl implements QuesAnsService{
         Question question = questionRepository.findById(answerModel.getQuestionId())
                 .orElseThrow(()->new SpringReviewException("Unable to find question for id "
                         +answerModel.getQuestionId()));
-        Answer answer = Answer.builder()
-                .questionId(answerModel.getQuestionId())
-                .username(answerModel.getUsername())
-                .nickname(answerModel.getNickname())
-                .text(answerModel.getText())
-                .date(Instant.now())
-                .build();
+        Answer answer = new Answer(answerModel.getText(),answerModel.getUsername(),answerModel.getNickname(),Instant.now());
         question.setNoOfAnswers(question.getNoOfAnswers()+1);
+        question.getAnswers().add(answer);
         try {
-            answerRepository.save(answer);
             questionRepository.save(question);
             return "Answer Added Successfully for User : "+answerModel.getUsername()+
                     " for Question : "+answerModel.getQuestionId();
         }catch (Exception e){
+            logger.error("Unable to add new Answer for question {} ",question.getId()+e);
             return "Unable to Add Answer for User : "+answerModel.getUsername()+
                     " for Question : "+answerModel.getQuestionId();
         }
@@ -82,33 +80,34 @@ public class QuesAnsServiceImpl implements QuesAnsService{
                 .questions(questions)
                 .totalPage(questionPage.getTotalPages())
                 .currentPage(pageable.getPageNumber()+1)
+                .totalData(questionPage.getTotalElements())
                 .build();
     }
 
     @Override
-    public List<AnswerDto> getAnswerByQuestionId(String id) {
-        Optional<Question> question = questionRepository.findById(id);
-        if (question.isEmpty())return null;
-        if (question.get().getNoOfAnswers()==0)return null;
-        return answerRepository.findByQuestionId(id).stream()
-                .map(this::answerEntityToDto)
-                .toList();
+    @Transactional
+    public String updateQuestion(QuestionModel model, String quesId) {
+        Question question = questionRepository.findById(quesId)
+                .orElseThrow(()->new SpringReviewException("Unable to find question of id "+quesId));
+        question.setText(model.getText());
+        question.setDate(Instant.now());
+        try {
+            questionRepository.save(question);
+            logger.info("Question {} is updated by user {} ",question.getText(),question.getUsername());
+            return "Question is successfully updated by user ";
+        }catch (Exception e){
+            logger.error("Unable to update question {} by user {} ",question.getText(),question.getUsername()+e);
+            throw new SpringReviewException("Unable to update question ");
+        }
     }
 
-    private AnswerDto answerEntityToDto(Answer answer) {
-        PrettyTime prettyTime = new PrettyTime();
-        return AnswerDto.builder()
-                .id(answer.getId())
-                .questionId(answer.getQuestionId())
-                .text(answer.getText())
-                .username(answer.getUsername())
-                .nickname(answer.getNickname())
-                .date(prettyTime.format(answer.getDate()))
-                .build();
-    }
 
     private QuestionDto QuestionEntityToDto(Question question) {
         PrettyTime prettyTime = new PrettyTime();
+        List<AnswerDto>answers=question.getAnswers()
+                .stream()
+                .map(a->new AnswerDto(a.getText(),a.getUsername(),a.getNickname(),a.getDate()))
+                .toList();
         return QuestionDto.builder()
                 .id(question.getId())
                 .productId(question.getProductId())
@@ -117,6 +116,7 @@ public class QuesAnsServiceImpl implements QuesAnsService{
                 .nickname(question.getNickname())
                 .noOfAnswers(question.getNoOfAnswers())
                 .date(prettyTime.format(question.getDate()))
+                .answers(answers)
                 .build();
     }
 }

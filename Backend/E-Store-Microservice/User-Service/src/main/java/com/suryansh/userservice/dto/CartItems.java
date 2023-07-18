@@ -10,7 +10,6 @@ import lombok.Setter;
 public class CartItems {
     private Long id;
     private Boolean isInStock ;
-    private int noOfStock;
     private Long productId;
     private String productName;
     private String productImage;

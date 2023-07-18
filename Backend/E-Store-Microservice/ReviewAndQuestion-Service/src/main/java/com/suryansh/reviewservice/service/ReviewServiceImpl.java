@@ -3,7 +3,6 @@ package com.suryansh.reviewservice.service;
 import com.suryansh.reviewservice.dto.PagingReviewDto;
 import com.suryansh.reviewservice.dto.ReviewDto;
 import com.suryansh.reviewservice.entity.Review;
-import com.suryansh.reviewservice.exception.MicroserviceException;
 import com.suryansh.reviewservice.exception.SpringReviewException;
 import com.suryansh.reviewservice.model.ReviewModel;
 import com.suryansh.reviewservice.repository.ReviewRepository;
@@ -12,11 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.ocpsoft.prettytime.PrettyTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,10 +22,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService{
     private final ReviewRepository reviewRepository;
-    private final WebClient.Builder webClientBuilder;
+    private final RatingService ratingService;
     @Override
     @Transactional
-    public void addReview(ReviewModel reviewModel, String token) {
+    public void addReview(ReviewModel reviewModel) {
         Review review = Review.builder()
                 .productId(reviewModel.getProductId())
                 .noOfStars(reviewModel.getNoOfStars())
@@ -37,21 +33,13 @@ public class ReviewServiceImpl implements ReviewService{
                 .dateOfReview(Instant.now())
                 .userName(reviewModel.getUserName())
                 .build();
-        // Calling Product Service for updating rating inside product.
-        String res = webClientBuilder.build().post()
-                .uri("http://PRODUCT-SERVICE/api/products/addRatingForProduct/"
-                        + reviewModel.getProductId() + "/" + reviewModel.getNoOfStars())
-                .retrieve()
-                .onStatus(HttpStatus::isError, clientResponse -> Mono.error(
-                        new MicroserviceException("Unable to Communicate ProductService for Adding Rating " +
-                                ":addReview")))
-                .bodyToMono(String.class)
-                .block();
         try {
-            log.info("Product Service Response : " + res);
+            // Add ratings for product.
+            ratingService.addNewRatingForProduct(review.getProductId(),reviewModel.getUserName(),reviewModel.getNoOfStars());
             reviewRepository.save(review);
             log.info("Added review for user :  {} of productId : {}",reviewModel.getUserName(),reviewModel.getProductId());
         }catch (Exception e){
+            log.error("Unable to add review for product of id {} by user {} ",reviewModel.getProductId(),reviewModel.getUserName());
             throw new SpringReviewException("Unable to save review ");
         }
     }
@@ -75,21 +63,35 @@ public class ReviewServiceImpl implements ReviewService{
                 .toList();
     }
     @Override
-    public void updateReview(ReviewModel reviewModel) {
-        Review review = reviewRepository.findById(reviewModel.getId())
+    public void updateReview(ReviewModel reviewModel, String id) {
+        Review review = reviewRepository.findById(id)
                         .orElseThrow(()->new SpringReviewException("No review found for update"));
-        System.out.println(review);
+        ratingService.updateRatingForProduct(reviewModel.getProductId(),reviewModel.getUserName()
+                ,reviewModel.getNoOfStars(),review.getNoOfStars());
         review.setText(reviewModel.getText());
         review.setNoOfStars(reviewModel.getNoOfStars());
         review.setDateOfReview(Instant.now());
-        reviewRepository.save(review);
-        log.info("Review Updated Successfully for user {} ",reviewModel.getUserName());
+        try {
+            reviewRepository.save(review);
+            log.info("Review Updated Successfully for user {} ",reviewModel.getUserName());
+        }catch (Exception e){
+            log.error("Review can't be updated due to exception "+e);
+            throw new SpringReviewException("Unable to update review ");
+        }
     }
     @Override
     @Transactional
     public void deleteReview(String id) {
-        reviewRepository.deleteById(id);
-        log.info("Review of id {} deleted successfully",id);
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(()->new SpringReviewException("No review found for delete"));
+        try {
+            ratingService.deleteRatingForProduct(review.getProductId(),review.getUserName(),review.getNoOfStars());
+            reviewRepository.deleteById(id);
+            log.info("Review of id {} deleted successfully",id);
+        }catch (Exception e){
+            log.error("Unable to update review "+e);
+            throw new SpringReviewException("Unable to delete review ");
+        }
     }
     private ReviewDto reviewEntityToDto(Review review){
         PrettyTime prettyTime = new PrettyTime();

@@ -1,209 +1,179 @@
 package com.suryansh.service;
 
-import com.suryansh.dto.*;
+import com.suryansh.dto.InventoryResponse;
+import com.suryansh.dto.ProductDto;
+import com.suryansh.dto.ProductFullDto;
+import com.suryansh.dto.ProductRatingDto;
 import com.suryansh.entity.Brand;
-import com.suryansh.entity.Description;
 import com.suryansh.entity.Product;
-import com.suryansh.entity.ProductImages;
+import com.suryansh.entity.ProductBelongsTo;
 import com.suryansh.exception.MicroserviceException;
+import com.suryansh.exception.SpringInventoryException;
 import com.suryansh.exception.SpringProductException;
+import com.suryansh.mapper.ProductMapper;
+import com.suryansh.model.InventoryModel;
 import com.suryansh.model.ProductModel;
 import com.suryansh.repository.BrandRepository;
+import com.suryansh.repository.ProductBelongsToRepository;
 import com.suryansh.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
+    private static final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
     private final BrandRepository brandRepository;
     private final ProductRepository productRepository;
     private final WebClient.Builder webClientBuilder;
     private final ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory;
+    private final ProductBelongsToRepository belongsToRepository;
+    private final ProductMapper productMapper;
 
     @Override
     @Transactional
     @Async
     public CompletableFuture<String> save(ProductModel productModel, String token) {
         Optional<Product> productFromDb = productRepository
-                .findByProductName(productModel.getProductName());
+                .findByTitle(productModel.getTitle());
         if (productFromDb.isPresent())
             return CompletableFuture.failedFuture(new
                     SpringProductException("Product is already present !!"));
-        Optional<Brand> brandOptional = brandRepository.findByName(productModel.getBrandName());
-        if (brandOptional.isEmpty()){
-            return CompletableFuture.failedFuture(new
-                    SpringProductException("Unable to save product because Brand not found."));
-        }
-        Brand brand = brandOptional.get();
-                Description description = Description.builder()
-                .data(productModel.getDescription())
-                .build();
-        Product product = Product.builder()
-                .productName(productModel.getProductName())
-                .ratings(0)
-                .noOfRatings(0)
-                .totalRating(0)
-                .text(productModel.getText())
-                .price(productModel.getPrice())
-                .discount(productModel.getDiscount())
-                .newPrice(productModel.getNewPrice())
-                .productImage(null)
-                .productCategory(productModel.getProductCategory())
-                .description(description)
-                .brand(brand)
-                .build();
-        description.setProduct(product);
+        Brand brand = brandRepository.findByName(productModel.getBrand().getName())
+                .orElseThrow(() -> new CompletionException(new SpringProductException("Unable to save product because Brand not found.")));
+        ProductBelongsTo belongsTo ;
+        if (productModel.getProductBelongsTo().isHaveParent()) {
+            belongsTo = belongsToRepository.findById(productModel.getProductBelongsTo().getId())
+                    .orElseThrow(() -> new CompletionException(new SpringProductException("Unable to save product because Parent not found.")));
+        }else belongsTo=null;
+        Product product = productMapper.ProductModelToEntity(productModel, brand, belongsTo);
         try {
-            productRepository.save(product);
-            brand.setNoOfProducts(brand.getNoOfProducts() + 1);
-            brandRepository.save(brand);
-            log.info("Brand  Saved");
-            Product p = productRepository.findByProductName(productModel.getProductName())
-                    .orElseThrow();
+            product = productRepository.save(product);
+            InventoryModel inventoryModel = productModel.getInventoryModel();
+            InventoryModel.InventoryProductModel productInventoryModel = new InventoryModel.InventoryProductModel();
+            productInventoryModel.setProductId(product.getId());
+            productInventoryModel.setTitle(product.getTitle());
+            inventoryModel.setProduct(productInventoryModel);
+
             // Calling Inventory Microservice for Adding noOfStock of product.
             webClientBuilder.build().post()
-                    .uri("http://INVENTORY-SERVICE/api/inventory/addToInventory/"
-                            + productModel.getProductName() + "/" + p.getId() + "/" + productModel.getNoOfStock())
-                    .header("Authorization", token)
+                    .uri("https://INVENTORY-SERVICE/api/inventory/single-product")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(BodyInserters.fromValue(inventoryModel))
                     .retrieve()
-                    .onStatus(HttpStatus::isError,
+                    .onStatus(HttpStatusCode::is5xxServerError,
                             clientResponse -> Mono.error(
-                                    new MicroserviceException("Unable to save product because service is down")))
+                                    new MicroserviceException("Unable to save product because Inventory service is down ," +
+                                            " Please try after some time")))
+                    .onStatus(HttpStatusCode::is4xxClientError, clientRes ->
+                         Mono.error(new SpringInventoryException("Seller is not present or product already present !!"
+                                ,clientRes.toString(), (HttpStatus) clientRes.statusCode()))
+                    )
                     .bodyToMono(String.class)
                     .block();
-            log.info("Product Saved to Product Microservice and Inventory Service");
-            return CompletableFuture.completedFuture("Product placed successfully");
-        } catch (Exception e) {
+
+            // Add new Product in Rating Service.
+            webClientBuilder.build().post()
+                    .uri("https://REVIEW-SERVICE/api/rating/new-product/"+product.getId()+"/"+product.getTitle())
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is5xxServerError,
+                            clientResponse -> Mono.error(
+                                    new MicroserviceException("Unable to save product because Review service is down ," +
+                                            " Please try after some time")))
+                    .onStatus(HttpStatusCode::is4xxClientError, clientRes ->
+                            Mono.error(new SpringInventoryException("Unable to save product inside Review Service !!"
+                                    ,clientRes.toString(), (HttpStatus) clientRes.statusCode()))
+                    )
+                    .bodyToMono(Void.class)
+                    .block();
+
+
+            // Send Product details to Elastic search through kafka.
+
+            logger.info("Product Saved to Product Microservice,Inventory Service,Review Service");
+            return CompletableFuture.completedFuture("Product added successfully");
+        } catch (MicroserviceException m){
+            throw new MicroserviceException(m.getMessage());
+        } catch (SpringInventoryException e){
+            throw new SpringInventoryException(e.getMessage(),e.getType(),e.getStatus());
+        }catch (Exception e) {
+            logger.error("Unable to save product !! " + e);
             throw new SpringProductException("Unable to save Product : ProductServiceImpl.save Catch block");
         }
     }
 
     @Override
+    @Async
     @Transactional
-    public ProductDto fullViewByName(String name) {
-        Product product = productRepository.findByProductName(name)
-                .orElseThrow(() ->
-                        new SpringProductException("Unable to find Product of name:- " +
-                                name + ":ProductService.fullViewByName"));
-        return getProductFullDetails(product);
+    public CompletableFuture<ProductFullDto> fullViewByName(String name) {
+        Optional<Product> product = productRepository.findByTitle(name);
+        if (product.isEmpty()) {
+            return CompletableFuture.failedFuture(new SpringProductException("Unable to find product " + name));
+        }
+        return getProductFullDetails(product.get());
     }
+
     @Override
+    @Async
     @Transactional
-    public ProductDto fullViewById(Long id) {
-        log.info("Id"+id);
-        Product product = productRepository.findById(id)
-                .orElseThrow(() ->
-                        new SpringProductException("Unable to find Product of id :- " +
-                                id + ":ProductService.fullViewById"));
-        return getProductFullDetails(product);
+    public CompletableFuture<ProductFullDto> fullViewById(Long id) {
+        Optional<Product> product = productRepository.findById(id);
+        if (product.isEmpty())
+            return CompletableFuture.failedFuture(new SpringProductException("Unable to find product of id " + id));
+        return getProductFullDetails(product.get());
     }
+
     @Transactional
-    public ProductDto getProductFullDetails(Product product){
-        Brand brand = product.getBrand();
-        BrandDto brandDto = BrandDto.builder()
-                .id(brand.getBrandId())
-                .name(brand.getName())
-                .noOfProducts(brand.getNoOfProducts())
-                .build();
-        List<ProductImageDto> productImages = product.getProductImages().stream()
-                .map(this::ImageEntityToDto)
-                .toList();
+    public CompletableFuture<ProductFullDto> getProductFullDetails(Product product) {
+
         // Calling Inventory Microservice to get update about stock.
         InventoryResponse productStock = webClientBuilder.build().get()
-                .uri("http://INVENTORY-SERVICE/api/inventory/get-product-byId/" + product.getId())
+                .uri("https://INVENTORY-SERVICE/api/inventory/by-product-id/" + product.getId())
                 .retrieve()
                 .bodyToMono(InventoryResponse.class)
-                .transform(it->{
+                .transform(it -> {
                     ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create("PRODUCT-SERVICE");
-                    return rcb.run(it,throwable -> Mono.just(InventoryResponse.builder().build()));
+                    return rcb.run(it, throwable -> Mono.just(new InventoryResponse()));
                 })
                 .block();
-        assert productStock != null;
-        Boolean isInStock = productStock.getNoOfStock() > 0;
-        String name = product.getProductName().substring(0,10);
-        List<ProductDto> similarProducts =
-                productRepository
-                .getSimilarProducts(name)
-                .stream()
-                .map(this::productEntityToDto)
-                .toList();
-        Description description = product.getDescription();
-        DescriptionDto descriptionDto = DescriptionDto.builder()
-                .data(description.getData())
-                .build();
-        return ProductDto.builder()
-                .id(product.getId())
-                .productName(product.getProductName())
-                .ratings(product.getRatings())
-                .noOfRatings(product.getNoOfRatings())
-                .text(product.getText())
-                .price(product.getPrice())
-                .discount(product.getDiscount())
-                .newPrice(product.getNewPrice())
-                .productImage(product.getProductImage())
-                .imageUrl("http://localhost:8080/api/image/download/"+product.getProductImage())
-                .productCategory(product.getProductCategory())
-                .description(descriptionDto)
-                .brand(brandDto)
-                .productImages(productImages)
-                .productIsInStock(isInStock)
-                .inventoryData(productStock)
-                .similarProducts(similarProducts)
-                .build();
+
+        // Calling Review Service to get review for product.
+        ProductRatingDto productRatingDto = webClientBuilder.build().get()
+                .uri("https://REVIEW-SERVICE/api/rating/product-id/"+product.getId())
+                .retrieve()
+                .bodyToMono(ProductRatingDto.class)
+                .transform(it->{
+                    ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create("REVIEW-SERVICE");
+                    return rcb.run(it, throwable -> Mono.just(new ProductRatingDto(null,null
+                            ,null,0,null)));
+                })
+                .block();
+        ProductFullDto productFullDto = productMapper
+                .convertProductFullEntityToDto(product,productStock,productRatingDto);
+        return CompletableFuture.completedFuture(productFullDto);
     }
 
     @Override
-    @Transactional
     public ProductDto getProductByName(String name) {
-        Product product = productRepository.findByProductName(name)
+        Product product = productRepository.findByTitle(name)
                 .orElseThrow(() -> new SpringProductException("Unable to find Product :ProductService.findByName"));
-
-        return ProductDto.builder()
-                .id(product.getId())
-                .productName(product.getProductName())
-                .ratings(product.getRatings())
-                .noOfRatings(product.getNoOfRatings())
-                .text(product.getText())
-                .price(product.getPrice())
-                .discount(product.getDiscount())
-                .newPrice(product.getNewPrice())
-                .productImage(product.getProductImage())
-                .imageUrl("http://localhost:8080/api/image/download/"+product.getProductImage())
-                .productCategory(product.getProductCategory())
-                .build();
-    }
-
-    @Override
-    @Transactional
-    public ProductPagingDto getProductByCategory(String category, Pageable pageable) {
-        Page<Product>page=productRepository.findAllByProductCategory(category,pageable);
-        List<ProductDto>result=page.getContent()
-                .stream()
-                .map(this::productEntityToDto)
-                .toList();
-        return ProductPagingDto.builder()
-                .products(result)
-                .totalPages(page.getTotalPages())
-                .currentPage(pageable.getPageNumber()+1)
-                .totalData(page.getTotalElements())
-                .build();
-
+        return productMapper.convertProductEntityToDto(product);
     }
 
 
@@ -212,91 +182,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new SpringProductException("Unable to find Product of id:-  " +
                         id + ":ProductService.findById"));
-        return ProductDto.builder()
-                .id(product.getId())
-                .productName(product.getProductName())
-                .imageUrl("http://localhost:8080/api/image/download/"+product.getProductImage())
-                .ratings(product.getRatings())
-                .noOfRatings(product.getNoOfRatings())
-                .text(product.getText())
-                .price(product.getPrice())
-                .discount(product.getDiscount())
-                .newPrice(product.getNewPrice())
-                .productImage(product.getProductImage())
-                .productCategory(product.getProductCategory())
-                .build();
+        return productMapper.convertProductEntityToDto(product);
     }
 
-    @Override
-    @Transactional
-    public ProductPagingDto findByProductNameLike(String productName, Pageable pageable) {
-        Page<Product> page = productRepository.findByProductNameContains(productName,pageable);
-        List<ProductDto>productDtoList = page.getContent().stream()
-                .map(this::productEntityToDto)
-                .toList();
-        return ProductPagingDto.builder()
-                .products(productDtoList)
-                .currentPage(pageable.getPageNumber()+1)
-                .totalPages(page.getTotalPages())
-                .totalData(page.getTotalElements())
-                .build();
-    }
-
-    @Override
-    @Transactional
-    public List<NavSearchDto> findProductNameAndId(String productName) {
-        return productRepository.findProductNameAndId(productName).stream()
-                .map((item)->NavSearchDto.builder()
-                        .id(item.getId())
-                        .productName(item.getProductName())
-                        .build())
-                .toList();
-    }
-
-    @Override
-    public void addRatingForProduct(Long id, int rating) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new SpringProductException("Unable to find product for Rating"));
-        if (product.getNoOfRatings() == 0) {
-            product.setRatings(rating);
-            product.setNoOfRatings(product.getNoOfRatings() + 1);
-            product.setTotalRating(rating);
-            log.info("new Rating");
-        } else {
-            int newRating = (product.getTotalRating() + rating) / (product.getNoOfRatings() + 1);
-            product.setRatings(newRating);
-                product.setTotalRating(product.getTotalRating()+rating);
-                product.setNoOfRatings(product.getNoOfRatings()+1);
-        }
-        try {
-            productRepository.save(product);
-        }catch (Exception e) {
-            throw new
-                    SpringProductException("Unable to add review for Product");
-        }
-    }
-
-    private ProductDto productEntityToDto(Product product) {
-        return ProductDto.builder()
-                .id(product.getId())
-                .productName(product.getProductName())
-                .imageUrl("http://localhost:8080/api/image/download/"+product.getProductImage())
-                .ratings(product.getRatings())
-                .noOfRatings(product.getNoOfRatings())
-                .text(product.getText())
-                .price(product.getPrice())
-                .discount(product.getDiscount())
-                .newPrice(product.getNewPrice())
-                .productImage(product.getProductImage())
-                .productCategory(product.getProductCategory())
-                .build();
-    }
-    private ProductImageDto ImageEntityToDto(ProductImages image) {
-        ProductImageDto res = new ProductImageDto();
-        res.setImageUrl(image.getImageName());
-        res.setImageName(image.getImageName());
-        res.setProductId(image.getProductId());
-        res.setId(image.getId());
-        return res;
-    }
 }

@@ -7,8 +7,7 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Getter
-@Setter
+
 @Builder
 @Data
 public class CartDto {
@@ -17,3 +16,4 @@ public class CartDto {
     private Float totalPrice;
 
 }
+

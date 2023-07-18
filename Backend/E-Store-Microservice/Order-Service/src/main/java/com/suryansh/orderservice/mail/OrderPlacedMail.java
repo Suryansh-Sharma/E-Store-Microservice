@@ -17,6 +17,6 @@ public class OrderPlacedMail {
     private Float totalPrice;
     private String line1;
     private String city;
-    private int pinCode;
+    private String pinCode;
     private Date date;
 }

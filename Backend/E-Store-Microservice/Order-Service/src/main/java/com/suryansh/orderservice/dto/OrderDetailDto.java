@@ -3,7 +3,7 @@ package com.suryansh.orderservice.dto;
 
 import java.util.List;
 
-public record OrderDetails (
+public record OrderDetailDto(
      Long orderId,
      String status,
      int totalItems,
@@ -13,5 +13,5 @@ public record OrderDetails (
      String pinCode,
      String otherDetails,
      Boolean isProductDelivered,
-     List<OrderItemsDto> orderItems
+     List<OrderItemDto> orderItems
 ){}
