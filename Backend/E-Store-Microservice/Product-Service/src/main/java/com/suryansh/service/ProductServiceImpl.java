@@ -1,14 +1,12 @@
 package com.suryansh.service;
 
-import com.suryansh.dto.InventoryResponse;
-import com.suryansh.dto.ProductDto;
-import com.suryansh.dto.ProductFullDto;
-import com.suryansh.dto.ProductRatingDto;
+import com.suryansh.dto.*;
 import com.suryansh.entity.Brand;
 import com.suryansh.entity.Product;
 import com.suryansh.entity.ProductBelongsTo;
 import com.suryansh.exception.SpringProductException;
 import com.suryansh.mapper.ProductMapper;
+import com.suryansh.model.ElasticSearchProductModel;
 import com.suryansh.model.InventoryModel;
 import com.suryansh.model.ProductModel;
 import com.suryansh.model.RatingAndReviewModel;
@@ -20,6 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreaker;
 import org.springframework.cloud.client.circuitbreaker.ReactiveCircuitBreakerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -41,13 +44,13 @@ public class ProductServiceImpl implements ProductService {
     private final ReactiveCircuitBreakerFactory reactiveCircuitBreakerFactory;
     private final ProductBelongsToRepository belongsToRepository;
     private final ProductMapper productMapper;
-    private final KafkaTemplate<String,InventoryModel>kafkaInventoryTemplate;
-    private final KafkaTemplate<String, RatingAndReviewModel>kafkaRatingReviewTemplate;
+    private final KafkaTemplate<String, InventoryModel> kafkaInventoryAddTemplate;
+    private final KafkaTemplate<String, RatingAndReviewModel> kafkaAddRatingTemplate;
 
     @Override
     @Transactional
     @Async
-    public CompletableFuture<String> save(ProductModel productModel, String token) {
+    public CompletableFuture<String> save(ProductModel productModel) {
         Optional<Product> productFromDb = productRepository
                 .findByTitle(productModel.getTitle());
         if (productFromDb.isPresent())
@@ -55,12 +58,8 @@ public class ProductServiceImpl implements ProductService {
                     SpringProductException("Product is already present !!"));
         Brand brand = brandRepository.findByName(productModel.getBrand().getName())
                 .orElseThrow(() -> new CompletionException(new SpringProductException("Unable to save product because Brand not found.")));
-        ProductBelongsTo belongsTo ;
-        if (productModel.getProductBelongsTo().isHaveParent()) {
-            belongsTo = belongsToRepository.findById(productModel.getProductBelongsTo().getId())
-                    .orElseThrow(() -> new CompletionException(new SpringProductException("Unable to save product because Parent not found.")));
-        }else belongsTo=null;
-        Product product = productMapper.ProductModelToEntity(productModel, brand, belongsTo);
+
+        Product product = productMapper.ProductModelToEntity(productModel, brand);
         try {
             product = productRepository.save(product);
             InventoryModel inventoryModel = productModel.getInventoryModel();
@@ -70,19 +69,22 @@ public class ProductServiceImpl implements ProductService {
             inventoryModel.setProduct(productInventoryModel);
 
             // Send request to inventory for new product through Kafka.
-            kafkaInventoryTemplate.send("add-new-product-inventory", inventoryModel);
+            kafkaInventoryAddTemplate.send("add-new-product-inventory", inventoryModel);
 
             // Send request to rating-review-service for new product through Kafka.
-            RatingAndReviewModel ratingAndReviewModel = new RatingAndReviewModel(product.getId(), product.getTitle());
-            kafkaRatingReviewTemplate.send("add-new-product-rating",ratingAndReviewModel);
+            RatingAndReviewModel ratingAndReviewModel = new RatingAndReviewModel(product.getId(), product.getTitle()
+                    , productModel.getRatingAndReview().getRating(), productModel.getRatingAndReview().getRatingCount()
+                    , productModel.getRatingAndReview().getReviewCount());
+            kafkaAddRatingTemplate.send("add-new-product-rating", ratingAndReviewModel);
 
             // Send Product details to Elastic search through kafka.
-
+            ElasticSearchProductModel searchModel = productMapper.convertProductEntityToElasticDoc(product, productModel);
+            logger.info("Elastic search model {} ", searchModel);
             logger.info("Product Saved to Product Microservice,Inventory Service,Review Service");
             return CompletableFuture.completedFuture("Product added successfully");
         }catch (Exception e) {
             logger.error("Unable to save product !! " + e);
-            throw new SpringProductException("Unable to save Product : ProductServiceImpl.save Catch block");
+            throw new SpringProductException("Unable to save Product : ProductServiceImpl.save Catch block " + e);
         }
     }
 
@@ -129,7 +131,7 @@ public class ProductServiceImpl implements ProductService {
                 .transform(it->{
                     ReactiveCircuitBreaker rcb = reactiveCircuitBreakerFactory.create("REVIEW-SERVICE");
                     return rcb.run(it, throwable -> Mono.just(new ProductRatingDto(null,null
-                            ,null,0,null)));
+                            , null, 0, 0, null)));
                 })
                 .block();
         ProductFullDto productFullDto = productMapper
@@ -144,13 +146,91 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.convertProductEntityToDto(product);
     }
 
-
     @Override
     public ProductDto getProductById(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new SpringProductException("Unable to find Product of id:-  " +
                         id + ":ProductService.findById"));
         return productMapper.convertProductEntityToDto(product);
+    }
+
+    @Override
+    public ProductModel testInventory(ProductModel productModel) {
+        logger.info("Inventory model {} ", productModel.getInventoryModel());
+        InventoryModel inventoryModel = productModel.getInventoryModel();
+        InventoryModel.InventoryProductModel productInventoryModel = new InventoryModel.InventoryProductModel();
+        productInventoryModel.setProductId(1L);
+        productInventoryModel.setTitle("product.getTitle()");
+        inventoryModel.setProduct(productInventoryModel);
+        logger.info("Inventory model before sending {}", inventoryModel);
+        kafkaInventoryAddTemplate.send("add-new-product-inventory", inventoryModel);
+
+        return productModel;
+    }
+
+    @Override
+    @Transactional
+    public String createRelationshipForProductAndRelatedProduct(long parentProductId, long childProductId) {
+        // Fetch the parent and child products from the database
+        Product parentProduct = productRepository.findById(parentProductId)
+                .orElseThrow(() -> new SpringProductException("Parent product not found"));
+
+        Product childProduct = productRepository.findById(childProductId)
+                .orElseThrow(() -> new SpringProductException("Child product not found"));
+
+
+        ProductBelongsTo productBelongsTo = parentProduct.getBelongsTo();
+        if (productBelongsTo == null) {
+            productBelongsTo = new ProductBelongsTo();
+            productBelongsTo.setProducts(new ArrayList<>());
+            productBelongsTo = belongsToRepository.save(productBelongsTo); // Save the new ProductBelongsTo
+            parentProduct.setBelongsTo(productBelongsTo);
+        } else {
+            // Check whether parent already has that child.
+            for (Product p : productBelongsTo.getProducts()) {
+                if (p.getId().equals(childProductId)) {
+                    return "Parent already contain this child";
+                }
+            }
+        }
+
+        // Add the child product to the list of related products
+        productBelongsTo.getProducts().add(childProduct);
+        productBelongsTo.setTotalProducts(productBelongsTo.getProducts().size());
+
+        // Update the parent product in the database
+        try {
+            productRepository.save(parentProduct);
+            logger.info("Successfully created relationship for parent {} and child {} ", parentProductId, childProductId);
+            return "Successfully created relationship for parent and child ";
+        } catch (Exception e) {
+            logger.error("Unable to make product parent child relationship " + e);
+            throw new SpringProductException("Unable to make product parent child relationship " + e);
+        }
+    }
+
+    @Override
+    public List<ProductDto> getBelongsProductFromDb(long parentId) {
+        ProductBelongsTo productBelongsTo = belongsToRepository.findById(parentId)
+                .orElseThrow(()->new SpringProductException("Unable to parent of id "+parentId));
+
+        return productBelongsTo.getProducts().stream()
+                .map(productMapper::convertProductEntityToDto)
+                .toList();
+    }
+
+    @Override
+    public ProductPagingDto getRelatedProductByCategory(String categoryTree, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo,pageSize);
+        Page<Product> products = productRepository.findAllRelatedProducts(categoryTree,pageable);
+        return new ProductPagingDto(
+                pageNo,
+                products.getTotalPages(),
+                products.get()
+                        .map(productMapper::convertProductEntityToDto)
+                        .toList(),
+                products.getTotalElements()
+        );
     }
 
 }

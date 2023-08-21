@@ -5,6 +5,7 @@ import com.suryansh.dto.ProductDto;
 import com.suryansh.dto.ProductFullDto;
 import com.suryansh.dto.ProductRatingDto;
 import com.suryansh.entity.*;
+import com.suryansh.model.ElasticSearchProductModel;
 import com.suryansh.model.ProductModel;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Configuration;
@@ -19,29 +20,37 @@ public class ProductMapper {
         this.modelMapper = modelMapper;
     }
 
-    public Product ProductModelToEntity(ProductModel model, Brand brand, ProductBelongsTo belongsTo) {
+    public Product ProductModelToEntity(ProductModel model, Brand brand) {
         Product product = modelMapper.map(model, Product.class);
         Price price = convertPriceModelToEntity(model.getPrice());
-        List<ProductImage> productImages = model.getProductImages()
+        ProductRichText productRichText = convertRichTextModelToEntity(model.getRichText());
+        DiscountPrice discountPrice = convertDiscountModelToEntity(model.getDiscountPrice());
+        List<ProductImage> productImages = model.getAdditionalImages()
                 .stream()
                 .map(image->ProductImage.builder()
                         .imageUrl(image.getImageUrl())
                         .imageType(image.getImageType())
                         .build() )
                 .toList();
-        product.setBelongsTo(belongsTo);
+        product.setCategoryPath(model.getCategoryTree());
         product.setBrand(brand);
         product.setPrice(price);
+        product.setDiscountPrice(discountPrice);
         product.setProductImages(productImages);
+        product.setProductRichText(productRichText);
         return product;
+    }
+
+    public ProductRichText convertRichTextModelToEntity(ProductModel.RichTextModel richText) {
+        return modelMapper.map(richText, ProductRichText.class);
+    }
+
+    public DiscountPrice convertDiscountModelToEntity(ProductModel.DiscountPrice discountPrice) {
+        return modelMapper.map(discountPrice,DiscountPrice.class);
     }
 
     public Price convertPriceModelToEntity(ProductModel.Price priceModel) {
         return modelMapper.map(priceModel, Price.class);
-    }
-
-    public ProductImage convertProductImageModelToEntity(ProductModel.ProductImage productImage) {
-        return modelMapper.map(productImage, ProductImage.class);
     }
 
     public ProductFullDto convertProductFullEntityToDto(Product product,
@@ -52,27 +61,35 @@ public class ProductMapper {
         return productFullDto;
     }
 
-    private ProductFullDto.Price convertPriceEntityToDto(Price price) {
-        return modelMapper.map(price, ProductFullDto.Price.class);
-    }
-
-    private ProductFullDto.Brand convertBrandEntityToDto(Brand brand) {
-        return modelMapper.map(brand, ProductFullDto.Brand.class);
-    }
-
-    private ProductFullDto.ProductImage convertImageEntityToDto(ProductImage image) {
-        return modelMapper.map(image, ProductFullDto.ProductImage.class);
-    }
-
-    private ProductFullDto.ProductBelongsTo convertBelongsEntityToDto(ProductBelongsTo productBelongsTo) {
-        return modelMapper.map(productBelongsTo, ProductFullDto.ProductBelongsTo.class);
-    }
-
     public ProductDto convertProductEntityToDto(Product product) {
         var priceDto = new  ProductDto.Price(
-                product.getPrice().getValue(),product.getPrice().getCurrency());
-        return new ProductDto(product.getId(),product.getTitle(),product.getSubTitle(),product.getShortDescription(),priceDto,
+                product.getDiscountPrice().getValue(),product.getDiscountPrice().getCurrency());
+        return new ProductDto(product.getId(),product.getTitle(),product.getShortDescription(),priceDto,
                 product.getCategoryPath(), product.getImageUrl(), product.getColor(), product.getItemWebUrl(), product.getDescription()
         );
+    }
+
+    public ElasticSearchProductModel convertProductEntityToElasticDoc(Product model
+                                                                      ,ProductModel productModel){
+        return ElasticSearchProductModel.builder()
+                .id(String.valueOf(model.getId()))
+                .name(model.getTitle())
+                .image(model.getImageUrl())
+                .brand(model.getBrand().getName())
+                .rating(productModel.getRatingAndReview().getRating())
+                .ratingCount(productModel.getRatingAndReview().getRatingCount())
+                .reviewCount(productModel.getRatingAndReview().getReviewCount())
+                .price(new ElasticSearchProductModel.Price(
+                        model.getPrice().getCurrency(),
+                        model.getPrice().getValue()
+                ))
+                .newPrice(new
+                        ElasticSearchProductModel
+                                .Price(model.getDiscountPrice().getCurrency(),model.getDiscountPrice().getValue()))
+                .discount(model.getDiscountPrice().getPercentage())
+                .categoryTree(model.getCategoryPath())
+                .shortDescription(model.getShortDescription())
+                .filters(productModel.getFilterOptions())
+                .build();
     }
 }

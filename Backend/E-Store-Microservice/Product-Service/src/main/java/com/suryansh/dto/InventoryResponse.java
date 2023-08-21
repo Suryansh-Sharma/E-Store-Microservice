@@ -40,7 +40,7 @@ public class InventoryResponse {
     }
     @Data
     public static class ShippingOptionsDto {
-        private String shippingServiceCode;
+        private String providerName;
         private String type;
         // Shipping Cost
         private ShippingCost shippingCost;

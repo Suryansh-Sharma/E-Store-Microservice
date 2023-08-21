@@ -188,6 +188,4 @@ public class InventoryServiceImpl implements InventoryService {
         }
         logger.info("Inventory is fully updated after order of user {} ",model.userId());
     }
-
-
 }

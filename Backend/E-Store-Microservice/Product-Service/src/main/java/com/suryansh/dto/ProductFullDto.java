@@ -1,5 +1,9 @@
 package com.suryansh.dto;
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -11,10 +15,11 @@ import java.util.List;
 public class ProductFullDto {
     private Long id;
     private String title;
-    private String subTitle;
     private String shortDescription;
     // Price
     private Price price;
+    // Discount Price
+    private DiscountPrice discountPrice;
 
     private String categoryPath;
     private String imageUrl;
@@ -39,6 +44,12 @@ public class ProductFullDto {
         private String currency;
     }
     @Data
+    public static class DiscountPrice{
+        private Double value;
+        private String currency;
+        private Float percentage;
+    }
+    @Data
     public static class ProductImage{
         private String imageUrl;
         private ImageType imageType;
@@ -56,7 +67,6 @@ public class ProductFullDto {
     @Data
     public static class ProductBelongsTo{
         private Long id;
-        boolean haveParent;
-        private String productName;
+        private int totalProducts;
     }
 }

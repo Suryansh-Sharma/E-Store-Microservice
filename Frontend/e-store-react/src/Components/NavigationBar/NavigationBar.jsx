@@ -93,9 +93,9 @@ const Navigation = () => {
               ></img>
             </li>
             {isAuthenticated ? (
-              <button className={"btn"}>Logout</button>
+              <button className={"nav-btn"}>Logout</button>
             ) : (
-              <button className={"btn"} onClick={loginWithRedirect}>
+              <button className={"nav-btn"} onClick={loginWithRedirect}>
                 Login / SignUp{" "}
               </button>
             )}

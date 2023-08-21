@@ -1,0 +1,32 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: Spring-Elastic-Search-Engine
+#  For local elastic config. While using local db comment file elastic-config in config folder.
+#  Data:
+#    elasticsearch:
+#      cluster-names: productService
+#      cluster-node: 9200
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    instanceId: ${spring.application.name}
+    hostname: localhost
+# This is config for Elastic config for cloud instance.
+#Elastic:
+#  host:
+#  port:
+#  username:
+#  password:
+#
+#redis:
+#  host:
+#  port:
+#  password:

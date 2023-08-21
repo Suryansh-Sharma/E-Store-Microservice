@@ -1,5 +1,6 @@
 package com.suryansh.config;
 
+import com.suryansh.model.ElasticSearchProductModel;
 import com.suryansh.model.InventoryModel;
 import com.suryansh.model.RatingAndReviewModel;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -11,6 +12,7 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,11 +22,11 @@ import java.util.Map;
 public class KafkaProducerService {
     final String KAFKA_SERVER_URL = "localhost:9092";
     @Bean
-    public ProducerFactory<String, InventoryModel>addNewItemInventoryProducer(){
-        Map<String,Object>config = new HashMap<>();
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,KAFKA_SERVER_URL);
-        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonDeserializer.class.getName());
+    public ProducerFactory<String, InventoryModel> addNewItemInventoryProducer() {
+        Map<String, Object> config = new HashMap<>();
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER_URL);
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
         return new DefaultKafkaProducerFactory<>(config);
     }
     @Bean
@@ -34,6 +36,18 @@ public class KafkaProducerService {
 
     @Bean
     public ProducerFactory<String, RatingAndReviewModel>addRatingProducer(){
+        Map<String, Object> config = new HashMap<>();
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_SERVER_URL);
+        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        return new DefaultKafkaProducerFactory<>(config);
+    }
+    @Bean
+    public KafkaTemplate<String,RatingAndReviewModel> kafkaAddRatingTemplate(){
+        return new KafkaTemplate<>(addRatingProducer());
+    }
+    @Bean
+    public ProducerFactory<String, ElasticSearchProductModel>elasticProductProducer(){
         Map<String,Object>config = new HashMap<>();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,KAFKA_SERVER_URL);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
@@ -41,7 +55,7 @@ public class KafkaProducerService {
         return new DefaultKafkaProducerFactory<>(config);
     }
     @Bean
-    public KafkaTemplate<String,RatingAndReviewModel> kafkaAddRatingTemplate(){
-        return new KafkaTemplate<>(addRatingProducer());
+    public KafkaTemplate<String,ElasticSearchProductModel>kafkaElasticsearchTemplate(){
+        return new KafkaTemplate<>(elasticProductProducer());
     }
 }

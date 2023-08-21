@@ -82,6 +82,12 @@ spring:
                 name: USER-SERVICE
                 # noinspection SpringBootApplicationYaml
                 fallbackuri: forward:/userServiceFallBack
+
+        - id: SPRING-ELASTIC-SEARCH-ENGINE
+          uri: lb://SPRING-ELASTIC-SEARCH-ENGINE
+          predicates:
+            - Path=/api/v1/elastic/product/**
+
         - id: REVIEW-SERVICE
           uri: lb://REVIEW-SERVICE
           predicates:

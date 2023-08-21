@@ -1,5 +1,6 @@
 package com.suryansh.reviewservice.entity;
 
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,12 +17,13 @@ public class ProductRating {
     private String id;
     private Long productId;
     private String productTitle;
-    private float averageRating;
+    private Double averageRating;
+    private long ratingCount;
     ArrayList<ratings>ratingsHistogram;
     @Data
     @AllArgsConstructor
     public static class ratings{
-        private String value;
+        private Double value;
         private int count;
     }
 }

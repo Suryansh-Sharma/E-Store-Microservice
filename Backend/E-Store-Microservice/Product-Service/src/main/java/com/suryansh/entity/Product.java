@@ -18,12 +18,17 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
-    private String subTitle;
     private String shortDescription;
+
     // Price
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "price_id")
     private Price price;
+
+    // Discount Price.
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "discount_price_id")
+    private DiscountPrice discountPrice;
 
     private String categoryPath;
     private String imageUrl;
@@ -40,6 +45,9 @@ public class Product {
 
     private String itemWebUrl;
     private String description;
+
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private ProductRichText productRichText;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "belong_id",referencedColumnName = "id")

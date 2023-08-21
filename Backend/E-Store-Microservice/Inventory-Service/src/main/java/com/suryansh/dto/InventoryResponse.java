@@ -1,8 +1,8 @@
 package com.suryansh.dto;
 
-import lombok.*;
+import com.suryansh.entity.ShippingOptions;
+import lombok.Data;
 
-import java.time.Instant;
 import java.util.List;
 
 
@@ -41,23 +41,23 @@ public class InventoryResponse {
     }
     @Data
     public static class ShippingOptionsDto {
-        private String shippingServiceCode;
+        private String providerName;
         private String type;
         // Shipping Cost
-        private ShippingCost shippingCost;
+        private ShippingOptions.ShippingCost shippingCost;
         private int quantityUsedForEstimate;
-        private Instant minEstimatedDeliveryDate;
-        private Instant maxEstimatedDeliveryDate;
+        private String minEstimatedDeliveryDate;
+        private String maxEstimatedDeliveryDate;
         // AdditionalShippingCostPerUnit
-        private AddiCostPerItem additionalCostPerItem;
+        private ShippingOptions.AddiCostPerItem additionalCostPerItem;
         @Data
         public static class ShippingCost{
-            private String value;
+            private Double value;
             private String currency;
         }
         @Data
         public static class AddiCostPerItem{
-            private String value;
+            private Double value;
             private String currency;
         }
     }

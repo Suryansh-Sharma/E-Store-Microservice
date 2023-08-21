@@ -1,33 +1,197 @@
-.Product{
-    margin-top: 80px;
+.product-page{
+    margin-top: 10px;
 }
 .product-grid{
     display: grid;
     width: 100%;
     grid-template-rows: 2fr 1fr ;
-    column-gap: 12px;
-    grid-template-columns: 3fr 3fr ;
+    column-gap: 120px;
+    grid-template-columns: 2fr 2fr ;
 }
-.p-g-right-title{
-    padding-top: 50px;
-    padding-bottom: 1px;
+.p-right-title span{
+    font-size: 20px;
+    font-weight: 600;
 }
-.product-desc{
 
-    padding-top:20px ;
-    padding-bottom: 5px;
-    color: darkgrey;
+.site-url{
+    color: blue;
+    font-size: 10px;
+    cursor: pointer;
 }
-.product-rating{
-    padding-top: 30px;
+
+.product-shortdesc-rating{
+    margin-top: 10px;
+}
+.short-desc span{
+    padding: 5px;
+    border: 2px solid purple;
+    border-radius: 5px;
+    color: purple;
 }
 .product-btn{
     width: 60%;
 }
+
+.product-rating-review {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: row;
+    color: #12d2a2;
+    font-size: 15px;
+}
+
 .ProductBrand{
-    color: blue;
+    font-size: 13px;
+    font-weight: 500;
+    /* width: 12px; */
+}
+
+.ProductBrand span{
+    cursor: pointer;
+
+}
+
+.ProductBrand span :hover{
+    cursor: pointer;
+    font-weight: 600;
+    color: #12d2a2;
+}
+
+.Product-Cost-Section{
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+
+.Product-Cost-Section-Original{
+    display: flex;
+}
+
+.Product-Cost-Section-Original span{
+    text-decoration: line-through;
+    color: grey;
+    margin-right: 5px;
+}
+
+.product-like-cart {
+    display: flex;
+    justify-content: space-between;
+}
+.product-like-section{
+    /* justify-items: end; */
+}
+
+.related-products{
+    display: flex;
+    left: 0;
+}
+.related-product-card{
+    width: 120px;
+    height: 150px;
+    border: 2px solid gray;
+    border-radius: 5px;
+    margin: 10px;
     cursor: pointer;
 }
+.glow-border{
+    border: 3px solid #12daa8;
+}
+.related-product-image{
+    width: 100px;
+    height: 100px;
+    padding: 20px;
+}
+
+.related-product-image img{
+    width: 100%;
+    height: 100%;
+}
+
+.related-product-price{
+    display: flex;
+    font-size: 14px;
+    margin-left: 10px;
+}
+.p-i-s-availabilty{
+    display: flex;
+    flex-direction: column;
+}
+
+.p-i-s-shipping{
+    margin-top: 10px;
+    display: flex;
+}
+
+.shipping-option-card{
+    margin-top: 10px;
+    margin-right: 10px;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid gray;
+    padding: 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.Return-Details{
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    border: 2px solid #12daa8;
+    padding: 10px;
+    width: 500px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.similar-products{
+    margin-top: 10px;
+    display: flex;
+}
+
+.similar_product_card{
+    border: 3px solid #12daa8;
+    cursor: pointer;
+    height: 300px;
+    width: 220px;
+    margin-right: 13px;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+
+}
+
+.similar-product-image{
+    height: 160px;
+    width: 160px;
+    padding-left: 30%;
+    padding-top: 10px;
+}
+
+.similar-product-image img{
+    width: 100%;
+    height: 100%;
+}
+
+.similar-product-title{
+    margin: 12px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 200px;
+}
+
+.similar-product-price{
+    margin: 12px;
+}
+
+.similar-product-short-desc{
+    margin: 12px;
+    color: purple;
+}
+
+/* Old Files Below*/
 .btn-pro-pri{
     display: inline-block;
     outline: none;

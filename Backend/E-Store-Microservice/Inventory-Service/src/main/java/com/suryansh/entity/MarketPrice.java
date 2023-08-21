@@ -5,16 +5,16 @@ import lombok.Data;
 @Data
 public class MarketPrice {
     private OriginalPrice originalPrice;
-    private String discountPercentage;
+    private float discountPercentage;
     private DiscountAmount discountAmount;
     @Data
     public static class OriginalPrice{
-        private String value;
+        private Double value;
         private String currency;
     }
     @Data
     public static class DiscountAmount{
-        private String value;
+        private Double value;
         private String currency;
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 @Service
 public class RatingServiceImpl implements RatingService {
@@ -29,15 +30,20 @@ public class RatingServiceImpl implements RatingService {
     @Transactional
     public void saveNewProduct(String reviewRatingModelString) {
         RatingAndReviewModel ratingAndReviewModel = gson.fromJson(reviewRatingModelString,RatingAndReviewModel.class);
-
+        var check = ratingRepository.findByProductId(ratingAndReviewModel.productId());
+        if (check.isPresent()){
+            logger.error("Product {} is already present in rating and review service ",ratingAndReviewModel);
+            return;
+        }
         var histogram = new ArrayList<ProductRating.ratings>();
-        for (int i = 1; i <= 5; i++) {
-            histogram.add(new ProductRating.ratings(Integer.toString(i), 0));
+        for (double i = 1; i <= 5; i++) {
+            histogram.add(new ProductRating.ratings(i, 0));
         }
         ProductRating productRating = ProductRating.builder()
                 .productId(ratingAndReviewModel.productId())
                 .productTitle(ratingAndReviewModel.productTitle())
-                .averageRating(0)
+                .averageRating(ratingAndReviewModel.averageRating())
+                .ratingCount(ratingAndReviewModel.ratingCount())
                 .ratingsHistogram(histogram).build();
         try {
             ratingRepository.save(productRating);
@@ -51,23 +57,33 @@ public class RatingServiceImpl implements RatingService {
     @Override
     public ProductRatingDto getRatingsForRatings(Long id) {
         var productRating = ratingRepository.findByProductId(id).orElseThrow(() -> new SpringReviewException("Unable to found product of id " + id));
-        return new ProductRatingDto(productRating.getId(), id, productRating.getProductTitle(), productRating.getAverageRating(), productRating.getRatingsHistogram().stream().map(r -> new ProductRatingDto.Histogram(r.getValue(), r.getCount())).toList());
+        return new ProductRatingDto(productRating.getId(),
+                id,
+                productRating.getProductTitle(),
+                productRating.getAverageRating(),
+                productRating.getRatingCount(),
+                productRating.getRatingsHistogram()
+                        .stream()
+                        .map(r -> new ProductRatingDto.Histogram(
+                                r.getValue(),
+                                r.getCount())).toList()
+        );
     }
 
     @Override
     @Transactional
-    public void addNewRatingForProduct(Long productId, String userName, int rating) {
+    public void addNewRatingForProduct(Long productId, String userName, double rating) {
         ProductRating productRating = ratingRepository.findByProductId(productId).orElseThrow(() -> new SpringReviewException("Unable to find product of id: " + productId));
 
-        float newAvgRating = 0;
+        double newAvgRating = 0.0;
         int totalRatingSum = 0;
 
         for (ProductRating.ratings r : productRating.getRatingsHistogram()) {
-            if (rating == Integer.parseInt(r.getValue())) {
+            if (Objects.equals(rating, r.getValue())) {
                 r.setCount(r.getCount() + 1);
             }
             totalRatingSum += r.getCount();
-            newAvgRating += Integer.parseInt(r.getValue()) * r.getCount();
+            newAvgRating += r.getValue() * r.getCount();
         }
 
         if (totalRatingSum > 0) {
@@ -75,6 +91,7 @@ public class RatingServiceImpl implements RatingService {
         }
 
         productRating.setAverageRating(newAvgRating);
+        productRating.setRatingCount(productRating.getRatingCount()+1);
 
         try {
             ratingRepository.save(productRating);
@@ -86,22 +103,23 @@ public class RatingServiceImpl implements RatingService {
     }
     @Override
     @Transactional
-    public void updateRatingForProduct(Long productId, String userName, int newRating, int oldRating) {
+    public void updateRatingForProduct(Long productId, String userName
+            , double newRating, double oldRating) {
         ProductRating productRating = ratingRepository.findByProductId(productId)
                 .orElseThrow(() -> new SpringReviewException("Unable to find product of id: " + productId));
 
-        float newAvgRating = 0;
+        double newAvgRating = 0;
         int totalRatingSum = 0;
 
         for (ProductRating.ratings r : productRating.getRatingsHistogram()) {
-            if (oldRating == Integer.parseInt(r.getValue())) {
+            if (oldRating == r.getValue() ) {
                 r.setCount(r.getCount() - 1);
             }
-            if (newRating == Integer.parseInt(r.getValue())) {
+            if (newRating == r.getValue()) {
                 r.setCount(r.getCount() + 1);
             }
             totalRatingSum += r.getCount();
-            newAvgRating += Integer.parseInt(r.getValue()) * r.getCount();
+            newAvgRating += r.getValue() * r.getCount();
         }
 
         if (totalRatingSum > 0) {
@@ -120,19 +138,19 @@ public class RatingServiceImpl implements RatingService {
     }
     @Override
     @Transactional
-    public void deleteRatingForProduct(Long productId, String userName, int rating) {
+    public void deleteRatingForProduct(Long productId, String userName, double rating) {
         ProductRating productRating = ratingRepository.findByProductId(productId)
                 .orElseThrow(() -> new SpringReviewException("Unable to find product of id: " + productId));
 
-        float newAvgRating = 0;
+        double newAvgRating = 0;
         int totalRatingSum = 0;
 
         for (ProductRating.ratings r : productRating.getRatingsHistogram()) {
-            if (rating == Integer.parseInt(r.getValue())) {
+            if (rating == r.getValue()) {
                 r.setCount(r.getCount() - 1);
             }
             totalRatingSum += r.getCount();
-            newAvgRating += Integer.parseInt(r.getValue()) * r.getCount();
+            newAvgRating += r.getValue() * r.getCount();
         }
 
         if (totalRatingSum > 0) {
@@ -140,7 +158,12 @@ public class RatingServiceImpl implements RatingService {
         }
 
         productRating.setAverageRating(newAvgRating);
-
+        long ratingCount=productRating.getRatingCount();
+        if (ratingCount > 0) {
+            productRating.setRatingCount(ratingCount - 1);
+        } else {
+            productRating.setRatingCount(0);
+        }
         try {
             ratingRepository.save(productRating);
             logger.info("Product {} rating is successfully deleted by user {}", productId, userName);

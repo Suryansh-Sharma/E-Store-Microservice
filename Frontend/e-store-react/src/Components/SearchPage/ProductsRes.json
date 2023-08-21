@@ -1,0 +1,388 @@
+{
+    "page_no": 0,
+    "total_record": 2,
+    "productList": [
+        {
+            "id": "1",
+            "name": "Sony WH-1000XM4 Wireless Noise-Canceling Headphones",
+            "image": "string",
+            "brand": "Sony",
+            "rating": 0,
+            "totalSold": 0,
+            "price": {
+                "currency": "USD",
+                "value": 349.99
+            },
+            "newPrice": {
+                "currency": "USD",
+                "value": 349.99
+            },
+            "discount": "0",
+            "categoryTree": "Electronics >> Audio >> Headphones",
+            "description": null,
+            "filters": [
+                {
+                    "key": "brand",
+                    "value": "Sony"
+                },
+                {
+                    "key": "color",
+                    "value": "Black"
+                },
+                {
+                    "key": "wireless",
+                    "value": "Yes"
+                },
+                {
+                    "key": "noise cancellation",
+                    "value": "Yes"
+                }
+            ],
+            "inStock": true
+        },
+        {
+            "id": "2",
+            "name": "Sony PlayStation 5",
+            "image": "string",
+            "brand": "Sony",
+            "rating": 0,
+            "totalSold": 0,
+            "price": {
+                "currency": "USD",
+                "value": 499.99
+            },
+            "newPrice": {
+                "currency": "USD",
+                "value": 499.99
+            },
+            "discount": "0",
+            "categoryTree": "Electronics >> Gaming Consoles",
+            "description": null,
+            "filters": [
+                {
+                    "key": "brand",
+                    "value": "Sony"
+                },
+                {
+                    "key": "storage",
+                    "value": "852 GB"
+                },
+                {
+                    "key": "resolution",
+                    "value": "4K"
+                },
+                {
+                    "key": "colour",
+                    "value": "White"
+                }
+            ],
+            "inStock": true
+        },
+        {
+            "id": "3",
+            "name": "SONY HT-S20R 400W Bluetooth Soundbar with Remote (Dolby Digital, 5.1 Channel, Black)",
+            "image": "string",
+            "brand": "Sony",
+            "rating": 0,
+            "totalSold": 0,
+            "price": {
+                "currency": "USD",
+                "value": 242.88
+            },
+            "newPrice": {
+                "currency": "USD",
+                "value": 218.58
+            },
+            "discount": "10%",
+            "categoryTree": "Electronics >> Audio >> Headphones ",
+            "description": null,
+            "filters": [
+                {
+                    "key": "brand",
+                    "value": "Sony"
+                },
+                {
+                    "key": "Power Output",
+                    "value": "4000 Watt"
+                },
+                {
+                    "key": "Configuration",
+                    "value": "5.1 channel"
+                },
+                {
+                    "key": "colour",
+                    "value": "Black"
+                }
+            ],
+            "inStock": true
+        },
+        {
+            "id": "4",
+            "name": "SONY X75L 108 cm (43 inch) 4K Ultra HD LED Android TV with Dolby Audio (2023 model)",
+            "image": "https://media-ik.croma.com/prod/https://media.croma.com/image/upload/v1688576898/Croma%20Assets/Entertainment/Television/Images/272257_0_hpo8zz.png?tr=w-640",
+            "brand": "Sony",
+            "rating": 0,
+            "totalSold": 0,
+            "price": {
+                "currency": "USD",
+                "value": 849.99
+            },
+            "newPrice": {
+                "currency": "USD",
+                "value": 588.55
+            },
+            "discount": "29%",
+            "categoryTree": "Electronics >> TVs",
+            "description": null,
+            "filters": [
+                {
+                    "key": "brand",
+                    "value": "Sony"
+                },
+                {
+                    "key": "color",
+                    "value": "Black"
+                },
+                {
+                    "key": "display",
+                    "value": "LED 4K Ultra HD"
+                },
+                {
+                    "key": "resolution",
+                    "value": "3840 x 2160 pixels"
+                }
+            ],
+            "inStock": true
+        },
+        {
+            "id": "5",
+            "name": "Apple MacBook Pro",
+            "image": "string",
+            "brand": "Apple",
+            "rating": 0,
+            "totalSold": 0,
+            "price": {
+                "currency": "USD",
+                "value": 1999.99
+            },
+            "newPrice": {
+                "currency": "USD",
+                "value": 1899.99
+            },
+            "discount": "5%",
+            "categoryTree": "Electronics >> Laptops",
+            "description": null,
+            "filters": [
+                {
+                    "key": "brand",
+                    "value": "Apple"
+                },
+                {
+                    "key": "Display Size",
+                    "value": "13.3 inches"
+                },
+                {
+                    "key": "RAM",
+                    "value": "16 GB"
+                },
+                {
+                    "key": "Storage",
+                    "value": "512 GB SSD"
+                }
+            ],
+            "inStock": true
+        },
+        {
+            "id": "6",
+            "name": "LG OLED55CXPUA 55-Inch 4K Smart OLED TV",
+            "image": "string",
+            "brand": "LG",
+            "rating": 0,
+            "totalSold": 0,
+            "price": {
+                "currency": "USD",
+                "value": 1499.99
+            },
+            "newPrice": {
+                "currency": "USD",
+                "value": 1399.99
+            },
+            "discount": "7%",
+            "categoryTree": "Electronics >> TV",
+            "description": null,
+            "filters": [
+                {
+                    "key": "brand",
+                    "value": "LG"
+                },
+                {
+                    "key": "Display Size",
+                    "value": "55 inches"
+                },
+                {
+                    "key": "Resolution",
+                    "value": "4K Ultra HD"
+                },
+                {
+                    "key": "Smart Features",
+                    "value": "Yes"
+                }
+            ],
+            "inStock": true
+        },
+        {
+            "id": "7",
+            "name": "Canon EOS Rebel T7i DSLR Camera",
+            "image": "string",
+            "brand": "Canon",
+            "rating": 0,
+            "totalSold": 0,
+            "price": {
+                "currency": "USD",
+                "value": 799.99
+            },
+            "newPrice": {
+                "currency": "USD",
+                "value": 749.99
+            },
+            "discount": "6%",
+            "categoryTree": "Electronics >> Cameras",
+            "description": null,
+            "filters": [
+                {
+                    "key": "brand",
+                    "value": "Canon"
+                },
+                {
+                    "key": "Resolution",
+                    "value": "24.2 MP"
+                },
+                {
+                    "key": "Sensor Type",
+                    "value": "APS-C"
+                },
+                {
+                    "key": "Lens Included",
+                    "value": "Yes"
+                }
+            ],
+            "inStock": true
+        },
+        {
+            "id": "8",
+            "name": "Bose QuietComfort 35 II Wireless Headphones",
+            "image": "string",
+            "brand": "Bose",
+            "rating": 0,
+            "totalSold": 0,
+            "price": {
+                "currency": "USD",
+                "value": 349.99
+            },
+            "newPrice": {
+                "currency": "USD",
+                "value": 329.99
+            },
+            "discount": "5%",
+            "categoryTree": "Electronics >> Audio >> Headphones",
+            "description": null,
+            "filters": [
+                {
+                    "key": "brand",
+                    "value": "Bose"
+                },
+                {
+                    "key": "Wireless Technology",
+                    "value": "Bluetooth"
+                },
+                {
+                    "key": "Noise Cancelling",
+                    "value": "Yes"
+                },
+                {
+                    "key": "Color",
+                    "value": "Black"
+                }
+            ],
+            "inStock": true
+        },
+        {
+            "id": "9",
+            "name": "Sony PlayStation 5",
+            "image": "string",
+            "brand": "Sony",
+            "rating": 0,
+            "totalSold": 0,
+            "price": {
+                "currency": "USD",
+                "value": 499.99
+            },
+            "newPrice": {
+                "currency": "USD",
+                "value": 449.99
+            },
+            "discount": "10%",
+            "categoryTree": "Electronics >> Gaming >> Consoles",
+            "description": null,
+            "filters": [
+                {
+                    "key": "brand",
+                    "value": "Sony"
+                },
+                {
+                    "key": "Storage Capacity",
+                    "value": "825 GB"
+                },
+                {
+                    "key": "Graphics",
+                    "value": "AMD RDNA 2"
+                },
+                {
+                    "key": "Included Accessories",
+                    "value": "DualSense Controller"
+                }
+            ],
+            "inStock": true
+        },
+        {
+            "id": "10",
+            "name": "Microsoft Surface Pro 7",
+            "image": "string",
+            "brand": "Microsoft",
+            "rating": 0,
+            "totalSold": 0,
+            "price": {
+                "currency": "USD",
+                "value": 1299.99
+            },
+            "newPrice": {
+                "currency": "USD",
+                "value": 1199.99
+            },
+            "discount": "8%",
+            "categoryTree": "Electronics >> Tablets",
+            "description": null,
+            "filters": [
+                {
+                    "key": "brand",
+                    "value": "Microsoft"
+                },
+                {
+                    "key": "Display Size",
+                    "value": "12.3 inches"
+                },
+                {
+                    "key": "RAM",
+                    "value": "16 GB"
+                },
+                {
+                    "key": "Storage",
+                    "value": "512 GB SSD"
+                }
+            ],
+            "inStock": true
+        }
+    ],
+    "current_page": 1,
+    "total_pages": 1
+}

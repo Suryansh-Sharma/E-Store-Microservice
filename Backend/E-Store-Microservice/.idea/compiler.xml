@@ -11,6 +11,7 @@
         <module name="Order-Service" />
         <module name="Service-Registory" />
         <module name="ReviewAndComment-Service" />
+        <module name="Spring-Elastic-Search-Engine" />
         <module name="Api-Gateway" />
         <module name="Product-Service" />
         <module name="User-Service" />
@@ -29,6 +30,7 @@
       <module name="ReviewAndComment-Service" options="-parameters" />
       <module name="ReviewAndQuestion-Service" options="-parameters" />
       <module name="Service-Registory" options="-parameters" />
+      <module name="Spring-Elastic-Search-Engine" options="-parameters" />
       <module name="User-Service" options="-parameters" />
     </option>
   </component>

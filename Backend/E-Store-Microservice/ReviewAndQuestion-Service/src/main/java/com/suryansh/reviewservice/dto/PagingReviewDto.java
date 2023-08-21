@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 @Setter
 public class PagingReviewDto {
-    private List<ReviewDto> reviews;
+    private List<ProductReviewsDto> reviews;
     private int currentPage;
     private int totalPage;
 }

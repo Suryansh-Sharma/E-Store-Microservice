@@ -1,0 +1,36 @@
+.AllCategoriesSlider{
+    left:0;
+    /* border: 2px solid black; */
+}
+.Swiper-AllCategoriesSlider{
+    padding: 200px;
+}
+.category-card{
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+    margin: 50px;
+}
+.category-card :hover{
+    cursor: pointer;
+}
+.caetgory-card-top{
+    width: 100px;
+    height: 100px;
+}
+.caetgory-card-top img{
+    width: 100%;
+    /* height: 100%; */
+}
+.caetgory-card-bottom{
+    /* display: flex; */
+}
+.caetgory-card-bottom span{
+    position: relative;
+    left: 15px;
+    top: -20px;
+    font-size: 14px;
+    text-align: center;
+    font-weight: 600;
+}
+

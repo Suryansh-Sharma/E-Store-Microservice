@@ -16,6 +16,7 @@
         <module>User-Service</module>
         <module>Order-Service</module>
         <module>ReviewAndQuestion-Service</module>
+        <module>Spring-Elastic-Search-Engine</module>
     </modules>
 
     <properties>

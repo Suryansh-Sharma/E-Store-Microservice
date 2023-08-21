@@ -28,15 +28,41 @@ public class InventoryMapper {
         return res;
     }
 
-    private Product ProductModelToEntity(InventoryModel.InventoryProductModel product) {
+    public Product ProductModelToEntity(InventoryModel.InventoryProductModel product) {
         return modelMapper.map(product,Product.class);
     }
 
-    private EstimatedAvailability EstimatedModelToEntity(InventoryModel.EstimatedAvailabilityModel model){
-        return modelMapper.map(model,EstimatedAvailability.class);
+    public EstimatedAvailability EstimatedModelToEntity(InventoryModel.EstimatedAvailabilityModel model){
+        var res = new EstimatedAvailability();
+        res.setSoldQuantity(model.getSoldQuantity());
+        res.setTotalStock(model.getTotalStock());
+        if(model.getTotalStock()>0){
+            res.setInStock(true);
+            res.setAvailabilityStatus(EstimatedAvailability.AvailabilityStatus.IN_STOCK);
+        }else{
+            res.setInStock(false);
+            res.setAvailabilityStatus(EstimatedAvailability.AvailabilityStatus.OUT_OF_STOCK);
+        }
+        return res;
     }
-    private ShippingOptions ShippingModelToEntity(InventoryModel.ShippingOptionsModel model){
-        return modelMapper.map(model,ShippingOptions.class);
+    public ShippingOptions ShippingModelToEntity(InventoryModel.ShippingOptionsModel model){
+        var shippingCost = ShippingOptions.ShippingCost.builder()
+                .value(model.getShippingCost().getValue())
+                .currency(model.getShippingCost().getCurrency())
+                .build();
+        var additionalCost = ShippingOptions.AddiCostPerItem.builder()
+                .value(model.getShippingCost().getValue())
+                .currency(model.getShippingCost().getCurrency())
+                .build();
+        return ShippingOptions.builder()
+                .providerName(model.getProviderName())
+                .type(model.getType())
+                .shippingCost(shippingCost)
+                .quantityUsedForEstimate(model.getQuantityUsedForEstimate())
+                .minEstimatedDeliveryDate(model.getMinEstimatedDeliveryDate())
+                .maxEstimatedDeliveryDate(model.getMaxEstimatedDeliveryDate())
+                .additionalCostPerItem(additionalCost)
+                .build();
     }
     private ReturnTerms ReturnModelToEntity(InventoryModel.ReturnTermsModel model){
         return modelMapper.map(model,ReturnTerms.class);

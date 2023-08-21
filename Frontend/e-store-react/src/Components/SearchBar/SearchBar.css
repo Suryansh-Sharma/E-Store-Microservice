@@ -1,18 +1,17 @@
 .Search {
     font-family: sans-serif;
     position: relative;
-    left: 10px;
     text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 70px;
 
-    caret-color:navy; 
 }
 
 .search-container{
     width: 820px;
+    margin-left: 400px;
 }
 
 .dropdown {
@@ -26,28 +25,35 @@
 }
 
 .dropdown-row {
+    width: 400px;
+    margin-top: 1px;
     cursor: pointer;
     color: blueviolet;
     text-align: start;
     margin: 2px 0;
+    font-size: 12px;
 }
 .dropdown-row:hover{
     color: blue;
 }
 
-input {
-    width: 780px;
+.input-search {
+    width: 400px;
     height: 40px;
-    font-size: 24px;
-    left: 120px;
+    font-size: 15px;
     border-radius: 5px;
+    padding: 10px;
+    caret-color:navy; 
+    margin-bottom: 12px;
+    border: none;
 }
 
 .search-inner {
     display: flex;
 }
-.button{
-    margin-left: 12px;
+.search-btn{
+    margin-left: 5px;
+    cursor: pointer;
 }
 @media screen and (max-width: 480px) {
     .button {

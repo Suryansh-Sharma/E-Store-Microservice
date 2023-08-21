@@ -1,139 +1,65 @@
-import React from "react";
-import { useState } from "react";
-import { useEffect } from "react";
-import "./Review.css";
+import React, { useEffect, useState } from "react";
 import "./../Product.css";
-import axios from "axios";
-import { useAuth0 } from "@auth0/auth0-react";
+import "./Review.css";
+import RatingReviewChart from "./RatingReviewChart";
 const dataJson = require("./ReviewFake.json");
 
-function Review({ productId }) {
-  const [data, setData] = useState(dataJson);
-  const [isPageLoading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(0);
-  const {user}=useAuth0();
-  const handleFetchData=async ()=>{
-    axios.get(`http://localhost:8080/api/review/getReviewsByProductId/${productId}?pageNo=${currentPage}`)
-    .then(response=>{
-      setData(response.data);
-      setLoading(false);
-      console.log(response.data);
-    })
-    .catch(error=>{
-      setLoading(true);
-    })
-  }
+function Review({ productId, productRatingDto }) {
+  const [data,setData] = useState(null);
+  const handleFetchData = async () => {};
   useEffect(() => {
-    handleFetchData();
-  }, [productId]);
+    setData(dataJson);
+  }, [productId,data]);
 
-  const postReview = {
-    productId: 0,
-    noOfStars: 0,
-    text: "",
-    userName: "",
-    nickname: ""
-  };
-
-  if (isPageLoading) {
-    return (
-      <p style={{ textAlign: "center",marginBottom:100 }}>
-        Please Wait Reviews Section is Loading
-      </p>
-    );
-  }
-  const submitReview = () => {
-    postReview.userName = user.name
-    postReview.nickname = user.nickname;
-    postReview.productId = productId;
-    console.log(postReview);
-  };
   return (
-    <div className="reviewSection">
-            <div className="allReviews review">
-        <h3 className="subProductSectionTitle">Top Reviews</h3>
-        {data != null
-          ? data.reviews.map((val) => (
-              <div className="reviewCard row" key={val.id}>
-                <h6 className={"commentUsername col-4"}>{val.nickname}</h6>
-                <span className={"commentDate col-"}>
-                  Created on {"->   "}
-                  {val.dateOfReview}
-                </span>
-                <span className={"commentDate col-"}>
-                  Rated {val.noOfStars} Stars
-                </span>
-                <span className={"comment-text col-md-10"}>{val.text}</span>
-              </div>
-            ))
-          : null}
-        <nav className="reviewPagination">
-          <ul className="pagination">
-            <li className="page-item">
-              <p className="page-link"
-                onClick={()=>{
-                  if(currentPage>0){
-                    handleFetchData();
-                    setCurrentPage(currentPage-1)
-                  }
-                  else alert("No previous page available");
-                }}
-              >Previous</p>
-            </li>
-            <li className="page-item">
-              <p className="page-link">
-                {data != null ? data.currentPage : null}
-              </p>
-            </li>
-            <li className="page-item">
-              <p className="page-link"
-                onClick={()=>{
-                  if(data.currentPage < data.totalPages){
-                    setCurrentPage(currentPage+1);
-                    handleFetchData();
-                  }else alert("No next page is available");
-                }}
-              >Next</p>
-            </li>
-          </ul>
-        </nav>
+    <div className='review-rating-section'>
+      <span>Reviews</span>
+      <div className={"rating-section"}>
+        <div className='rating-section-overall'>
+          <span>Overall ratings</span>
+          <span>{productRatingDto.averageRating}⭐</span>
+          <span>Based on {productRatingDto.ratingCount} ratings</span>
+        </div>
+
+        <div className='rating-section-histogram'>
+          <RatingReviewChart productRatingDto={productRatingDto} />
+        </div>
       </div>
-      <div className="addReview">
-        <h2 className="fh2">WE APPRECIATE YOUR REVIEW!</h2>
-        <h6 className="fh6">
-          Your review will help us to improve our web hosting quality products,
-          and customer services.
-        </h6>
-        <div className="mb-2">
-          <label className="form-label" style={{ color: "black" }}>
-            No of Stars
-          </label>
-          <div className="dropdown show">
-            <select name="cars" id="cars">
-              <option>Select Option</option>
-              <option onClick={() => (postReview.noOfStars = 1)}>1 Star</option>
-              <option onClick={() => (postReview.noOfStars = 2)}>2 Star</option>
-              <option onClick={() => (postReview.noOfStars = 3)}>3 Star</option>
-              <option onClick={() => (postReview.noOfStars = 4)}>4 Star</option>
-              <option onClick={() => (postReview.noOfStars = 5)}>5 Star</option>
-            </select>
-          </div>
+      
+      <div className="rating_section_write_btn">
+          <button className={"btn-pro-pri"} style={{width:'180px',fontSize:'12px'}}>Write a review</button>
+      </div>
+
+      <hr />
+
+      <div className="all_reviews_section">
+        <div className="all_review_section_header">
+          <span>
+            Customer Reviews:
+          </span>
         </div>
-        <div className="mb-3">
-          <label className="form-label" style={{ color: "black" }}>
-            Your Review
-          </label>
-          <textarea
-            style={{ caretColor: "black" }}
-            placeholder="Please write your review here."
-            className="form-control"
-            rows="3"
-            onChange={(event) => (postReview.text = event.target.value)}
-          ></textarea>
+        <div className="all_reviews">
+
+        {data!==null &&
+          data.reviews.map(r=>(
+            <div className="single_review" key={r.id}>
+              <span className={"single_review_user"}>
+                {
+                  r.nickname
+                }
+              </span>
+              <div className="single_review_middle">
+                <span >{r.noOfStars} ⭐</span>
+                <span>{r.dateOfReview}</span>
+              </div>
+              <div className={"single_review_text"}>
+                <span>{r.text}</span>
+              </div>
+            </div>
+          ))
+        }
         </div>
-        <button className="ReviewSubmitBtn" onClick={submitReview}>
-          Submit Review
-        </button>
+
       </div>
 
     </div>

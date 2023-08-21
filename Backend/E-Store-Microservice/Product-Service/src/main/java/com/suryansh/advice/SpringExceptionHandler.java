@@ -3,6 +3,7 @@ package com.suryansh.advice;
 import com.suryansh.exception.MicroserviceException;
 import com.suryansh.exception.SpringInventoryException;
 import com.suryansh.exception.SpringProductException;
+import jakarta.validation.UnexpectedTypeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -45,6 +46,13 @@ public class SpringExceptionHandler {
                 ex.getType(), ex.getStatus().value(), Instant.now());
         ErrorDesc errorDesc = new ErrorDesc(errorDetail);
         return new ResponseEntity<>(errorDesc,ex.getStatus());
+    }
+    @ExceptionHandler(UnexpectedTypeException.class)
+    public ResponseEntity<ErrorDesc> handleSpringUnexpectedTypeException(UnexpectedTypeException ex) {
+        ErrorDesc.ErrorDetail errorDetail = new ErrorDesc.ErrorDetail(ex.getMessage(),
+                ex.getMessage(), HttpStatus.BAD_REQUEST.value(), Instant.now());
+        ErrorDesc errorDesc = new ErrorDesc(errorDetail);
+        return new ResponseEntity<>(errorDesc,HttpStatus.BAD_REQUEST);
     }
     public record ErrorDesc(ErrorDetail error) {
         public record ErrorDetail(String message, String type, int status, Instant timestamp) {

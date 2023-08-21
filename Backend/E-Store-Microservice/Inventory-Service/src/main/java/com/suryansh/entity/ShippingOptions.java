@@ -1,28 +1,30 @@
 package com.suryansh.entity;
 
+import lombok.Builder;
 import lombok.Data;
 
-import java.time.Instant;
-
 @Data
+@Builder
 public class ShippingOptions {
-    private String shippingServiceCode;
+    private String providerName;
     private String type;
     // Shipping Cost
     private ShippingCost shippingCost;
     private int quantityUsedForEstimate;
-    private Instant minEstimatedDeliveryDate;
-    private Instant maxEstimatedDeliveryDate;
+    private String minEstimatedDeliveryDate;
+    private String maxEstimatedDeliveryDate;
     // AdditionalShippingCostPerUnit
     private AddiCostPerItem additionalCostPerItem;
     @Data
+    @Builder
     public static class ShippingCost{
-        private String value;
+        private Double value;
         private String currency;
     }
     @Data
+    @Builder
     public static class AddiCostPerItem{
-        private String value;
+        private Double value;
         private String currency;
     }
 }

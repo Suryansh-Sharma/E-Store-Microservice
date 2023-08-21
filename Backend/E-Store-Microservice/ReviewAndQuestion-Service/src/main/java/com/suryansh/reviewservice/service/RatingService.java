@@ -6,9 +6,9 @@ public interface RatingService {
 
     ProductRatingDto getRatingsForRatings(Long id);
 
-    void addNewRatingForProduct(Long productId, String userName,int rating);
+    void addNewRatingForProduct(Long productId, String userName,double rating);
 
-    void updateRatingForProduct(Long productId, String userName, int noOfStars, int noOfStars1);
+    void updateRatingForProduct(Long productId, String userName, double noOfStars, double noOfStars1);
 
-    void deleteRatingForProduct(Long productId, String userName, int noOfStars);
+    void deleteRatingForProduct(Long productId, String userName, double noOfStars);
 }

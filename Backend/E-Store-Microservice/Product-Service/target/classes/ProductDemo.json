@@ -1,115 +1,114 @@
 {
-  "itemId": "1",
-  "title": "Apple 13.3\\\" MacBook Air (Mid 2017) MQD32LL/A",
-  "subtitle": "1 year warranty included !!",
-  "shortDescription": "Price do change frequently",
+  "id": 3,
+  "title": "Bose QuietComfort 45 Bluetooth Wireless Noise Cancelling Headphones, Midnight Blue - Limited Edition ",
+  "shortDescription": "Limited Edition",
   "price": {
-    "value": "749.9",
+    "value": "329.0",
     "currency": "USD"
   },
-  "categoryPath":"Network & Laptop & Digital Devices",
-  "imageUrl": "",
-  "additionalImages": [
+  "discountPrice": {
+    "value": 227.0,
+    "currency": "USD",
+    "percentage": 17.0
+  },
+  "categoryPath": "Electronics >> Audio >> Headphones",
+  "imageUrl": "https://m.media-amazon.com/images/I/51qfLURUtpL._AC_SL1500_.jpg",
+  "productImages": [
     {
-      "imageUrl": ""
+      "imageUrl": "https://m.media-amazon.com/images/I/61aBYbvyehL._AC_SL1500_.jpg",
+      "imageType": "POSTER"
     },
     {
-      "imageUrl": ""
+      "imageUrl": "https://m.media-amazon.com/images/I/81zXIqDwoXL._AC_SL1500_.jpg",
+      "imageType": "SLIDE"
+    },
+    {
+      "imageUrl": "https://m.media-amazon.com/images/I/71u6gWarLAL._AC_SL1500_.jpg",
+      "imageType": "DESCRIPTION"
     }
   ],
-  "color": "Silver",
-  "brand": "Apple",
   "inventoryResponse": {
-    "seller": {
-      "username": "",
-      "feedbackPercentage": "98.9",
-      "feedbackScore": 50924
+    "sellerId": "64708fccc32983751df537fa",
+    "product": {
+      "productId": 3,
+      "title": "Bose QuietComfort 45 Bluetooth Wireless Noise Cancelling Headphones, Midnight Blue - Limited Edition "
     },
     "estimatedAvailability": {
-      "noOfStocks": 12,
-      "isInStock": true
+      "soldQuantity": 100,
+      "availabilityStatus": "IN_STOCK",
+      "inStock": true
     },
-    "shippingOptions": {
-      "shippingServiceCode": "Economy Shipping",
-      "type": "Economy Shipping",
-      "shippingCost": {
-        "value": "0.00",
-        "currency": "USD"
-      },
-      "quantityUsedForEstimate": 1,
-      "minEstimatedDeliveryDate": "2017-12-05T10:00:00.000Z",
-      "maxEstimatedDeliveryDate": "2017-12-18T10:00:00.000Z",
-      "shipToLocationUsedForEstimate": {
-        "country": "US"
-      },
-      "additionalShippingCostPerUnit": {
-        "value": "0.00",
-        "currency": "USD"
-      },
-      "shippingCostType": "FIXED"
-    },
+    "shippingOptions": [
+      {
+        "providerName": "UPES Shipping",
+        "type": "Rapid Shipping",
+        "shippingCost": {
+          "value": "2.1",
+          "currency": "USD"
+        },
+        "quantityUsedForEstimate": 1,
+        "minEstimatedDeliveryDate": "2023-08-12T17:00:28.058Z",
+        "maxEstimatedDeliveryDate": "2023-08-12T17:00:28.058Z",
+        "additionalCostPerItem": {
+          "value": "2.1",
+          "currency": "USD"
+        }
+      }
+    ],
     "returnTerms": {
-      "returnAccepted": true,
-      "refundMethod": "MONEY_EXCHANGE",
-      "returnPeriod": 30,
-      "returnInstructions": "We accept returns within 30 days. ... "
+      "returnAccepted": "YES",
+      "refundMethod": "ONLINE",
+      "returnPeriod": "20 Days",
+      "returnInstructions": "No tear and wear are allowed in product"
     },
     "marketPrice": {
-      "originalPrice":"990",
-      "currency": "USD",
-      "discount": "25%",
-      "discountPrice": "254.1"
+      "originalPrice": {
+        "value": "329.0",
+        "currency": "USD"
+      },
+      "discountPercentage": "17.0",
+      "discountAmount": {
+        "value": "274.0",
+        "currency": "USD"
+      }
     }
   },
-  "reviewResponse": {
-    "reviewCount": 26,
-    "averageRating": "4.75",
-    "ratingHistograms": [
+  "color": "Midnight Blue",
+  "brand": {
+    "name": "Bose"
+  },
+  "itemWebUrl": "https://www.amazon.in/Bose-Quietcomfort-Bluetooth-Headphones-Cancelling/dp/B098FH5P3C/ref=sr_1_5?crid=115PMWN5LGQO2&keywords=bose+qc45&qid=1691948789&sprefix=Bose+qc%2Caps%2C252&sr=8-5",
+  "description": "NOISE CANCELLING WIRELESS HEADPHONES: The perfect balance of quiet, comfort, and sound. Bose uses tiny mics to measure, compare, and react to outside noise, cancelling it with opposite signals. Bluetooth range-up to 9 m (30 feet). ",
+  "belongsTo": {
+    "id": 1,
+    "totalProducts": 3
+  },
+  "productRatingDto": {
+    "id": "64d9b990b9243f183072779b",
+    "productId": 3,
+    "productTitle": "Bose QuietComfort 45 Bluetooth Wireless Noise Cancelling Headphones, Midnight Blue - Limited Edition ",
+    "averageRating": 4.6,
+    "ratingCount": 17776,
+    "ratingsHistogram": [
       {
-        "rating": "5",
-        "count": 42
-      },
-      {
-        "rating": "4",
-        "count": 1
-      },
-      {
-        "rating": "3",
-        "count": 1
-      },
-      {
-        "rating": "2",
+        "value": 1.0,
         "count": 0
       },
       {
-        "rating": "1",
-        "count": 2
-      }
-    ]
-  },
-  "itemWebUrl": "",
-  "description": "",
-  "product": {
-    "aspects": [
-      {
-        "name": "Brand",
-        "value": "Apple"
+        "value": 2.0,
+        "count": 0
       },
       {
-        "name": "Release Year",
-        "value": "2017"
+        "value": 3.0,
+        "count": 0
       },
       {
-        "name": "Hard Drive Capacity",
-        "value": "128GB"
+        "value": 4.0,
+        "count": 0
       },
       {
-        "name": "Processor Type",
-        "value": "Intel Core i5 Dual-Core"
-      },
-      {
-        "name": "Processor Speed",
-        "value": "1.80GHz"
+        "value": 5.0,
+        "count": 0
       }
     ]
   }

@@ -18,7 +18,6 @@ public class ProductBelongsTo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int totalProducts;
-    private String productName;
 
     @OneToMany(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "belong_id",referencedColumnName = "id")

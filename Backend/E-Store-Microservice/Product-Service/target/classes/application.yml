@@ -1,6 +1,11 @@
 server:
   port: '8081'
 spring:
+  kafka:
+    bootstrap-servers: localhost:9002
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
   servlet:
     multipart:
       max-file-size: 10MB

@@ -1,18 +1,15 @@
 package com.suryansh.service;
 
-import com.suryansh.dto.NavSearchDto;
 import com.suryansh.dto.ProductDto;
 import com.suryansh.dto.ProductFullDto;
 import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.model.ProductModel;
-import com.suryansh.model.ProductSearchCriteria;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface ProductService {
-    CompletableFuture<String> save(ProductModel productModel, String token);
+    CompletableFuture<String> save(ProductModel productModel);
 
     CompletableFuture<ProductFullDto> fullViewByName(String name);
 
@@ -23,4 +20,11 @@ public interface ProductService {
     ProductDto getProductById(Long id);
 
 
+    ProductModel testInventory(ProductModel productModel);
+
+    String createRelationshipForProductAndRelatedProduct(long parentProductId, long childProductId);
+
+    List<ProductDto> getBelongsProductFromDb(long parentId);
+
+    ProductPagingDto getRelatedProductByCategory(String categoryTree, int pageNo, int pageSize);
 }

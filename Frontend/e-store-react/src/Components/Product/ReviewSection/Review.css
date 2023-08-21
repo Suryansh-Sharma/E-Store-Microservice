@@ -1,108 +1,47 @@
-.addReview {
-  max-width: 60%;
-  width: 100%;
-  margin: 10px auto;
+.review-rating-section{
+  margin-top: 100px;
+  border: 2px solid black;
+  border-radius: 4px;
   padding: 20px;
-  border: solid 1px #f1f1f1;
-  background: #fbfbfb;
-  box-shadow: #e6e6e6 0 0 4px;
-  border-radius: 0.25rem;
+  font-size: 14px;
+  color: #8f1f8f;
+}
+.rating-section{
+  display: flex;
   margin-top: 100px;
 }
+.rating-section-overall{
+  display: flex;
+  flex-direction: column;
 
-@media (max-width: 720px) {
-  .addReview {
-    max-width: 90%;
-  }
 }
-
-@media (max-width: 500px) {
-  .addReview {
-    padding: 10px;
-  }
-}
-
-.fh2 {
-  padding: 2px 15px;
-  color: #ff4d4d;
-  text-align: center;
-}
-
-@media (max-width: 400px) {
-  .fh2 {
-    font-size: 20px;
-  }
-}
-
-.fh6 {
-  padding: 2px 15px;
-  text-align: center;
-  font-weight: normal;
-}
-
-@media (max-width: 400px) {
-  .fh6 {
-    font-size: 12px;
-  }
-}
-
-.pinfo {
-  margin: 8px auto;
+.overall-rating {
+  font-size: 24px;
   font-weight: bold;
-  line-height: 1.5;
-  color: #0d0d0d;
 }
-.ReviewSubmitBtn{
-
-    display: inline-block;
-    outline: 0;
-    border:0;
-    cursor: pointer;
-    text-decoration: none;
-    position: relative;
-    color: #000;
-    background: #fff;
-    line-height: 30px;
-    border-radius: 40px;
-    padding: 20px;
-    font-size: 30px;
-    font-weight: 600;
-    box-shadow: rgb(255, 198, 0) -2px -2px 0px 2px, rgb(246, 84, 174) 0px 0px 0px 4px, rgba(0, 0, 0, 0.05) 0px 0px 2px 7px;
-    transition: all 0.2s;
-    
-    
+.rating-section-histogram{
+  margin-left: 100px;
 }
-.ReviewSubmitBtn:hover{
-    box-shadow: rgb(246, 84, 174) -2px -2px 0px 2px, rgb(255, 198, 0) 0px 0px 0px 4px, rgba(0, 0, 0, 0.05) 0px 0px 2px 7px;
-    transform: scale(1.01);
+.star-row{
+  display: flex;
+  justify-content: space-between;
 }
-.review{
-    margin-top: 90px;
-    position: relative;
-    border: solid 1px #f1f1f1;
-    background: #fbfbfb;
-    box-shadow: #e6e6e6 0 0 4px;
-    border-radius: 0.25rem;
-    cursor: pointer;
+.star-filled{
+  margin-left: 50px;
+  margin-right: 100px;
+  background-color: aqua;
 }
-.reviewCard{
-  position: relative;
-  left: 21%;
-  max-width: 60%;
-  width: 100%;
-  margin: 80px auto;
-  padding: 20px;
-  border: solid 1px #f1f1f1;
-  background: #fbfbfb;
-  box-shadow: #e6e6e6 0 0 4px;
-  border-radius: 0.25rem;
-  cursor: pointer;
+.star-count{
+  margin-left: 10px;
 }
-.reviewCard:hover{
-  transform: scale(102%);
+.all_reviews{
+  margin-top: 80px;
+  font-size: 15px;
 }
-.reviewPagination{
-  position: relative;
-  left: 20%;
-
+.single_review{
+  margin-top: 40px;
+}
+.single_review_user{
+  font-size: 24px;
+  font-weight: 600;
 }

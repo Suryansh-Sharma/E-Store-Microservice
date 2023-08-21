@@ -1,24 +1,60 @@
 {
     "reviews": [
-        {
-            "id": "63afee9cac9c997a9befd57b",
-            "productId": 1,
-            "noOfStars": 5,
-            "text": "Fully Satisfied with new camera and display.Battery is also improved.",
-            "dateOfReview": "moments ago",
-            "userName": "suryanshsharma1942@gmail.com",
-            "name":"Suryansh Sharma"
-        },
-        {
-            "id": "63afeeacac9c997a9befd57c",
-            "productId": 1,
-            "noOfStars": 4,
-            "text": "Battery Is Improved ",
-            "dateOfReview": "moments ago",
-            "userName": "suryanshsharma1942@gmail.com",
-            "name":"Suryansh Sharma"
-        }
+      {
+        "id": "ullamco anim",
+        "productId": -62371715,
+        "noOfStars": 3,
+        "text": "ullamco Lorem amet consectetur",
+        "dateOfReview": "2023-04-19",
+        "userName": "dolore labore",
+        "nickname": "User 1"
+      },
+      {
+        "id": "in",
+        "productId": -65149105,
+        "noOfStars": 4.6,
+        "text": "ipsum velit",
+        "dateOfReview": "2023-07-13",
+        "userName": "velit c",
+        "nickname": "User 2"
+      },
+      {
+        "id": "ullamco",
+        "productId": -62371715,
+        "noOfStars": 3,
+        "text": "ullamco Lorem amet consectetur",
+        "dateOfReview": "2023-04-19",
+        "userName": "dolore labore",
+        "nickname": "User 1"
+      },
+      {
+        "id": "eiusmod ",
+        "productId": -65149105,
+        "noOfStars": 4.6,
+        "text": "ipsum velit",
+        "dateOfReview": "2023-07-13",
+        "userName": "velit c",
+        "nickname": "User 2"
+      },
+      {
+        "id": "4",
+        "productId": -62371715,
+        "noOfStars": 3,
+        "text": "ullamco Lorem amet consectetur",
+        "dateOfReview": "2023-04-19",
+        "userName": "dolore labore",
+        "nickname": "User 1"
+      },
+      {
+        "id": "6",
+        "productId": -65149105,
+        "noOfStars": 4.6,
+        "text": "ipsum velit",
+        "dateOfReview": "2023-07-13",
+        "userName": "velit c",
+        "nickname": "User 2"
+      }
     ],
-    "currentPage": 0,
-    "totalPage": 1
-}
+    "currentPage": 65243645,
+    "totalPage": 78768431
+  }

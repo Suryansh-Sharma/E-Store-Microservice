@@ -1,7 +1,6 @@
 package com.suryansh.service;
 
 import com.suryansh.dto.BrandDto;
-import com.suryansh.dto.ProductDto;
 import com.suryansh.dto.ProductPagingDto;
 import com.suryansh.entity.Brand;
 import com.suryansh.entity.Product;
@@ -55,16 +54,14 @@ public class BrandServiceImpl implements BrandService {
         Brand brand = brandRepository.findByName(name)
                 .orElseThrow(() -> new SpringProductException("Unable to find Brand by name From BrandServiceImpl"));
         Page<Product>res = productRepository.findByBrand(brand,pageable);
-        List<ProductDto> products = res.getContent()
-                .stream()
-                .map(productMapper::convertProductEntityToDto)
-                .toList();
-        return ProductPagingDto.builder()
-                .products(products)
-                .currentPage(pageable.getPageNumber()+1)
-                .totalPages(res.getTotalPages())
-                .totalData(res.getTotalElements())
-                .build();
+        return new ProductPagingDto(
+                pageable.getPageNumber(),
+                res.getTotalPages(),
+                res.get()
+                        .map(productMapper::convertProductEntityToDto)
+                        .toList(),
+                res.getTotalElements()
+        );
     }
 
     @Override

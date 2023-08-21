@@ -1,0 +1,182 @@
+.SearchPage {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 12em 1000px;
+    grid-template-rows: auto auto; /* Use "1fr" for the product section to take the remaining vertical space */
+    gap: 10px;
+  }
+  
+  .Desktop-Filters {
+    /* background-color: aqua; */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .Products {
+    /* background-color: rgb(246, 251, 253) */
+  }
+  
+  .Pagination {
+    /* background-color: brown; */
+    grid-column: span 7; /* Span the Pagination div across two columns */
+    justify-self: center; /* Center the Pagination div horizontally */
+  }
+  .filter-box{
+    margin-bottom: 10px;
+  }
+  .filter-value {
+    font-size: 12px;
+  }
+.filter-key{
+  font-size: 16px;
+  font-weight: 500;
+}  
+.filter-value-choice{
+  display: flex;
+}
+.filter-value-choice-title span{
+  font-size: 12px;
+  padding-left: 5px;
+}
+.Products-Heaader{
+  display: flex;
+}
+
+.p-h-search-title{
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.p-h-total-record{
+  font-size: 15px;
+  font-weight: 600;
+  margin-left: auto;
+}
+.Product{
+  margin: 40px;
+  display: flex;
+  /* justify-item: center; */
+}
+.Product-Image{
+  height: 200px;
+  width: 200px;
+}
+.Product-Image img{
+  height: 100%;
+  width: 100%;
+}
+.Product-Info-Name {
+  width: 700px;
+  margin-right: 30px;
+}
+
+.Product-Info-Name span {
+  font-size: 15px;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  font-weight: 700;
+  display: block;
+  white-space: nowrap; /* Prevent wrapping onto multiple lines */
+  overflow: hidden; /* Hide the overflow */
+  text-overflow: ellipsis; /* Show ellipsis (...) for overflowed text */
+}
+
+.Product-Info-Name :hover{
+  cursor: pointer;
+}
+.Product-Info-Short-Desc{
+  margin-top: 10px;
+  /* width: 300px; */
+  border-radius: 5px;
+}
+.Product-Info-Short-Desc span{
+  border: 2px solid purple;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 10px;
+  color: purple;
+  font-weight: 600;
+  white-space: nowrap; /* Prevent wrapping onto multiple lines */
+  overflow: hidden; /* Hide the overflow */
+  text-overflow: ellipsis; /* Show ellipsis (...) for overflowed text */
+}
+.Product-Info-Ratings{
+  color: #14886b;
+
+  display: flex;
+}
+.Product-Info-Ratings :hover{
+  cursor: pointer;
+}
+.Product-Info-Ratings-Info{
+  margin-left: 5px;
+}
+.Product-Heart{
+  margin-left: 5px;
+}
+.Product-Info-Ratings-Star span{
+  font-size: 12px;
+}
+.Product-Info-Ratings-Info span{
+  font-size: 12px;
+}
+.Product-Info-Price{
+  display: flex;
+  flex-direction: column;
+}
+.Product-Info-Price-Value{
+  font-weight: 500;
+}
+.Product-Info-Price-Discount{
+  color: lightslategray;
+  /* display: flex; */
+  justify-items: center;
+}
+.orignal-price{
+  font-size: 12px;
+  text-decoration: line-through;
+}
+.save-value{
+  font-size: 12px;
+  margin-left: 5px;
+}
+.save-value-string {
+  border: 2px solid gray;
+  border-radius: 3px;
+  /* margin-left: 20px; */
+  height: 30px;
+  width: 80px;
+  display: flex;
+  justify-content: center; /* Horizontally center the content */
+  align-items: center; /* Vertically center the content */
+}
+
+.save-value-string span {
+  font-size: 12px;
+  padding: 10px;
+  font-weight: 600;
+}
+.Product-Heart-AiFillHeart {
+  color: lightblue;
+}
+.Product-Heart-AiFillHeart :hover{
+  transition: 1s;
+  cursor: pointer;
+  color: red;
+}
+
+@media screen and (max-width:500px) {
+  .Desktop-Filters{
+    display: none;
+  }
+  .Products{
+    margin-left: 10px;
+  }
+  .p-h-search-title{
+    font-size: 10px;
+  }
+  .p-h-total-record{
+    font-size: 10px;
+  }
+
+  
+}

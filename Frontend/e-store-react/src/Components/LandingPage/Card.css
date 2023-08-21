@@ -1,59 +1,138 @@
-.Card{
-    width: 1300px;
-    height: 300px;
+.Card {
+    display: flex;
+    border: 4px solid black;
+    width: 100%;
+    height: 350px;
 }
-.Card-left{
+
+
+.Card-middle {
+    padding: 50px;
+}
+
+.Card-right {
+    flex: 1;
+    padding: 10px;
+}
+
+.Card-left {
     background-color: black;
+    width: 20%;
+    padding: 30px;
 }
-.Card-left-title{
-    top: 50px;
-    position: relative;
+
+.Card-left-title {
     color: white;
-    text-align: center;
+
+    font-size: 20px;
+    margin-bottom: 15px;
 }
-.Card-left-title2{
-    top: 60px;
-    opacity: 0.7;
-    position: relative;
-    color: white;
-    text-align: center;
+
+.Card-left-title2 {
+    color: #777;
+    font-size: 18px;
+    margin-bottom: 10px;
 }
-.Card-left-ratings{
-    top: 70px;
-    position: relative;
+
+.Card-left-ratings {
     color: gold;
-    text-align: center;
-    font-size: 14px;
+    font-size: 18px;
+    margin-bottom: 10px;
 }
-.Card-left-brand{
+
+.Card-left-brand {
     color: lightblue;
-    top: 100px;
-    text-align: center;
-    position: relative;
-    font-size: 15px;
+    font-size: 13px;
+    margin-bottom: 5px;
 }
 
-.Card-right{
-
-    background-color: #d8edfc;
-}
-.Card-right-title{
-    position: relative;
-    top: 50px;
+.Card-middle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
 }
-.Card-right-text{
-    top: 51px;
-    position: relative;
+
+.Card-middle-title {
+    color: #000;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.Card-middle-text {
     color: #3a6c7d;
+    font-size: 16px;
+    margin-bottom: 10px;
 }
-.Card-right-button{
-    position: relative;
-    top: 90px;
-    width: 190px;
-    height: 50px;
-    border-radius:6px ;
-}
-.Card-right-image{
 
+.Card-middle-button {
+    width: 150px;
+    height: 40px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 16px;
+    color: white;
+    background-color: #9147ff;
+    cursor: pointer;
+}
+
+.Card-right {
+    flex: 0 0 250px;
+    /* Adjust the width of the image container */
+}
+
+.Card-right-image {
+    width: 100%;
+    height: 100%;
+    margin-top: 10px;
+}
+
+@media screen and (max-width:770px) {
+    .Card {
+        border: none;
+        width: 300px;
+        height: 100%;
+    }
+
+    .Card-left {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .Card-left-title {
+        font-size: 12px;
+    }
+
+    .Card-left-title2 {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .Card-left-ratings {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .Card-left-brand {
+        font-size: 7px;
+        margin-bottom: 5px;
+    }
+
+    .Card-middle {
+        padding: 5px;
+        width: 200px;
+    }
+    .Card-middle-title{
+        font-size: 10px;
+    }
+    .Card-middle-text{
+        font-size: 10px;
+    }
+    .Card-middle-button{
+        width: 50px;
+        height: 40px;
+        font-size: 8px;
+    }
 }

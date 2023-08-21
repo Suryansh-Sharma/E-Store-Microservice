@@ -42,5 +42,4 @@ public class InventoryController {
         inventoryService.updateProduct(model,id);
     }
 
-
 }

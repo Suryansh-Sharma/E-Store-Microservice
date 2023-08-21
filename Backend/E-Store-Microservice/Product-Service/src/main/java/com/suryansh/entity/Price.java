@@ -15,7 +15,7 @@ public class Price {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String value;
+    private Double value;
     private String currency;
     // Product
     @OneToOne(mappedBy = "price",cascade = CascadeType.ALL)
