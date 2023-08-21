@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface ProductService {
-    ProductDto saveNewProduct(ProductDto dto);
 
     ProductPagingDto getAllProductFromDb(int page_no, int page_size);
 

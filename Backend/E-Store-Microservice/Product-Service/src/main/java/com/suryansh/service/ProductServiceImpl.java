@@ -46,7 +46,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
     private final KafkaTemplate<String, InventoryModel> kafkaInventoryAddTemplate;
     private final KafkaTemplate<String, RatingAndReviewModel> kafkaAddRatingTemplate;
-
+    private final KafkaTemplate<String, ElasticSearchProductModel>kafkaElasticsearchTemplate;
     @Override
     @Transactional
     @Async
@@ -79,6 +79,7 @@ public class ProductServiceImpl implements ProductService {
 
             // Send Product details to Elastic search through kafka.
             ElasticSearchProductModel searchModel = productMapper.convertProductEntityToElasticDoc(product, productModel);
+            kafkaElasticsearchTemplate.send("add-new-product-to-elastic",searchModel);
             logger.info("Elastic search model {} ", searchModel);
             logger.info("Product Saved to Product Microservice,Inventory Service,Review Service");
             return CompletableFuture.completedFuture("Product added successfully");

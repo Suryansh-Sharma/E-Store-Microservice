@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * This is the rest-controller class that handles add,get,fuzzy-search,filter product.
+ * This is the rest-controller class that handles add,get, fuzzy-search, filter product.
  * This class also uses REDIS for caching mechanism.
  *
  * @author suryansh
@@ -22,10 +22,10 @@ import java.util.Map;
 @RestController
 @CrossOrigin("*")
 @RequestMapping("/api/v1/elastic/product")
-public class ProductController {
+public class ElasticProductController {
     private final ProductService productService;
 
-    public ProductController(ProductService productService) {
+    public ElasticProductController(ProductService productService) {
         this.productService = productService;
     }
 
@@ -36,8 +36,9 @@ public class ProductController {
      * @return ProductDto It will return ProductDto after saving product in a database successfully.
      */
     @PostMapping("/add-new")
-    public ProductDto addNewProduct(@Valid @RequestBody ProductDto dto) {
-        return productService.saveNewProduct(dto);
+    public String addNewProduct(@Valid @RequestBody ProductDto dto) {
+        return "Sorry this endpoint is migrated to Kafka ," +
+                " so when product added through product-service it will contact this automatically "+dto;
     }
 
     /**
@@ -105,8 +106,8 @@ public class ProductController {
      * @param data              It is the value that is going to search.
      * @param page_no           It denotes the page number got pagination.
      * @param page_size         It denotes the page size for pagination.
-     * @param sort_by           It is used for denoting sorting field e.g:- price,rating etc.
-     * @param sort_direction    It denotes the direction of sorting e.g:- Ascending,Descending.
+     * @param sort_by           It is used for denoting sorting field e.g.: - price,rating etc.
+     * @param sort_direction    It denotes the direction of sorting e.g.: - Ascending, Descending.
      * @param categories          It is used for filtering based on category.
      * @param is_filter_applied It tells weather filter is applied or not.
      * @param allParams         It is Map<Key,Value> that contains filter-key and filter-value.
@@ -157,10 +158,10 @@ public class ProductController {
      * This method returns product who has a similar category tree.
      * This method uses REDIS for caching.
      *
-     * @param category  It is the category of product e.g:- Electronics >> Audio >> Headphone.
+     * @param category  It is the category of product e.g.: - Electronics >> Audio >> Headphone.
      * @param page_no   It denotes the page number got pagination.
      * @param page_size It denotes the page size for pagination.
-     * @param sort_by   It is used for denoting sorting field e.g:- price,rating etc.
+     * @param sort_by   It is used for denoting sorting field e.g.: - price,rating etc.
      * @return ProductPagingDto It return product paging dto with data,total data,page size,page no.
      */
     @GetMapping("/get-similar-products/by-category-tree/{category}")

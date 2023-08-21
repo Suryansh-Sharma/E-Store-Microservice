@@ -1,5 +1,6 @@
 package com.suryansh.elastic.service;
 
+import com.google.gson.Gson;
 import com.suryansh.elastic.doc.ProductDoc;
 import com.suryansh.elastic.dto.NavSearchProductDto;
 import com.suryansh.elastic.dto.ProductDto;
@@ -23,6 +24,7 @@ import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -33,15 +35,18 @@ public class ProductServiceImpl implements ProductService{
     private final ProductRepo productRepo;
     private final ProductMapper productMapper;
     private final ElasticsearchOperations elasticsearchOperations;
+    private final Gson gson;
 
-    public ProductServiceImpl(ProductRepo productRepo, ProductMapper productMapper, ElasticsearchOperations elasticsearchOperations) {
+    public ProductServiceImpl(ProductRepo productRepo, ProductMapper productMapper, ElasticsearchOperations elasticsearchOperations, Gson gson) {
         this.productRepo = productRepo;
         this.productMapper = productMapper;
         this.elasticsearchOperations = elasticsearchOperations;
+        this.gson = gson;
     }
 
-    @Override
-    public ProductDto saveNewProduct(ProductDto dto) {
+    @KafkaListener(topics = "add-new-product-to-elastic")
+    public void saveNewProduct(String productDtoString) {
+        ProductDto dto = gson.fromJson(productDtoString,ProductDto.class);
         var productDoc = productRepo.findById(dto.getId());
         if (productDoc.isPresent() && productDoc.get().getName().equals(dto.getName().toUpperCase())){
             throw new SpringElasticExcep("Sorry Product of this Id is already present ","ProductPresent",
@@ -51,7 +56,6 @@ public class ProductServiceImpl implements ProductService{
         try{
             productRepo.save(newProduct);
             logger.info("Product {} is added to elasticsearch ",dto.getId());
-            return dto;
         }catch (Exception e){
             logger.error("Unable to save product "+e);
             throw new SpringElasticExcep("Unable to save product","SomethingWentWrong",HttpStatus.INTERNAL_SERVER_ERROR);

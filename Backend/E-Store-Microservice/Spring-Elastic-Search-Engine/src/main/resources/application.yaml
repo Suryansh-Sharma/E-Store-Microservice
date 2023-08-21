@@ -4,6 +4,13 @@ server:
 spring:
   application:
     name: Spring-Elastic-Search-Engine
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: Elastic-Service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 #  For local elastic config. While using local db comment file elastic-config in config folder.
 #  Data:
 #    elasticsearch:

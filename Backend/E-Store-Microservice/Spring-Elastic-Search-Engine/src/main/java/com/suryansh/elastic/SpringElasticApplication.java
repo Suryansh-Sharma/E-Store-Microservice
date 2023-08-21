@@ -3,6 +3,7 @@ package com.suryansh.elastic;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.kafka.annotation.EnableKafka;
 
 /**
  * This service is used for handling search operation in Microservice.
@@ -14,6 +15,7 @@ import org.springframework.cache.annotation.EnableCaching;
  */
 @SpringBootApplication
 @EnableCaching
+@EnableKafka
 public class SpringElasticApplication {
 
 	public static void main(String[] args) {
