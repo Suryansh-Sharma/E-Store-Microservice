@@ -8,7 +8,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 # Diagram & Video.
 
-![MicroserviceArchitecture](https://user-images.githubusercontent.com/80879578/218806340-6df6aa4b-d3d8-4782-922b-6f413943b332.png)
+![E-Store-2](https://github.com/Suryansh-Sharma/E-Store-Microservice/assets/80879578/59531f8f-14ee-4973-aff7-23e7afb95e71)
   
 Video
  
